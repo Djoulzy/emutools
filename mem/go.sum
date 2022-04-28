@@ -1,2 +1,4 @@
 github.com/Djoulzy/Tools/clog v0.0.0-20220421125852-0504bf931481 h1:U41R48SUHKpmYzdZ23rWApeNwO0SqnRMbde/L86PBSo=
 github.com/Djoulzy/Tools/clog v0.0.0-20220421125852-0504bf931481/go.mod h1:vpiS+fdl4f0KXBYgS8fT/bDBQc2L3XpFEroPKdL5WNA=
+github.com/Djoulzy/emutools/charset v0.0.0-20220428182023-66b063d5d4f9 h1:Oemt2IqyERDEL2AmoMuoPz+dL4EiTCKoiZ1RxI1aQHo=
+github.com/Djoulzy/emutools/charset v0.0.0-20220428182023-66b063d5d4f9/go.mod h1:nHh/Oz8MYyMM1G6/QcjV+m/5fmzwHNLDom7PrgBqsQo=

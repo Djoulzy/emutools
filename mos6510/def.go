@@ -1,8 +1,8 @@
 package mos6510
 
 import (
-	"newApple/config"
-	"newApple/mem"
+	"github.com/Djoulzy/Tools/confload"
+	"github.com/Djoulzy/emutools/mem"
 )
 
 //
@@ -96,7 +96,7 @@ type CPU struct {
 
 	Mnemonic map[byte]Instruction
 
-	conf      *config.ConfigData
+	conf      *confload.ConfigData
 	ram       *mem.BANK
 	ramSize   int
 	stack     []byte

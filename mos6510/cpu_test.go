@@ -2,10 +2,12 @@ package mos6510
 
 import (
 	"log"
-	"newApple/config"
-	"newApple/mem"
+	"github.com/Djoulzy/Tools/confload"
+
 	"os"
 	"testing"
+
+	"github.com/Djoulzy/emutools/mem"
 )
 
 const (

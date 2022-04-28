@@ -2,9 +2,9 @@ package mem
 
 import (
 	"fmt"
-	"newApple/trace"
 
 	"github.com/Djoulzy/Tools/clog"
+	"github.com/Djoulzy/emutools/charset"
 )
 
 const StackStart = 0x0100
@@ -63,8 +63,8 @@ func (B *BANK) Dump(startAddr uint16) {
 			} else {
 				line = fmt.Sprintf("%s%02X ", line, val)
 			}
-			if _, ok := trace.PETSCII[val]; ok {
-				ascii += fmt.Sprintf("%s", string(trace.PETSCII[val]))
+			if _, ok := charset.PETSCII[val]; ok {
+				ascii += fmt.Sprintf("%s", string(charset.PETSCII[val]))
 			} else {
 				ascii += "."
 			}

@@ -3,9 +3,11 @@ package mos6510
 import (
 	"fmt"
 	"log"
-	"newApple/config"
-	"newApple/mem"
 	"time"
+
+	"github.com/Djoulzy/Tools/confload"
+
+	"github.com/Djoulzy/emutools/mem"
 )
 
 var perfStats map[byte][]time.Duration
@@ -43,7 +45,7 @@ func (C *CPU) Reset() {
 	}
 }
 
-func (C *CPU) Init(MEM *mem.BANK, conf *config.ConfigData) {
+func (C *CPU) Init(MEM *mem.BANK, conf *confload.ConfigData) {
 	fmt.Printf("mos6510 - Init\n")
 	C.conf = conf
 	C.ram = MEM
