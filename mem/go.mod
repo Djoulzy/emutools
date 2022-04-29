@@ -4,5 +4,5 @@ go 1.18
 
 require (
 	github.com/Djoulzy/Tools/clog v0.0.0-20220421125852-0504bf931481
-	github.com/Djoulzy/emutools/charset v0.0.0-20220428182023-66b063d5d4f9
+	github.com/Djoulzy/emutools/charset v0.0.0-20220428184315-bb709a210b83
 )
