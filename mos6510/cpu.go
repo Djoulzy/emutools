@@ -5,8 +5,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/Djoulzy/Tools/confload"
-
 	"github.com/Djoulzy/emutools/mem"
 )
 
@@ -45,9 +43,8 @@ func (C *CPU) Reset() {
 	}
 }
 
-func (C *CPU) Init(MEM *mem.BANK, conf *confload.ConfigData) {
+func (C *CPU) Init(MEM *mem.BANK) {
 	fmt.Printf("mos6510 - Init\n")
-	C.conf = conf
 	C.ram = MEM
 	C.stack = MEM.Layouts[0].Layers[0][StackStart : StackStart+256]
 	C.ramSize = len(MEM.Layouts[0].Layers[0])
@@ -161,9 +158,6 @@ func (C *CPU) GoTo(addr uint16) {
 }
 
 func (C *CPU) ComputeInstruction() {
-	if C.conf.RunPerfStats {
-		defer C.timeTrack(time.Now(), "ComputeInstruction")
-	}
 	C.FullInst = Disassemble(C.Inst, C.Oper)
 	if C.cycleCount != C.Inst.Cycles {
 		log.Printf("%s - Wanted: %d - Getting: %d\n", C.FullInst, C.Inst.Cycles, C.cycleCount)

@@ -1,7 +1,6 @@
 package mos6510
 
 import (
-	"github.com/Djoulzy/Tools/confload"
 	"github.com/Djoulzy/emutools/mem"
 )
 
@@ -96,7 +95,6 @@ type CPU struct {
 
 	Mnemonic map[byte]Instruction
 
-	conf      *confload.ConfigData
 	ram       *mem.BANK
 	ramSize   int
 	stack     []byte
