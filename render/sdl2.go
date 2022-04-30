@@ -2,48 +2,40 @@ package render
 
 import (
 	"fmt"
+	"image"
 	"image/color"
+	"image/draw"
+	"io/ioutil"
 	"log"
-	"math"
 	"os"
+	"unsafe"
 
+	"github.com/golang/freetype"
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/veandco/go-sdl2/ttf"
 )
 
 type SDL2Driver struct {
-	winHeight int
-	winWidth  int
-	emuHeight int
-	emuWidth  int
-	window    *sdl.Window
-	w_surf    *sdl.Surface
-	emul      *sdl.Surface
-	debug     [2]*sdl.Surface
-	debugShow int
-	renderer  *sdl.Renderer
-	texture   *sdl.Texture
-	bitmap    *sdl.Surface
-	mnemo     *sdl.Surface
-	num       *sdl.Surface
-	cmd       *sdl.Surface
-	keybLine  *KEYPressed
-	codeList  [][]byte
+	winHeight    int
+	winWidth     int
+	emuHeight    int
+	emuWidth     int
+	window       *sdl.Window
+	w_surf       *sdl.Surface
+	emul         *image.RGBA
+	emul_s       *sdl.Surface
+	renderer     *sdl.Renderer
+	texture      *sdl.Texture
+	keybLine     *KEYPressed
+	codeList     []string
+	nextCodeLine int
 
-	LastPC   uint16
-	dumpCode chan bool
-
-	font *ttf.Font
-}
-
-func (S *SDL2Driver) DirectDrawPixel(x, y int, c color.Color) {
-	// S.renderer.SetDrawColor(byte(color.R), byte(color.G), byte(color.B), 255)
-	// S.renderer.DrawPoint(int32(x), int32(y))
-	S.emul.Set(x, y, c)
+	font         *freetype.Context
+	Update       chan bool
+	debugBGColor *color.RGBA
 }
 
 func (S *SDL2Driver) DrawPixel(x, y int, c color.Color) {
-	S.emul.Set(x, y, c)
+	S.emul.Set(x+Xadjust, y, c)
 }
 
 func (S *SDL2Driver) CloseAll() {
@@ -51,12 +43,15 @@ func (S *SDL2Driver) CloseAll() {
 	sdl.Quit()
 }
 
-func (S *SDL2Driver) Init(winWidth, winHeight int, title string) {
-	S.emuHeight = winHeight
-	S.emuWidth = winWidth
+func (S *SDL2Driver) Init(width, height int, title string) {
+	S.emuHeight = height
+	S.emuWidth = width + Xadjust
 	S.winHeight = S.emuHeight * 2
-	S.winWidth = S.emuWidth*2 + Xadjust
-	S.dumpCode = make(chan bool)
+	S.winWidth = S.emuWidth * 2
+
+	S.codeList = make([]string, nbCodeLines)
+	S.nextCodeLine = 0
+	S.Update = make(chan bool)
 
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
@@ -65,73 +60,42 @@ func (S *SDL2Driver) Init(winWidth, winHeight int, title string) {
 
 	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "0")
 
-	// S.window, S.renderer, err = sdl.CreateWindowAndRenderer(int32(S.winWidth*2), int32(S.winHeight*2), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
-	// S.window.SetTitle(title)
-	S.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(S.winWidth), int32(S.winHeight), sdl.WINDOW_SHOWN)
+	S.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(S.winWidth), int32(S.winHeight), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
 	S.renderer, err = sdl.CreateRenderer(S.window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
 		panic(err)
 	}
 	S.w_surf, err = S.window.GetSurface()
-	S.emul, err = sdl.CreateRGBSurface(0, int32(S.emuWidth), int32(S.emuHeight), 32, 0, 0, 0, 0)
-	S.emul.SetRLE(true)
-	if err != nil {
-		panic(err)
-	}
+	S.w_surf.SetRLE(true)
 
-	S.debug[0], err = sdl.CreateRGBSurface(0, int32(Xadjust), int32(S.winHeight), 32, 0, 0, 0, 0)
-	err = S.debug[0].SetRLE(true)
-	if err != nil {
-		panic(err)
-	}
-	S.debug[1], err = sdl.CreateRGBSurface(0, int32(Xadjust), int32(S.winHeight), 32, 0, 0, 0, 0)
-	S.debug[1].SetRLE(true)
-	if err != nil {
-		panic(err)
-	}
-	S.debugShow = 1
+	S.emul = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
+	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
+	S.emul_s.SetRLE(true)
 
+	fontBytes, err := ioutil.ReadFile("assets/PetMe.ttf")
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return
 	}
+	f, err := freetype.ParseFont(fontBytes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fg := image.NewUniform(color.RGBA{0xff, 0xff, 0xff, 0xff})
+	S.font = freetype.NewContext()
+	S.font.SetDPI(72)
+	S.font.SetFont(f)
+	S.font.SetFontSize(fontWidth)
+	S.font.SetClip(S.emul.Bounds())
+	S.font.SetDst(S.emul)
+	S.font.SetSrc(fg)
 
-	S.bitmap, err = sdl.LoadBMP("graphic/assets/white.bmp")
-	if err != nil {
-		panic(err)
-	}
-	S.mnemo, err = sdl.LoadBMP("graphic/assets/mnemonic.bmp")
-	if err != nil {
-		panic(err)
-	}
-	S.num, err = sdl.LoadBMP("graphic/assets/num.bmp")
-	if err != nil {
-		panic(err)
-	}
-	S.cmd, err = sdl.LoadBMP("graphic/assets/cmd.bmp")
-	if err != nil {
-		panic(err)
-	}
-	ttf.Init()
-	S.font, err = ttf.OpenFont("assets/ttf/PetMe.ttf", 8)
-	if err != nil {
-		panic(err)
-	}
+	S.debugBGColor = &color.RGBA{50, 50, 50, 255}
 }
 
 func (S *SDL2Driver) SetKeyboardLine(line *KEYPressed) {
 	S.keybLine = line
-}
-
-func (S *SDL2Driver) SetCodeList(list [][]byte) {
-	S.codeList = list
-}
-
-func getGlyph(char rune) *sdl.Rect {
-	pos := int32(char - 32)
-	// posy := int32(pos / 18)
-	// posx := pos - int32(pos / 18)*18
-	// fmt.Printf("r: %c ASCII: %d - abs: %d - x: %d - y: %d\n", char, char, pos, posx, posy)
-	return &sdl.Rect{pos*7 - int32(pos/18)*126, int32(pos/18) * 9, 7, 9}
 }
 
 func (S *SDL2Driver) throttleFPS(showFps bool) {
@@ -147,39 +111,51 @@ func (S *SDL2Driver) throttleFPS(showFps bool) {
 			fps = frameCount
 			frameCount = 0
 		}
-		runes := []rune(fmt.Sprintf("%d", fps))
-		for i, r := range runes {
-			S.bitmap.Blit(getGlyph(r), S.emul, &sdl.Rect{int32(S.emuWidth - 21 + i*7), 2, 7, 9})
-		}
-		frameCount++
+		pt := freetype.Pt((S.emuWidth - fontWidth*3), fontHeight)
+		S.font.DrawString(fmt.Sprintf("%d", fps), pt)
 	}
 }
 
-func (S *SDL2Driver) ShowCode(pc_done uint16, inst string) {
-	var debugHide int
+func (S *SDL2Driver) DumpCode(inst string) {
+	S.codeList[S.nextCodeLine] = inst
+	S.nextCodeLine++
+	if S.nextCodeLine == nbCodeLines {
+		S.nextCodeLine = 0
+	}
+}
 
-	debugHide = int(math.Abs(float64(S.debugShow - 1)))
-	S.debug[debugHide].FillRect(&sdl.Rect{0, 0, Xadjust, int32(S.winHeight)}, 16)
-	S.debug[S.debugShow].Blit(&sdl.Rect{0, fontHeight, Xadjust, int32(S.winHeight - fontHeight)}, S.debug[debugHide], nil)
-
-	surf, _ := S.font.RenderUTF8Solid(fmt.Sprintf("%04X: %s", pc_done, inst), sdl.Color(color.RGBA{R: 255, G: 255, B: 255, A: 255}))
-	surf.Blit(nil, S.debug[debugHide], &sdl.Rect{5, int32(S.winHeight - fontHeight*2), mnemonicWidth, 8})
-	surf.Free()
-	S.debugShow = debugHide
+func (S *SDL2Driver) ShowCode() {
+	b := image.Rect(0, 0, Xadjust, S.emuHeight)
+	draw.Draw(S.emul, b, &image.Uniform{S.debugBGColor}, image.ZP, draw.Src)
+	base := (S.emuHeight - fontHeight)
+	cpt := S.nextCodeLine - 1
+	for i := 0; i < nbCodeLines; i++ {
+		if cpt < 0 {
+			cpt = nbCodeLines - 1
+		}
+		pt := freetype.Pt(0, base-fontHeight*i)
+		S.font.DrawString(fmt.Sprintf("%s\n", S.codeList[cpt]), pt)
+		cpt--
+	}
 }
 
 func (S *SDL2Driver) UpdateFrame() {
-	S.throttleFPS(true)
+	rect := sdl.Rect{0, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2}
 
-	S.texture, _ = S.renderer.CreateTextureFromSurface(S.emul)
-	S.renderer.Copy(S.texture, nil, &sdl.Rect{Xadjust, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
-	S.texture, _ = S.renderer.CreateTextureFromSurface(S.debug[S.debugShow])
-	S.renderer.Copy(S.texture, nil, &sdl.Rect{0, 0, int32(Xadjust), int32(S.winHeight)})
+	S.throttleFPS(true)
+	S.ShowCode()
+
+	// SDL2 Texture + Render
+	S.texture, _ = S.renderer.CreateTextureFromSurface(S.emul_s)
+	S.renderer.Copy(S.texture, nil, &rect)
 	S.renderer.Present()
 
-	// S.emul.BlitScaled(nil, S.w_surf, &sdl.Rect{Xadjust, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
-	// S.debug[S.debugShow].Blit(nil, S.w_surf, nil)
+	// SDL2 Surface
+	// S.emul_s.BlitScaled(nil, S.w_surf, &sdl.Rect{0, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
 	// S.window.UpdateSurface()
+
+	frameCount++
+
 }
 
 func (S *SDL2Driver) Run() {
@@ -219,6 +195,7 @@ func (S *SDL2Driver) Run() {
 				// buffer = 0
 			}
 		}
+		sdl.Delay(10)
 	}
 }
 
