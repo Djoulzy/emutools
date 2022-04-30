@@ -8,8 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path"
-	"runtime"
 	"unsafe"
 
 	"github.com/golang/freetype"
@@ -74,14 +72,9 @@ func (S *SDL2Driver) Init(width, height int, title string) {
 	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
 	S.emul_s.SetRLE(true)
 
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		panic("No caller information")
-	}
-	dir := path.Dir(filename)
-	fontBytes, err := ioutil.ReadFile(dir + "/assets/PetMe.ttf")
+	fontBytes, err := ioutil.ReadFile("assets/PetMe.ttf")
 	if err != nil {
-		log.Println(err)
+		log.Println("You must put PetMe.ttf font file in assets/ directory ...")
 		return
 	}
 	f, err := freetype.ParseFont(fontBytes)
