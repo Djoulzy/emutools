@@ -2,11 +2,10 @@ package mos6510
 
 import (
 	"log"
-
+	"newApple/config"
+	"newApple/mem"
 	"os"
 	"testing"
-
-	"github.com/Djoulzy/emutools/mem"
 )
 
 const (
@@ -129,10 +128,12 @@ func finalize(name string, allGood bool) {
 var proc CPU
 var BankSel byte
 var MEM mem.BANK
+var conf config.ConfigData
 var RAM, IO, KERNAL []byte
 var SystemClock uint16
 
 func TestMain(m *testing.M) {
+	conf.Disassamble = false
 	SystemClock = 0
 
 	RAM = make([]byte, ramSize)
@@ -148,7 +149,7 @@ func TestMain(m *testing.M) {
 	MEM.Layouts[0].Attach("KERNAL", 14, KERNAL, mem.READONLY)
 	MEM.Layouts[0].Show()
 
-	proc.Init(&MEM)
+	proc.Init(&MEM, &conf)
 	os.Exit(m.Run())
 }
 
