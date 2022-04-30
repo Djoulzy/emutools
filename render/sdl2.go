@@ -74,7 +74,9 @@ func (S *SDL2Driver) Init(width, height int, title string) {
 
 	fontBytes, err := ioutil.ReadFile("assets/PetMe.ttf")
 	if err != nil {
-		log.Println("You must put PetMe.ttf font file in assets/ directory ...")
+		log.Println(" --")
+		log.Println(" -- You must put PetMe.ttf font file in assets/ directory ...")
+		log.Println(" --")
 		return
 	}
 	f, err := freetype.ParseFont(fontBytes)
