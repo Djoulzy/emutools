@@ -3,9 +3,9 @@ package mos6510
 import (
 	"fmt"
 	"log"
-	"newApple/config"
-	"newApple/mem"
 	"time"
+
+	"github.com/Djoulzy/emutools/mem"
 )
 
 var perfStats map[byte][]time.Duration
@@ -43,9 +43,8 @@ func (C *CPU) Reset() {
 	}
 }
 
-func (C *CPU) Init(MEM *mem.BANK, conf *config.ConfigData) {
+func (C *CPU) Init(MEM *mem.BANK) {
 	fmt.Printf("mos6510 - Init\n")
-	C.conf = conf
 	C.ram = MEM
 	C.stack = MEM.Layouts[0].Layers[0][StackStart : StackStart+256]
 	C.ramSize = len(MEM.Layouts[0].Layers[0])
@@ -159,9 +158,6 @@ func (C *CPU) GoTo(addr uint16) {
 }
 
 func (C *CPU) ComputeInstruction() {
-	if C.conf.RunPerfStats {
-		defer C.timeTrack(time.Now(), "ComputeInstruction")
-	}
 	C.FullInst = fmt.Sprintf("%04X: %s", C.InstStart, Disassemble(C.Inst, C.Oper))
 	if C.cycleCount != C.Inst.Cycles {
 		log.Printf("%s - Wanted: %d - Getting: %d\n", C.FullInst, C.Inst.Cycles, C.cycleCount)
