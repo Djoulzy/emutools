@@ -72,7 +72,7 @@ func (S *SDL2Driver) Init(width, height int, title string) {
 	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
 	S.emul_s.SetRLE(true)
 
-	fontBytes, err := ioutil.ReadFile("assets/PetMe.ttf")
+	fontBytes, err := ioutil.ReadFile("render/assets/PetMe.ttf")
 	if err != nil {
 		log.Println(err)
 		return
