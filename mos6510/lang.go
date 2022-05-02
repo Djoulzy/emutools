@@ -12,7 +12,7 @@ func (C *CPU) initLanguage() {
 		0x61: {Name: "ADC", bytes: 2, Cycles: 6, action: C.adc, addr: indirectX},
 		0x71: {Name: "ADC", bytes: 2, Cycles: 5, action: C.adc, addr: indirectY},
 
-		// 0x0B: {Name: "ANC", bytes: 2, Cycles: 2, action: C.anc, addr: immediate},
+		0x0B: {Name: "ANC", bytes: 2, Cycles: 2, action: C.anc, addr: immediate},
 
 		0x29: {Name: "AND", bytes: 2, Cycles: 2, action: C.and, addr: immediate},
 		0x25: {Name: "AND", bytes: 2, Cycles: 3, action: C.and, addr: zeropage},
@@ -23,7 +23,7 @@ func (C *CPU) initLanguage() {
 		0x21: {Name: "AND", bytes: 2, Cycles: 6, action: C.and, addr: indirectX},
 		0x31: {Name: "AND", bytes: 2, Cycles: 5, action: C.and, addr: indirectY},
 
-		// 0x4B: {Name: "ALR", bytes: 2, Cycles: 2, action: C.alr, addr: immediate},
+		0x4B: {Name: "ALR", bytes: 2, Cycles: 2, action: C.alr, addr: immediate},
 
 		0x0A: {Name: "ASL", bytes: 1, Cycles: 2, action: C.asl, addr: implied},
 		0x06: {Name: "ASL", bytes: 2, Cycles: 5, action: C.asl, addr: zeropage},
