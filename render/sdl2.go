@@ -33,6 +33,9 @@ type SDL2Driver struct {
 	font         *freetype.Context
 	Update       chan bool
 	debugBGColor *color.RGBA
+
+	ShowFps  bool
+	ShowCode bool
 }
 
 func (S *SDL2Driver) DrawPixel(x, y int, c color.Color) {
@@ -53,6 +56,7 @@ func (S *SDL2Driver) Init(width, height int, title string) {
 	S.codeList = make([]string, nbCodeLines)
 	S.nextCodeLine = 0
 	S.Update = make(chan bool)
+	S.ShowFps = false
 
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
@@ -102,14 +106,14 @@ func (S *SDL2Driver) SetKeyboardLine(line *KEYPressed) {
 	S.keybLine = line
 }
 
-func (S *SDL2Driver) throttleFPS(showFps bool) {
+func (S *SDL2Driver) throttleFPS() {
 	timerFPS = sdl.GetTicks() - lastFrame
 	if timerFPS < throttleFPS {
 		sdl.Delay(throttleFPS - timerFPS)
 	}
 	lastFrame = sdl.GetTicks()
 
-	if showFps {
+	if S.ShowFps {
 		if lastFrame >= (lastTime + 1000) {
 			lastTime = lastFrame
 			fps = frameCount
@@ -128,7 +132,7 @@ func (S *SDL2Driver) DumpCode(inst string) {
 	}
 }
 
-func (S *SDL2Driver) ShowCode() {
+func (S *SDL2Driver) DisplayCode() {
 	b := image.Rect(0, 0, Xadjust, S.emuHeight)
 	draw.Draw(S.emul, b, &image.Uniform{S.debugBGColor}, image.ZP, draw.Src)
 	base := (S.emuHeight - fontHeight)
@@ -144,8 +148,10 @@ func (S *SDL2Driver) ShowCode() {
 }
 
 func (S *SDL2Driver) UpdateFrame() {
-	S.throttleFPS(true)
-	S.ShowCode()
+	S.throttleFPS()
+	if S.ShowCode {
+		S.DisplayCode()
+	}
 
 	// SDL2 Texture + Render
 	// S.texture, _ = S.renderer.CreateTextureFromSurface(S.emul_s)
