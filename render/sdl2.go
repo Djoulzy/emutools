@@ -23,6 +23,7 @@ type SDL2Driver struct {
 	w_surf       *sdl.Surface
 	emul         *image.RGBA
 	emul_s       *sdl.Surface
+	emuRect      sdl.Rect
 	renderer     *sdl.Renderer
 	texture      *sdl.Texture
 	keybLine     *KEYPressed
@@ -71,6 +72,7 @@ func (S *SDL2Driver) Init(width, height int, title string) {
 	S.emul = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
 	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
 	S.emul_s.SetRLE(true)
+	S.emuRect = sdl.Rect{0, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2}
 
 	fontBytes, err := ioutil.ReadFile("assets/PetMe.ttf")
 	if err != nil {
@@ -142,19 +144,17 @@ func (S *SDL2Driver) ShowCode() {
 }
 
 func (S *SDL2Driver) UpdateFrame() {
-	rect := sdl.Rect{0, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2}
-
 	S.throttleFPS(true)
 	S.ShowCode()
 
 	// SDL2 Texture + Render
-	S.texture, _ = S.renderer.CreateTextureFromSurface(S.emul_s)
-	S.renderer.Copy(S.texture, nil, &rect)
-	S.renderer.Present()
+	// S.texture, _ = S.renderer.CreateTextureFromSurface(S.emul_s)
+	// S.renderer.Copy(S.texture, nil, &S.emuRect)
+	// S.renderer.Present()
 
 	// SDL2 Surface
-	// S.emul_s.BlitScaled(nil, S.w_surf, &sdl.Rect{0, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2})
-	// S.window.UpdateSurface()
+	S.emul_s.BlitScaled(nil, S.w_surf, &S.emuRect)
+	S.window.UpdateSurface()
 
 	frameCount++
 
