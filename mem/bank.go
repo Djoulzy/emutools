@@ -24,26 +24,17 @@ func InitBanks(nbMemLayout int, sel *byte) BANK {
 }
 
 func (B *BANK) Read(addr uint16) byte {
-	// clog.Test("MEM", "Read", "Addr: %04X, Page: %d, Selector: %d", addr, int(addr>>PAGE_DIVIDER), *B.Selector&0x1F)
-	bank := B.Layouts[*B.Selector&0x1F]
-	layerNum := bank.LayerByPages[int(addr>>PAGE_DIVIDER)]
-	// return C.Layers[layerNum][addr-C.Start[layerNum]]
-	// clog.Test("MEM", "Read", "Addr: %04X, Page: %d, Layer: %d", addr, int(addr>>PAGE_DIVIDER), layerNum)
-	return bank.Accessors[layerNum].MRead(bank.Layers[layerNum], addr-bank.Start[layerNum])
+	layerNum := B.Layouts[*B.Selector].LayerByPages[int(addr>>PAGE_DIVIDER)]
+	return B.Layouts[*B.Selector].Accessors[layerNum].MRead(B.Layouts[*B.Selector].Layers[layerNum], addr-B.Layouts[*B.Selector].Start[layerNum])
 }
 
 func (B *BANK) Write(addr uint16, value byte) {
-	if addr == 0x0001 && bank != value {
-		clog.Test("MEM", "Write", "Layout switch to %08b (%d)", value, value&0x1F)
-		bank = value
-	}
-	bank := B.Layouts[*B.Selector&0x1F]
-	layerNum := bank.LayerByPages[int(addr>>PAGE_DIVIDER)]
-	if bank.ReadOnly[layerNum] {
+	layerNum := B.Layouts[*B.Selector].LayerByPages[int(addr>>PAGE_DIVIDER)]
+	if B.Layouts[*B.Selector].ReadOnly[layerNum] {
 		layerNum = 0
 	}
 	// clog.Test("MEM", "Write", "Addr: %04X, Page: %d, Layer: %d", addr, int(addr>>PAGE_DIVIDER), layerNum)
-	bank.Accessors[layerNum].MWrite(bank.Layers[layerNum], addr-bank.Start[layerNum], value)
+	B.Layouts[*B.Selector].Accessors[layerNum].MWrite(B.Layouts[*B.Selector].Layers[layerNum], addr-B.Layouts[*B.Selector].Start[layerNum], value)
 }
 
 func (B *BANK) Dump(startAddr uint16) {
@@ -75,7 +66,7 @@ func (B *BANK) Dump(startAddr uint16) {
 }
 
 func (B *BANK) Show() {
-	B.Layouts[*B.Selector&0x1F].Show()
+	B.Layouts[*B.Selector].Show()
 }
 
 func (B *BANK) DumpStack(sp byte) {
