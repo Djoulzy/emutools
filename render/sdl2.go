@@ -36,6 +36,7 @@ type SDL2Driver struct {
 
 	ShowFps  bool
 	ShowCode bool
+	mode3D   bool
 }
 
 func (S *SDL2Driver) DrawPixel(x, y int, c color.Color) {
@@ -47,7 +48,7 @@ func (S *SDL2Driver) CloseAll() {
 	sdl.Quit()
 }
 
-func (S *SDL2Driver) Init(width, height int, title string) {
+func (S *SDL2Driver) Init(width, height int, title string, mode3D bool) {
 	S.emuHeight = height
 	S.emuWidth = width + Xadjust
 	S.winHeight = S.emuHeight * 2
@@ -57,6 +58,9 @@ func (S *SDL2Driver) Init(width, height int, title string) {
 	S.nextCodeLine = 0
 	S.Update = make(chan bool)
 	S.ShowFps = false
+	S.mode3D = mode3D
+
+	log.Printf("Starting renderer using SDL2\n")
 
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
@@ -66,10 +70,16 @@ func (S *SDL2Driver) Init(width, height int, title string) {
 	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "0")
 
 	S.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(S.winWidth), int32(S.winHeight), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
-	S.renderer, err = sdl.CreateRenderer(S.window, -1, sdl.RENDERER_ACCELERATED)
-	if err != nil {
-		panic(err)
+	if S.mode3D {
+		log.Printf("SDL2 mode: 3D (texture)\n")
+		S.renderer, err = sdl.CreateRenderer(S.window, -1, sdl.RENDERER_ACCELERATED)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		log.Printf("SDL2 mode: 2D (surface)\n")
 	}
+
 	S.w_surf, err = S.window.GetSurface()
 	S.w_surf.SetRLE(true)
 
@@ -153,17 +163,18 @@ func (S *SDL2Driver) UpdateFrame() {
 		S.DisplayCode()
 	}
 
-	// SDL2 Texture + Render
-	// S.texture, _ = S.renderer.CreateTextureFromSurface(S.emul_s)
-	// S.renderer.Copy(S.texture, nil, &S.emuRect)
-	// S.renderer.Present()
-
-	// SDL2 Surface
-	S.emul_s.BlitScaled(nil, S.w_surf, &S.emuRect)
-	S.window.UpdateSurface()
+	if S.mode3D {
+		// SDL2 Texture + Render
+		S.texture, _ = S.renderer.CreateTextureFromSurface(S.emul_s)
+		S.renderer.Copy(S.texture, nil, &S.emuRect)
+		S.renderer.Present()
+	} else {
+		// SDL2 Surface
+		S.emul_s.BlitScaled(nil, S.w_surf, &S.emuRect)
+		S.window.UpdateSurface()
+	}
 
 	frameCount++
-
 }
 
 func (S *SDL2Driver) Run() {
