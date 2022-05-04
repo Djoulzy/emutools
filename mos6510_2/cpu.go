@@ -1,4 +1,4 @@
-package mos6510
+package mos6510_2
 
 import (
 	"fmt"
@@ -35,7 +35,7 @@ func (C *CPU) Reset() {
 	C.State = ReadInstruction
 	// Cold Start:
 	C.PC = C.readWord(COLDSTART_Vector)
-	fmt.Printf("mos6510 - PC: %04X\n", C.PC)
+	fmt.Printf("mos6510_2 - PC: %04X\n", C.PC)
 
 	perfStats = make(map[byte][]time.Duration)
 	for index := range C.Mnemonic {
@@ -44,13 +44,13 @@ func (C *CPU) Reset() {
 }
 
 func (C *CPU) Init(MEM *mem.BANK) {
-	fmt.Printf("mos6510 - Init\n")
+	fmt.Printf("mos6510_2 - Init\n")
 	C.ram = MEM
 	C.stack = MEM.Layouts[0].Layers[0][StackStart : StackStart+256]
 	C.ramSize = len(MEM.Layouts[0].Layers[0])
-	fmt.Printf("%d\n", C.ramSize)
 	C.initLanguage()
 	C.Reset()
+	C.CycleCount = 0
 }
 
 //////////////////////////////////
@@ -159,10 +159,10 @@ func (C *CPU) GoTo(addr uint16) {
 
 func (C *CPU) ComputeInstruction() {
 	C.FullInst = fmt.Sprintf("%04X: %s", C.InstStart, Disassemble(C.Inst, C.Oper))
-	if C.cycleCount != C.Inst.Cycles {
-		log.Printf("%s - Wanted: %d - Getting: %d\n", C.FullInst, C.Inst.Cycles, C.cycleCount)
+	if C.CycleCount != C.Inst.Cycles {
+		log.Printf("%s - Wanted: %d - Getting: %d\n", C.FullInst, C.Inst.Cycles, C.CycleCount)
 	}
-	if C.cycleCount == C.Inst.Cycles {
+	if C.CycleCount == C.Inst.Cycles {
 		if C.NMI_Raised || C.IRQ_Raised {
 			if C.Inst.Cycles <= 2 && !C.INT_delay {
 				C.INT_delay = true
@@ -185,13 +185,14 @@ func (C *CPU) ComputeInstruction() {
 func (C *CPU) NextCycle() {
 	var ok bool
 
-	C.cycleCount++
-	switch C.cycleCount {
+	C.CycleCount++
+	switch C.CycleCount {
 	case 1:
 		C.instCode = C.ram.Read(C.PC)
 		if C.Inst, ok = C.Mnemonic[C.instCode]; !ok {
 			log.Printf(fmt.Sprintf("Unknown instruction: %02X at %04X\n", C.instCode, C.PC))
 		}
+		fallthrough
 	default:
 		C.Inst.action()
 	}

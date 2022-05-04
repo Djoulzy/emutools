@@ -1,4 +1,4 @@
-package mos6510
+package mos6510_2
 
 func (C *CPU) initLanguage() {
 	C.Mnemonic = map[byte]Instruction{
@@ -138,14 +138,14 @@ func (C *CPU) initLanguage() {
 		0xD2: {Name: "KIL", bytes: 1, Cycles: 1, action: func() { C.State = Idle }, addr: implied},
 		0xF2: {Name: "KIL", bytes: 1, Cycles: 1, action: func() { C.State = Idle }, addr: implied},
 
-		0xA9: {Name: "LDA", bytes: 2, Cycles: 2, action: C.lda_imm, addr: immediate},
-		0xA5: {Name: "LDA", bytes: 2, Cycles: 3, action: C.lda_zep, addr: zeropage},
-		0xB5: {Name: "LDA", bytes: 2, Cycles: 4, action: C.lda_zpx, addr: zeropageX},
-		0xAD: {Name: "LDA", bytes: 3, Cycles: 4, action: C.lda_abs, addr: absolute},
-		0xBD: {Name: "LDA", bytes: 3, Cycles: 4, action: C.lda_abx, addr: absoluteX},
-		0xB9: {Name: "LDA", bytes: 3, Cycles: 4, action: C.lda_aby, addr: absoluteY},
-		0xA1: {Name: "LDA", bytes: 2, Cycles: 6, action: C.lda_inx, addr: indirectX},
-		0xB1: {Name: "LDA", bytes: 2, Cycles: 5, action: C.lda_iny, addr: indirectY},
+		0xA9: {Name: "LDA", bytes: 2, Cycles: 2, action: C.LDA_imm, addr: immediate},
+		0xA5: {Name: "LDA", bytes: 2, Cycles: 3, action: C.LDA_zep, addr: zeropage},
+		0xB5: {Name: "LDA", bytes: 2, Cycles: 4, action: C.LDA_zpx, addr: zeropageX},
+		0xAD: {Name: "LDA", bytes: 3, Cycles: 4, action: C.LDA_abs, addr: absolute},
+		0xBD: {Name: "LDA", bytes: 3, Cycles: 4, action: C.LDA_abx, addr: absoluteX},
+		0xB9: {Name: "LDA", bytes: 3, Cycles: 4, action: C.LDA_aby, addr: absoluteY},
+		0xA1: {Name: "LDA", bytes: 2, Cycles: 6, action: C.LDA_inx, addr: indirectX},
+		0xB1: {Name: "LDA", bytes: 2, Cycles: 5, action: C.LDA_iny, addr: indirectY},
 
 		0xA2: {Name: "LDX", bytes: 2, Cycles: 2, action: C.ldx, addr: immediate},
 		0xA6: {Name: "LDX", bytes: 2, Cycles: 3, action: C.ldx, addr: zeropage},

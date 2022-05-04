@@ -1,11 +1,11 @@
-package mos6510
+package mos6510_2
 
 import (
 	"log"
 )
 
-func (C *CPU) lda_imm() {
-	switch C.cycleCount {
+func (C *CPU) LDA_imm() {
+	switch C.CycleCount {
 	case 1:
 		C.PC++
 	case 2:
@@ -13,11 +13,12 @@ func (C *CPU) lda_imm() {
 		C.PC++
 		C.updateN(C.A)
 		C.updateZ(C.A)
+		C.CycleCount = 0
 	}
 }
 
-func (C *CPU) lda_zep() {
-	switch C.cycleCount {
+func (C *CPU) LDA_zep() {
+	switch C.CycleCount {
 	case 1:
 		C.PC++
 	case 2:
@@ -27,11 +28,12 @@ func (C *CPU) lda_zep() {
 		C.A = C.ram.Read(uint16(C.OperLO))
 		C.updateN(C.A)
 		C.updateZ(C.A)
+		C.CycleCount = 0
 	}
 }
 
-func (C *CPU) lda_zpx() {
-	switch C.cycleCount {
+func (C *CPU) LDA_zpx() {
+	switch C.CycleCount {
 	case 1:
 		C.PC++
 	case 2:
@@ -43,11 +45,12 @@ func (C *CPU) lda_zpx() {
 		C.A = C.ram.Read(C.OperAddr)
 		C.updateN(C.A)
 		C.updateZ(C.A)
+		C.CycleCount = 0
 	}
 }
 
-func (C *CPU) lda_abs() {
-	switch C.cycleCount {
+func (C *CPU) LDA_abs() {
+	switch C.CycleCount {
 	case 1:
 		C.PC++
 	case 2:
@@ -60,11 +63,12 @@ func (C *CPU) lda_abs() {
 		C.A = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 		C.updateN(C.A)
 		C.updateZ(C.A)
+		C.CycleCount = 0
 	}
 }
 
-func (C *CPU) lda_abx() {
-	switch C.cycleCount {
+func (C *CPU) LDA_abx() {
+	switch C.CycleCount {
 	case 1:
 		C.PC++
 	case 2:
@@ -76,18 +80,20 @@ func (C *CPU) lda_abx() {
 			C.pageCrossed = true
 		} else {
 			C.pageCrossed = false
-		} 
+		}
 		C.OperLO += C.X
 		C.PC++
 	case 4:
 		C.A = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 		C.updateN(C.A)
 		C.updateZ(C.A)
+		C.CycleCount = 0
 	}
 }
-func (C *CPU) lda_aby() {}
-func (C *CPU) lda_inx() {}
-func (C *CPU) lda_iny() {}
+
+func (C *CPU) LDA_aby() {}
+func (C *CPU) LDA_inx() {}
+func (C *CPU) LDA_iny() {}
 
 func (C *CPU) lda() {
 	var crossed bool

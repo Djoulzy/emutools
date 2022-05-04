@@ -1,10 +1,13 @@
-package mos6510
+package mos6510_2
 
 import (
 	"log"
-	"github.com/Djoulzy/emutools/mem"
 	"os"
+	"strconv"
+	"strings"
 	"testing"
+
+	"github.com/Djoulzy/emutools/mem"
 )
 
 const (
@@ -16,6 +19,7 @@ const (
 type TestData struct {
 	proc    *CPU
 	inst    byte
+	code    string
 	mem     byte
 	memVal  byte
 	memDest byte
@@ -31,6 +35,7 @@ type TestData struct {
 
 type TestSuite struct {
 	proc *CPU
+	mem  []byte
 	inst byte
 	data []TestData
 }
@@ -92,9 +97,38 @@ func (TD *TestData) run() {
 	}
 }
 
+func loadMem(data string) {
+	tmp := strings.Split(data, " ")
+	addr, _ := strconv.ParseInt(tmp[0], 16, 16)
+	proc.PC = uint16(addr)
+	for i := 0; i < len(tmp)-1; i++ {
+		addr, _ = strconv.ParseInt(tmp[i+1], 16, 16)
+		// log.Printf("Str: %s = Hex: %02X\n", tmp[i+1], addr)
+		RAM[proc.PC+uint16(i)] = byte(addr)
+	}
+}
+
+func (TD *TestData) run2() {
+	proc.S = TD.flag
+	proc.A = TD.acc
+	proc.X = TD.x
+	proc.Y = TD.y
+
+	loadMem(TD.code)
+
+	proc.CycleCount = 0
+	for {
+		proc.NextCycle()
+		// log.Printf("PC: %04X - val: %02X - cycle %d\n", proc.PC, RAM[proc.PC], proc.CycleCount)
+		if proc.CycleCount == 0 {
+			break
+		}
+	}
+}
+
 func (TD *TestData) checkBit(t *testing.T, val1, val2 byte, name string) bool {
 	if val1 != val2 {
-		t.Errorf("%s %s - Incorrect %s - get: %08b - want: %08b", proc.Mnemonic[TD.inst].Name, getAddrName(proc.Mnemonic[TD.inst].addr), name, val1, val2)
+		t.Errorf("[%s] %s %s - Incorrect %s - get: %08b - want: %08b", TD.code, proc.Inst.Name, getAddrName(proc.Mnemonic[TD.inst].addr), name, val1, val2)
 		return false
 	}
 	return true
@@ -102,7 +136,7 @@ func (TD *TestData) checkBit(t *testing.T, val1, val2 byte, name string) bool {
 
 func (TD *TestData) checkByte(t *testing.T, val1, val2 byte, name string) bool {
 	if val1 != val2 {
-		t.Errorf("%s %s - Incorrect %s - get: %02X - want: %02X", proc.Mnemonic[TD.inst].Name, getAddrName(proc.Mnemonic[TD.inst].addr), name, val1, val2)
+		t.Errorf("%s %s - Incorrect %s - get: %02X - want: %02X", proc.Inst.Name, getAddrName(proc.Mnemonic[TD.inst].addr), name, val1, val2)
 		return false
 	}
 	return true
@@ -110,7 +144,7 @@ func (TD *TestData) checkByte(t *testing.T, val1, val2 byte, name string) bool {
 
 func (TD *TestData) checkWord(t *testing.T, val1, val2 uint16, name string) bool {
 	if val1 != val2 {
-		t.Errorf("%s %s - Incorrect %s - get: %04X - want: %04X", proc.Mnemonic[TD.inst].Name, getAddrName(proc.Mnemonic[TD.inst].addr), name, val1, val2)
+		t.Errorf("%s %s - Incorrect %s - get: %04X - want: %04X", proc.Inst.Name, getAddrName(proc.Mnemonic[TD.inst].addr), name, val1, val2)
 		return false
 	}
 	return true
@@ -127,23 +161,19 @@ func finalize(name string, allGood bool) {
 var proc CPU
 var BankSel byte
 var MEM mem.BANK
-var RAM, IO, KERNAL []byte
+var RAM []byte
 var SystemClock uint16
 
 func TestMain(m *testing.M) {
 	SystemClock = 0
 
 	RAM = make([]byte, ramSize)
-	IO = make([]byte, ioSize)
-	KERNAL = mem.LoadROM(kernalSize, "../assets/roms/kernal.bin")
 
 	BankSel = 0
 	MEM = mem.InitBanks(1, &BankSel)
 
 	MEM.Layouts[0] = mem.InitConfig(ramSize)
 	MEM.Layouts[0].Attach("RAM", 0, RAM, mem.READWRITE)
-	MEM.Layouts[0].Attach("IO", 13, IO, mem.READWRITE)
-	MEM.Layouts[0].Attach("KERNAL", 14, KERNAL, mem.READONLY)
 	MEM.Layouts[0].Show()
 
 	proc.Init(&MEM)
@@ -179,18 +209,20 @@ func TestLDA(t *testing.T) {
 	var allGood bool = true
 	mem.Clear(RAM)
 
-	ts := TestSuite{proc: &proc, inst: 0xA9}
-	ts.Add(TestData{oper: 0x6E, res: 0x6E, flag: 0b00100000, resFlag: 0b00100000})
-	ts.Add(TestData{oper: 0xFF, res: 0xFF, flag: 0b00100000, resFlag: 0b10100000})
-	ts.Add(TestData{oper: 0x00, res: 0x00, flag: 0b00100000, resFlag: 0b00100010})
-	ts.Add(TestData{oper: 0x81, res: 0x81, flag: 0b00100000, resFlag: 0b10100000})
+	ts := TestSuite{proc: &proc, mem: RAM}
+	ts.Add(TestData{code: "0200 A9 6E", res: 0x6E, flag: 0b00100000, resFlag: 0b00100000})
+	ts.Add(TestData{code: "0200 A9 FF", res: 0xFF, flag: 0b00100000, resFlag: 0b10100000})
+	ts.Add(TestData{code: "0200 A9 00", res: 0x00, flag: 0b00100000, resFlag: 0b00100010})
+	ts.Add(TestData{code: "0200 A9 81", res: 0x81, flag: 0b00100000, resFlag: 0b10100000})
+
+	ts.Add(TestData{code: "0200 A9 81", res: 0x81, flag: 0b00100000, resFlag: 0b10100000})
 
 	for _, table := range ts.data {
-		table.run()
+		table.run2()
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Status Flag")
 		allGood = allGood && table.checkByte(t, proc.A, byte(table.res), "Assignement")
 	}
-	finalize(proc.Mnemonic[ts.inst].Name, allGood)
+	finalize(proc.Inst.Name, allGood)
 }
 
 func TestBNE(t *testing.T) {

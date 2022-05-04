@@ -1,4 +1,4 @@
-package mos6510
+package mos6510_2
 
 import (
 	"github.com/Djoulzy/emutools/mem"
@@ -117,7 +117,7 @@ type CPU struct {
 	val_absXY    byte
 	comp_result  byte
 
-	cycleCount int
+	CycleCount int
 	State      cpuState
 
 	NMI_Raised bool

@@ -1,4 +1,4 @@
-package mos6510
+package mos6510_2
 
 import (
 	"log"
