@@ -12,6 +12,7 @@ func (C *CPU) initLanguage() {
 		0x61: {Name: "ADC", bytes: 2, Cycles: 6, action: C.ADC_inx, addr: indirectX},
 		0x71: {Name: "ADC", bytes: 2, Cycles: 5, action: C.ADC_iny, addr: indirectY},
 
+		// 6510
 		0x0B: {Name: "ANC", bytes: 2, Cycles: 2, action: C.anc, addr: immediate},
 
 		0x29: {Name: "AND", bytes: 2, Cycles: 2, action: C.AND_imm, addr: immediate},
@@ -23,6 +24,7 @@ func (C *CPU) initLanguage() {
 		0x21: {Name: "AND", bytes: 2, Cycles: 6, action: C.AND_inx, addr: indirectX},
 		0x31: {Name: "AND", bytes: 2, Cycles: 5, action: C.AND_iny, addr: indirectY},
 
+		// 6510
 		0x4B: {Name: "ALR", bytes: 2, Cycles: 2, action: C.alr, addr: immediate},
 
 		0x0A: {Name: "ASL", bytes: 1, Cycles: 2, action: C.ASL_imp, addr: implied},
@@ -77,6 +79,7 @@ func (C *CPU) initLanguage() {
 		0xC4: {Name: "CPY", bytes: 2, Cycles: 3, action: C.cpy, addr: zeropage},
 		0xCC: {Name: "CPY", bytes: 3, Cycles: 4, action: C.cpy, addr: absolute},
 
+		// 6510
 		0xC7: {Name: "DCP", bytes: 2, Cycles: 5, action: C.dcp, addr: zeropage},
 		0xD7: {Name: "DCP", bytes: 2, Cycles: 6, action: C.dcp, addr: zeropageX},
 		0xC3: {Name: "DCP", bytes: 2, Cycles: 8, action: C.dcp, addr: indirectX},
@@ -112,6 +115,7 @@ func (C *CPU) initLanguage() {
 
 		0xC8: {Name: "INY", bytes: 1, Cycles: 2, action: C.INY_imp, addr: implied},
 
+		// 6510
 		0xE7: {Name: "ISC", bytes: 2, Cycles: 5, action: C.isc, addr: zeropage},
 		0xF7: {Name: "ISC", bytes: 2, Cycles: 6, action: C.isc, addr: zeropageX},
 		0xE3: {Name: "ISC", bytes: 2, Cycles: 8, action: C.isc, addr: indirectX},
@@ -125,6 +129,7 @@ func (C *CPU) initLanguage() {
 
 		0x20: {Name: "JSR", bytes: 3, Cycles: 6, action: C.jsr, addr: absolute},
 
+		// 6510
 		0x02: {Name: "KIL", bytes: 1, Cycles: 1, action: func() { C.State = Idle }, addr: implied},
 		0x12: {Name: "KIL", bytes: 1, Cycles: 1, action: func() { C.State = Idle }, addr: implied},
 		0x22: {Name: "KIL", bytes: 1, Cycles: 1, action: func() { C.State = Idle }, addr: implied},
@@ -211,6 +216,7 @@ func (C *CPU) initLanguage() {
 
 		0x28: {Name: "PLP", bytes: 1, Cycles: 4, action: C.plp, addr: implied},
 
+		// 6510
 		0x27: {Name: "RLA", bytes: 2, Cycles: 5, action: C.rla, addr: zeropage},
 		0x37: {Name: "RLA", bytes: 2, Cycles: 6, action: C.rla, addr: zeropageX},
 		0x23: {Name: "RLA", bytes: 2, Cycles: 8, action: C.rla, addr: indirectX},
@@ -235,6 +241,7 @@ func (C *CPU) initLanguage() {
 
 		0x60: {Name: "RTS", bytes: 1, Cycles: 6, action: C.rts, addr: implied},
 
+		// 6510
 		0x87: {Name: "SAX", bytes: 2, Cycles: 3, action: C.sax, addr: zeropage},
 		0x97: {Name: "SAX", bytes: 2, Cycles: 4, action: C.sax, addr: zeropageY},
 		0x83: {Name: "SAX", bytes: 2, Cycles: 6, action: C.sax, addr: zeropageX},
@@ -249,8 +256,10 @@ func (C *CPU) initLanguage() {
 		0xE1: {Name: "SBC", bytes: 2, Cycles: 6, action: C.SBC_inx, addr: indirectX},
 		0xF1: {Name: "SBC", bytes: 2, Cycles: 5, action: C.SBC_iny, addr: indirectY},
 
+		// 6510
 		0xCB: {Name: "SBX", bytes: 2, Cycles: 2, action: C.sbx, addr: immediate},
 
+		// 6510
 		0x07: {Name: "SLO", bytes: 2, Cycles: 5, action: C.slo, addr: zeropage},
 		0x17: {Name: "SLO", bytes: 2, Cycles: 6, action: C.slo, addr: zeropageX},
 		0x03: {Name: "SLO", bytes: 2, Cycles: 8, action: C.slo, addr: indirectX},
@@ -265,6 +274,7 @@ func (C *CPU) initLanguage() {
 
 		0x78: {Name: "SEI", bytes: 1, Cycles: 2, action: C.sei, addr: implied},
 
+		// 6510
 		0x47: {Name: "SRE", bytes: 2, Cycles: 5, action: C.sre, addr: zeropage},
 		0x57: {Name: "SRE", bytes: 2, Cycles: 6, action: C.sre, addr: zeropageX},
 		0x43: {Name: "SRE", bytes: 2, Cycles: 8, action: C.sre, addr: indirectX},
