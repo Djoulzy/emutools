@@ -107,6 +107,9 @@ type CPU struct {
 	OperHI      byte
 	OperLO      byte
 	OperAddr    uint16
+	Pointer     byte
+	IndAddrLO   byte
+	IndAddrHI   byte
 	pageCrossed bool
 
 	Oper         uint16
