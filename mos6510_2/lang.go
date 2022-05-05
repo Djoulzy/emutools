@@ -85,14 +85,14 @@ func (C *CPU) initLanguage() {
 		0xDF: {Name: "DCP", bytes: 3, Cycles: 7, action: C.dcp, addr: absoluteX},
 		0xDB: {Name: "DCP", bytes: 3, Cycles: 7, action: C.dcp, addr: absoluteY},
 
-		0xC6: {Name: "DEC", bytes: 2, Cycles: 5, action: C.dec, addr: zeropage},
-		0xD6: {Name: "DEC", bytes: 2, Cycles: 6, action: C.dec, addr: zeropageX},
-		0xCE: {Name: "DEC", bytes: 3, Cycles: 6, action: C.dec, addr: absolute},
-		0xDE: {Name: "DEC", bytes: 3, Cycles: 7, action: C.dec, addr: absoluteX},
+		0xC6: {Name: "DEC", bytes: 2, Cycles: 5, action: C.DEC_zep, addr: zeropage},
+		0xD6: {Name: "DEC", bytes: 2, Cycles: 6, action: C.DEC_zpx, addr: zeropageX},
+		0xCE: {Name: "DEC", bytes: 3, Cycles: 6, action: C.DEC_abs, addr: absolute},
+		0xDE: {Name: "DEC", bytes: 3, Cycles: 7, action: C.DEC_abx, addr: absoluteX},
 
-		0xCA: {Name: "DEX", bytes: 1, Cycles: 2, action: C.dex, addr: implied},
+		0xCA: {Name: "DEX", bytes: 1, Cycles: 2, action: C.DEX_imp, addr: implied},
 
-		0x88: {Name: "DEY", bytes: 1, Cycles: 2, action: C.dey, addr: implied},
+		0x88: {Name: "DEY", bytes: 1, Cycles: 2, action: C.DEY_imp, addr: implied},
 
 		0x49: {Name: "EOR", bytes: 2, Cycles: 2, action: C.EOR_imm, addr: immediate},
 		0x45: {Name: "EOR", bytes: 2, Cycles: 3, action: C.EOR_zep, addr: zeropage},
@@ -103,14 +103,14 @@ func (C *CPU) initLanguage() {
 		0x41: {Name: "EOR", bytes: 2, Cycles: 6, action: C.EOR_inx, addr: indirectX},
 		0x51: {Name: "EOR", bytes: 2, Cycles: 5, action: C.EOR_iny, addr: indirectY},
 
-		0xE6: {Name: "INC", bytes: 2, Cycles: 5, action: C.inc, addr: zeropage},
-		0xF6: {Name: "INC", bytes: 2, Cycles: 6, action: C.inc, addr: zeropageX},
-		0xEE: {Name: "INC", bytes: 3, Cycles: 6, action: C.inc, addr: absolute},
-		0xFE: {Name: "INC", bytes: 3, Cycles: 7, action: C.inc, addr: absoluteX},
+		0xE6: {Name: "INC", bytes: 2, Cycles: 5, action: C.INC_zep, addr: zeropage},
+		0xF6: {Name: "INC", bytes: 2, Cycles: 6, action: C.INC_zpx, addr: zeropageX},
+		0xEE: {Name: "INC", bytes: 3, Cycles: 6, action: C.INC_abs, addr: absolute},
+		0xFE: {Name: "INC", bytes: 3, Cycles: 7, action: C.INC_abx, addr: absoluteX},
 
-		0xE8: {Name: "INX", bytes: 1, Cycles: 2, action: C.inx, addr: implied},
+		0xE8: {Name: "INX", bytes: 1, Cycles: 2, action: C.INX_imp, addr: implied},
 
-		0xC8: {Name: "INY", bytes: 1, Cycles: 2, action: C.iny, addr: implied},
+		0xC8: {Name: "INY", bytes: 1, Cycles: 2, action: C.INY_imp, addr: implied},
 
 		0xE7: {Name: "ISC", bytes: 2, Cycles: 5, action: C.isc, addr: zeropage},
 		0xF7: {Name: "ISC", bytes: 2, Cycles: 6, action: C.isc, addr: zeropageX},
