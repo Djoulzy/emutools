@@ -188,58 +188,107 @@ func (C *CPU) LDA_iny() {
 	}
 }
 
-func (C *CPU) lda() {
-	var crossed bool
-
-	switch C.Inst.addr {
-	case immediate:
-		C.A = byte(C.Oper)
-	case zeropageX:
-		C.A = C.ram.Read(C.Oper + uint16(C.X))
-	case zeropage:
-		fallthrough
-	case absolute:
-		C.A = C.ram.Read(C.Oper)
-	case absoluteX:
-		C.cross_oper = C.Oper + uint16(C.X)
-		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
-			C.A = C.ram.Read(C.cross_oper)
-		} else {
-			C.Inst.addr = CrossPage
-			C.State = Compute
-			C.Inst.Cycles++
-			return
-		}
-	case absoluteY:
-		C.cross_oper = C.Oper + uint16(C.Y)
-		if C.Oper&0xFF00 == C.cross_oper&0xFF00 {
-			C.A = C.ram.Read(C.cross_oper)
-		} else {
-			C.Inst.addr = CrossPage
-			C.State = Compute
-			C.Inst.Cycles++
-			return
-		}
-	case indirectX:
-		C.A = C.ReadIndirectX(C.Oper)
-	case indirectY:
-		C.cross_oper = C.GetIndirectYAddr(C.Oper, &crossed)
-		if crossed {
-			C.A = C.ram.Read(C.cross_oper)
-		} else {
-			C.Inst.addr = CrossPage
-			C.State = Compute
-			C.Inst.Cycles++
-			return
-		}
-	case CrossPage:
-		C.A = C.ram.Read(C.cross_oper)
-	default:
-		log.Fatal("Bad addressing mode")
+func (C *CPU) STA_zep() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.ram.Write(uint16(C.OperLO), C.A)
+		C.CycleCount = 0
 	}
-	C.updateN(C.A)
-	C.updateZ(C.A)
 }
+
+func (C *CPU) STA_zpx() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.ram.Read(uint16(C.OperLO))
+		C.OperLO += C.X
+	case 4:
+		C.ram.Write(uint16(C.OperLO), C.A)
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) STA_abs() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.OperHI = C.ram.Read(C.PC)
+		C.PC++
+	case 4:
+		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.A)
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) STA_abx() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.OperHI = C.ram.Read(C.PC)
+		if (uint16(C.OperLO) + uint16(C.X)) > 0x00FF {
+			C.pageCrossed = true
+		} else {
+			C.pageCrossed = false
+		}
+		C.OperLO += C.X
+		C.PC++
+	case 4:
+		C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
+		if C.pageCrossed {
+			C.OperHI++
+		}
+	case 5:
+		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.A)
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) STA_aby() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.OperHI = C.ram.Read(C.PC)
+		if (uint16(C.OperLO) + uint16(C.X)) > 0x00FF {
+			C.pageCrossed = true
+		} else {
+			C.pageCrossed = false
+		}
+		C.OperLO += C.Y
+		C.PC++
+	case 4:
+		C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
+		if C.pageCrossed {
+			C.OperHI++
+		}
+	case 5:
+		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.A)
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) STA_inx() {}
+func (C *CPU) STA_iny() {}
 
 func (C *CPU) sta() {
 	switch C.Inst.addr {
