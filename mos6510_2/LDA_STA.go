@@ -1,8 +1,8 @@
 package mos6510_2
 
-import (
-	"log"
-)
+///////////////////////////////////////////////////////
+//                        LDA                        //
+///////////////////////////////////////////////////////
 
 func (C *CPU) LDA_imm() {
 	switch C.CycleCount {
@@ -40,9 +40,10 @@ func (C *CPU) LDA_zpx() {
 		C.OperLO = C.ram.Read(C.PC)
 		C.PC++
 	case 3:
-		C.OperAddr += uint16(C.OperLO + C.X)
+		C.ram.Read(uint16(C.OperLO))
+		C.OperLO = C.OperLO + C.X
 	case 4:
-		C.A = C.ram.Read(C.OperAddr)
+		C.A = C.ram.Read(uint16(C.OperLO))
 		C.updateN(C.A)
 		C.updateZ(C.A)
 		C.CycleCount = 0
@@ -109,7 +110,7 @@ func (C *CPU) LDA_aby() {
 		C.PC++
 	case 3:
 		C.OperHI = C.ram.Read(C.PC)
-		if (uint16(C.OperLO) + uint16(C.X)) > 0x00FF {
+		if (uint16(C.OperLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
 		} else {
 			C.pageCrossed = false
@@ -141,11 +142,12 @@ func (C *CPU) LDA_inx() {
 		C.OperLO = C.ram.Read(C.PC)
 		C.PC++
 	case 3:
+		C.ram.Read(uint16(C.OperLO))
 		C.Pointer = C.OperLO + C.X
 	case 4:
 		C.IndAddrLO = C.ram.Read(uint16(C.Pointer))
 	case 5:
-		C.IndAddrHI = C.ram.Read(uint16(C.Pointer+1))
+		C.IndAddrHI = C.ram.Read(uint16(C.Pointer + 1))
 	case 6:
 		C.A = C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
 		C.updateN(C.A)
@@ -164,7 +166,7 @@ func (C *CPU) LDA_iny() {
 	case 3:
 		C.IndAddrLO = C.ram.Read(uint16(C.OperLO))
 	case 4:
-		C.IndAddrHI = C.ram.Read(uint16(C.OperLO+1))
+		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
 		if (uint16(C.IndAddrLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
 		} else {
@@ -187,6 +189,10 @@ func (C *CPU) LDA_iny() {
 		C.CycleCount = 0
 	}
 }
+
+///////////////////////////////////////////////////////
+//                        STA                        //
+///////////////////////////////////////////////////////
 
 func (C *CPU) STA_zep() {
 	switch C.CycleCount {
@@ -228,7 +234,7 @@ func (C *CPU) STA_abs() {
 		C.OperHI = C.ram.Read(C.PC)
 		C.PC++
 	case 4:
-		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.A)
+		C.ram.Write((uint16(C.OperHI)<<8)+uint16(C.OperLO), C.A)
 		C.CycleCount = 0
 	}
 }
@@ -255,7 +261,7 @@ func (C *CPU) STA_abx() {
 			C.OperHI++
 		}
 	case 5:
-		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.A)
+		C.ram.Write((uint16(C.OperHI)<<8)+uint16(C.OperLO), C.A)
 		C.CycleCount = 0
 	}
 }
@@ -269,7 +275,7 @@ func (C *CPU) STA_aby() {
 		C.PC++
 	case 3:
 		C.OperHI = C.ram.Read(C.PC)
-		if (uint16(C.OperLO) + uint16(C.X)) > 0x00FF {
+		if (uint16(C.OperLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
 		} else {
 			C.pageCrossed = false
@@ -282,100 +288,55 @@ func (C *CPU) STA_aby() {
 			C.OperHI++
 		}
 	case 5:
-		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.A)
+		C.ram.Write((uint16(C.OperHI)<<8)+uint16(C.OperLO), C.A)
 		C.CycleCount = 0
 	}
 }
 
-func (C *CPU) STA_inx() {}
-func (C *CPU) STA_iny() {}
-
-func (C *CPU) sta() {
-	switch C.Inst.addr {
-	case zeropage:
-		C.ram.Write(C.Oper, C.A)
-	case zeropageX:
-		C.ram.Write(C.Oper+uint16(C.X), C.A)
-	case absolute:
-		C.ram.Write(C.Oper, C.A)
-	case absoluteX:
-		C.ram.Write(C.Oper+uint16(C.X), C.A)
-	case absoluteY:
-		C.ram.Write(C.Oper+uint16(C.Y), C.A)
-	case indirectX:
-		C.WriteIndirectX(C.Oper, C.A)
-	case indirectY:
-		C.WriteIndirectY(C.Oper, C.A)
-	default:
-		log.Fatal("Bad addressing mode")
+func (C *CPU) STA_inx() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.ram.Read(uint16(C.OperLO))
+		C.Pointer = C.OperLO + C.X
+	case 4:
+		C.IndAddrLO = C.ram.Read(uint16(C.Pointer))
+	case 5:
+		C.IndAddrHI = C.ram.Read(uint16(C.Pointer + 1))
+	case 6:
+		C.ram.Write((uint16(C.IndAddrHI)<<8)+uint16(C.IndAddrLO), C.A)
+		C.CycleCount = 0
 	}
-
 }
 
-func (C *CPU) ldx() {
-	switch C.Inst.addr {
-	case immediate:
-		C.X = byte(C.Oper)
-	case zeropage:
-		C.X = C.ram.Read(C.Oper)
-	case zeropageY:
-		C.X = C.ram.Read(C.Oper + uint16(C.Y))
-	case absolute:
-		C.X = C.ram.Read(C.Oper)
-	case absoluteY:
-		C.X = C.ram.Read(C.Oper + uint16(C.Y))
-	default:
-		log.Fatal("Bad addressing mode")
+func (C *CPU) STA_iny() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.IndAddrLO = C.ram.Read(uint16(C.OperLO))
+	case 4:
+		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
+		if (uint16(C.IndAddrLO) + uint16(C.Y)) > 0x00FF {
+			C.pageCrossed = true
+		} else {
+			C.pageCrossed = false
+		}
+		C.IndAddrLO += C.Y
+	case 5:
+		C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
+		if C.pageCrossed {
+			C.IndAddrHI++
+		}
+	case 6:
+		C.ram.Write((uint16(C.IndAddrHI)<<8)+uint16(C.IndAddrLO), C.A)
+		C.CycleCount = 0
 	}
-	C.updateN(C.X)
-	C.updateZ(C.X)
-
-}
-
-func (C *CPU) stx() {
-	switch C.Inst.addr {
-	case zeropage:
-		C.ram.Write(C.Oper, C.X)
-	case zeropageY:
-		C.ram.Write(C.Oper+uint16(C.Y), C.X)
-	case absolute:
-		C.ram.Write(C.Oper, C.X)
-	default:
-		log.Fatal("Bad addressing mode")
-	}
-
-}
-
-func (C *CPU) ldy() {
-	switch C.Inst.addr {
-	case immediate:
-		C.Y = byte(C.Oper)
-	case zeropage:
-		C.Y = C.ram.Read(C.Oper)
-	case zeropageX:
-		C.Y = C.ram.Read(C.Oper + uint16(C.X))
-	case absolute:
-		C.Y = C.ram.Read(C.Oper)
-	case absoluteX:
-		C.Y = C.ram.Read(C.Oper + uint16(C.X))
-	default:
-		log.Fatal("Bad addressing mode")
-	}
-	C.updateN(C.Y)
-	C.updateZ(C.Y)
-
-}
-
-func (C *CPU) sty() {
-	switch C.Inst.addr {
-	case zeropage:
-		C.ram.Write(C.Oper, C.Y)
-	case zeropageX:
-		C.ram.Write(C.Oper+uint16(C.X), C.Y)
-	case absolute:
-		C.ram.Write(C.Oper, C.Y)
-	default:
-		log.Fatal("Bad addressing mode")
-	}
-
 }
