@@ -240,14 +240,14 @@ func (C *CPU) initLanguage() {
 		0x83: {Name: "SAX", bytes: 2, Cycles: 6, action: C.sax, addr: zeropageX},
 		0x8F: {Name: "SAX", bytes: 3, Cycles: 4, action: C.sax, addr: absolute},
 
-		0xE9: {Name: "SBC", bytes: 2, Cycles: 2, action: C.sbc, addr: immediate},
-		0xE5: {Name: "SBC", bytes: 2, Cycles: 3, action: C.sbc, addr: zeropage},
-		0xF5: {Name: "SBC", bytes: 2, Cycles: 4, action: C.sbc, addr: zeropageX},
-		0xED: {Name: "SBC", bytes: 3, Cycles: 4, action: C.sbc, addr: absolute},
-		0xFD: {Name: "SBC", bytes: 3, Cycles: 4, action: C.sbc, addr: absoluteX},
-		0xF9: {Name: "SBC", bytes: 3, Cycles: 4, action: C.sbc, addr: absoluteY},
-		0xE1: {Name: "SBC", bytes: 2, Cycles: 6, action: C.sbc, addr: indirectX},
-		0xF1: {Name: "SBC", bytes: 2, Cycles: 5, action: C.sbc, addr: indirectY},
+		0xE9: {Name: "SBC", bytes: 2, Cycles: 2, action: C.SBC_imm, addr: immediate},
+		0xE5: {Name: "SBC", bytes: 2, Cycles: 3, action: C.SBC_zep, addr: zeropage},
+		0xF5: {Name: "SBC", bytes: 2, Cycles: 4, action: C.SBC_zpx, addr: zeropageX},
+		0xED: {Name: "SBC", bytes: 3, Cycles: 4, action: C.SBC_abs, addr: absolute},
+		0xFD: {Name: "SBC", bytes: 3, Cycles: 4, action: C.SBC_abx, addr: absoluteX},
+		0xF9: {Name: "SBC", bytes: 3, Cycles: 4, action: C.SBC_aby, addr: absoluteY},
+		0xE1: {Name: "SBC", bytes: 2, Cycles: 6, action: C.SBC_inx, addr: indirectX},
+		0xF1: {Name: "SBC", bytes: 2, Cycles: 5, action: C.SBC_iny, addr: indirectY},
 
 		0xCB: {Name: "SBX", bytes: 2, Cycles: 2, action: C.sbx, addr: immediate},
 
