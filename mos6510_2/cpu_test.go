@@ -74,7 +74,8 @@ func (TS *TestSuite) Add(td TestData) {
 
 func loadMem(data string) {
 	tmp := strings.Split(data, " ")
-	addr, _ := strconv.ParseInt(tmp[0], 16, 16)
+	addr, _ := strconv.ParseInt(tmp[0], 16, 32)
+	// log.Printf("string: %s -> Addr: %04X\n", tmp[0], addr)
 	proc.PC = uint16(addr)
 	for i := 0; i < len(tmp)-1; i++ {
 		addr, _ = strconv.ParseInt(tmp[i+1], 16, 16)
@@ -438,79 +439,98 @@ func TestCMP(t *testing.T) {
 	finalize(proc.Inst.Name, allGood)
 }
 
-// func TestBNE(t *testing.T) {
-// 	var allGood bool = true
-// 	mem.Clear(RAM)
-// 	ts := TestSuite{proc: &proc, inst: 0xD0}
+func TestBCC(t *testing.T) {
+	var allGood bool = true
+	mem.Clear(RAM)
+	ts := TestSuite{}
+	ts.Add(TestData{code: "0600 90 03 EA EA EA EA", flag: 0b00110000, res: 0x0606, resFlag: 0b00110000, cycles: 5})
+	RAM[0x0700] = 0xEA
+	ts.Add(TestData{code: "0701 90 fd", flag: 0b00110000, res: 0x0701, resFlag: 0b00110000, cycles: 5})
+	RAM[0x06FE] = 0xEA
+	ts.Add(TestData{code: "0700 90 fc", flag: 0b00110000, res: 0x06FF, resFlag: 0b00110000, cycles: 6})
+	for _, table := range ts.data {
+		table.run()
+		allGood = allGood && table.checkWord(t, proc.PC, table.res, "Address")
+		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
+		allGood = allGood && table.checkCycles(t, "Cycles")
+	}
+	finalize("BCC", allGood)
+}
 
-// 	ts.Add(TestData{flag: 0b00000000, pc: 0xBC16, oper: 0xF9, res: 0xBC11})
-// 	ts.Add(TestData{flag: 0b00000010, pc: 0xBC16, oper: 0xF9, res: 0xBC18})
+func TestBNE(t *testing.T) {
+	var allGood bool = true
+	mem.Clear(RAM)
+	ts := TestSuite{}
 
-// 	for _, table := range ts.data {
-// 		table.run()
-// 		allGood = allGood && table.checkWord(t, proc.PC, table.res, "Address")
-// 	}
-// 	finalize(proc.Mnemonic[ts.inst].Name, allGood)
-// }
+	RAM[0xBC11] = 0xEA
+	RAM[0xBC18] = 0xEA
+	ts.Add(TestData{code: "BC16 D0 f9 EA", flag: 0b00000000, res: 0xBC12})
+	ts.Add(TestData{code: "BC16 D0 f9 EA", flag: 0b00000010, res: 0xBC19})
 
+	for _, table := range ts.data {
+		table.run()
+		allGood = allGood && table.checkWord(t, proc.PC, table.res, "Address")
+	}
+	finalize("BNE", allGood)
+}
 
+func TestROR(t *testing.T) {
+	var allGood bool = true
+	mem.Clear(RAM)
+	ts := TestSuite{}
 
-// func TestROR(t *testing.T) {
-// 	var allGood bool = true
-// 	mem.Clear(RAM)
-// 	ts := TestSuite{proc: &proc, inst: 0x76}
+	RAM[0x14] = 0x06
+	RAM[0x15] = 0x06
+	ts.Add(TestData{code: "0700 76 10", x: 0x04, destMem: 0x14, flag: 0b00110000, res: 0x03, resFlag: 0b00110000, cycles: 6})
+	ts.Add(TestData{code: "0700 76 11", x: 0x04, destMem: 0x15, flag: 0b00110001, res: 0x83, resFlag: 0b10110000, cycles: 6})
 
-// 	ts.Add(TestData{mem: 0x06, x: 0x04, oper: 0x10, flag: 0b00110000, res: 0x03, resFlag: 0b00110000})
-// 	ts.Add(TestData{mem: 0x06, x: 0x04, oper: 0x10, flag: 0b00110001, res: 0x83, resFlag: 0b10110000})
+	for _, table := range ts.data {
+		table.run()
+		allGood = allGood && table.checkByte(t, RAM[table.destMem], byte(table.res), "Result")
+		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
+		allGood = allGood && table.checkCycles(t, "Cycles")
+	}
+	finalize(proc.Inst.Name, allGood)
+}
 
-// 	for _, table := range ts.data {
-// 		proc.ram.Write(0x0014, table.mem)
-// 		table.run()
-// 		allGood = allGood && table.checkByte(t, proc.ram.Read(0x0014), byte(table.res), "Result")
-// 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
-// 	}
-// 	finalize(proc.Mnemonic[ts.inst].Name, allGood)
-// }
+func TestROL(t *testing.T) {
+	var allGood bool = true
+	mem.Clear(RAM)
+	ts := TestSuite{}
+	RAM[0x14] = 0x06
+	RAM[0x15] = 0x06
+	RAM[0x16] = 0x80
+	RAM[0x17] = 0xf0
+	RAM[0x18] = 0xf0
+	ts.Add(TestData{code: "0700 36 10", x: 0x04, destMem: 0x14, flag: 0b00110000, res: 0x0C, resFlag: 0b00110000, cycles: 6})
+	ts.Add(TestData{code: "0700 36 11", x: 0x04, destMem: 0x15, flag: 0b00110001, res: 0x0D, resFlag: 0b00110000, cycles: 6})
+	ts.Add(TestData{code: "0700 36 12", x: 0x04, destMem: 0x16, flag: 0b00110001, res: 0x01, resFlag: 0b00110001, cycles: 6})
+	ts.Add(TestData{code: "0700 36 13", x: 0x04, destMem: 0x17, flag: 0b00110001, res: 0xE1, resFlag: 0b10110001, cycles: 6})
+	ts.Add(TestData{code: "0700 36 14", x: 0x04, destMem: 0x18, flag: 0b00110000, res: 0xE0, resFlag: 0b10110001, cycles: 6})
 
-// func TestROL(t *testing.T) {
-// 	var allGood bool = true
-// 	mem.Clear(RAM)
-// 	ts := TestSuite{proc: &proc, inst: 0x36}
-// 	ts.Add(TestData{mem: 0x06, x: 0x04, oper: 0x10, flag: 0b00110000, res: 0x0C, resFlag: 0b00110000})
-// 	ts.Add(TestData{mem: 0x06, x: 0x04, oper: 0x10, flag: 0b00110001, res: 0x0D, resFlag: 0b00110000})
-// 	ts.Add(TestData{mem: 0x80, x: 0x04, oper: 0x10, flag: 0b00110001, res: 0x01, resFlag: 0b00110001})
-// 	ts.Add(TestData{mem: 0xF0, x: 0x04, oper: 0x10, flag: 0b00110001, res: 0xE1, resFlag: 0b10110001})
-// 	ts.Add(TestData{mem: 0xF0, x: 0x04, oper: 0x10, flag: 0b00110000, res: 0xE0, resFlag: 0b10110001})
+	for _, table := range ts.data {
+		table.run()
+		allGood = allGood && table.checkByte(t, RAM[table.destMem], byte(table.res), "Result")
+		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
+		allGood = allGood && table.checkCycles(t, "Cycles")
+	}
+	finalize(proc.Inst.Name, allGood)
+}
 
-// 	for _, table := range ts.data {
-// 		proc.ram.Write(0x0014, table.mem)
-// 		table.run()
-// 		allGood = allGood && table.checkByte(t, proc.ram.Read(0x0014), byte(table.res), "Result")
-// 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
-// 	}
-// 	finalize(proc.Mnemonic[ts.inst].Name, allGood)
-// }
+func TestBIT(t *testing.T) {
+	var allGood bool = true
+	mem.Clear(RAM)
+	ts := TestSuite{}
+	RAM[0x14] = 0x80
+	ts.Add(TestData{code: "0700 24 14", acc: 0x11, flag: 0b00110000, resFlag: 0b10110010, cycles: 3})
+	ts.Add(TestData{code: "0700 24 14", acc: 0x80, flag: 0b00110000, resFlag: 0b10110000, cycles: 3})
+	ts.Add(TestData{code: "0700 24 14", acc: 0x0F, flag: 0b00110001, resFlag: 0b10110011, cycles: 3})
+	ts.Add(TestData{code: "0700 24 14", acc: 0xFF, flag: 0b00110001, resFlag: 0b10110001, cycles: 3})
+	ts.Add(TestData{code: "0700 24 14", acc: 0x00, flag: 0b00110011, resFlag: 0b10110011, cycles: 3})
 
-// func TestBIT(t *testing.T) {
-// 	var allGood bool = true
-// 	// LDA #$80
-// 	// STA $14
-// 	// CLC
-// 	// LDA #$11
-// 	// BIT $14
-// 	mem.Clear(RAM)
-// 	ts := TestSuite{proc: &proc, inst: 0x24}
-
-// 	ts.Add(TestData{mem: 0x80, acc: 0x11, oper: 0x14, flag: 0b00110000, resFlag: 0b10110010})
-// 	ts.Add(TestData{mem: 0x80, acc: 0x80, oper: 0x14, flag: 0b00110000, resFlag: 0b10110000})
-// 	ts.Add(TestData{mem: 0x80, acc: 0x0F, oper: 0x14, flag: 0b00110001, resFlag: 0b10110011})
-// 	ts.Add(TestData{mem: 0x80, acc: 0xFF, oper: 0x14, flag: 0b00110001, resFlag: 0b10110001})
-// 	ts.Add(TestData{mem: 0x80, acc: 0x00, oper: 0x14, flag: 0b00110011, resFlag: 0b10110011})
-
-// 	for _, table := range ts.data {
-// 		proc.ram.Write(0x0014, table.mem)
-// 		table.run()
-// 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
-// 	}
-// 	finalize(proc.Mnemonic[ts.inst].Name, allGood)
-// }
+	for _, table := range ts.data {
+		table.run()
+		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
+	}
+	finalize(proc.Inst.Name, allGood)
+}

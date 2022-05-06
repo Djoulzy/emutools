@@ -37,22 +37,22 @@ func (C *CPU) initLanguage() {
 
 		0xB0: {Name: "BCS", bytes: 2, Cycles: 2, action: C.BCS_rel, addr: relative},
 
-		0xF0: {Name: "BEQ", bytes: 2, Cycles: 2, action: C.beq, addr: relative},
+		0xF0: {Name: "BEQ", bytes: 2, Cycles: 2, action: C.BEQ_rel, addr: relative},
 
-		0x24: {Name: "BIT", bytes: 2, Cycles: 3, action: C.bit, addr: zeropage},
-		0x2C: {Name: "BIT", bytes: 3, Cycles: 4, action: C.bit, addr: absolute},
+		0x24: {Name: "BIT", bytes: 2, Cycles: 3, action: C.BIT_zep, addr: zeropage},
+		0x2C: {Name: "BIT", bytes: 3, Cycles: 4, action: C.BIT_abs, addr: absolute},
 
-		0x30: {Name: "BMI", bytes: 2, Cycles: 2, action: C.bmi, addr: relative},
+		0x30: {Name: "BMI", bytes: 2, Cycles: 2, action: C.BMI_rel, addr: relative},
 
-		0xD0: {Name: "BNE", bytes: 2, Cycles: 2, action: C.bne, addr: relative},
+		0xD0: {Name: "BNE", bytes: 2, Cycles: 2, action: C.BNE_rel, addr: relative},
 
-		0x10: {Name: "BPL", bytes: 2, Cycles: 2, action: C.bpl, addr: relative},
+		0x10: {Name: "BPL", bytes: 2, Cycles: 2, action: C.BPL_rel, addr: relative},
 
 		0x00: {Name: "BRK", bytes: 1, Cycles: 7, action: C.brk, addr: implied},
 
-		0x50: {Name: "BVC", bytes: 2, Cycles: 2, action: C.bvc, addr: relative},
+		0x50: {Name: "BVC", bytes: 2, Cycles: 2, action: C.BVC_rel, addr: relative},
 
-		0x70: {Name: "BVS", bytes: 2, Cycles: 2, action: C.bvs, addr: relative},
+		0x70: {Name: "BVS", bytes: 2, Cycles: 2, action: C.BVS_rel, addr: relative},
 
 		0x18: {Name: "CLC", bytes: 1, Cycles: 2, action: C.clc, addr: implied},
 
@@ -170,7 +170,7 @@ func (C *CPU) initLanguage() {
 		0x4E: {Name: "LSR", bytes: 3, Cycles: 6, action: C.LSR_abs, addr: absolute},
 		0x5E: {Name: "LSR", bytes: 3, Cycles: 7, action: C.LSR_abx, addr: absoluteX},
 
-		0xEA: {Name: "NOP", bytes: 1, Cycles: 2, action: C.nop, addr: implied},
+		0xEA: {Name: "NOP", bytes: 1, Cycles: 2, action: C.NOP_imp, addr: implied},
 		0x1A: {Name: "NOP", bytes: 1, Cycles: 2, action: C.nop, addr: implied},
 		0x3A: {Name: "NOP", bytes: 1, Cycles: 2, action: C.nop, addr: implied},
 		0x5A: {Name: "NOP", bytes: 1, Cycles: 2, action: C.nop, addr: implied},
@@ -225,17 +225,17 @@ func (C *CPU) initLanguage() {
 		0x3F: {Name: "RLA", bytes: 3, Cycles: 7, action: C.rla, addr: absoluteX},
 		0x3B: {Name: "RLA", bytes: 3, Cycles: 7, action: C.rla, addr: absoluteY},
 
-		0x2A: {Name: "ROL", bytes: 1, Cycles: 2, action: C.rol, addr: implied},
-		0x26: {Name: "ROL", bytes: 2, Cycles: 5, action: C.rol, addr: zeropage},
-		0x36: {Name: "ROL", bytes: 2, Cycles: 6, action: C.rol, addr: zeropageX},
-		0x2E: {Name: "ROL", bytes: 3, Cycles: 6, action: C.rol, addr: absolute},
-		0x3E: {Name: "ROL", bytes: 3, Cycles: 7, action: C.rol, addr: absoluteX},
+		0x2A: {Name: "ROL", bytes: 1, Cycles: 2, action: C.ROL_imp, addr: implied},
+		0x26: {Name: "ROL", bytes: 2, Cycles: 5, action: C.ROL_zep, addr: zeropage},
+		0x36: {Name: "ROL", bytes: 2, Cycles: 6, action: C.ROL_zpx, addr: zeropageX},
+		0x2E: {Name: "ROL", bytes: 3, Cycles: 6, action: C.ROL_abs, addr: absolute},
+		0x3E: {Name: "ROL", bytes: 3, Cycles: 7, action: C.ROL_abx, addr: absoluteX},
 
-		0x6A: {Name: "ROR", bytes: 1, Cycles: 2, action: C.ror, addr: implied},
-		0x66: {Name: "ROR", bytes: 2, Cycles: 5, action: C.ror, addr: zeropage},
-		0x76: {Name: "ROR", bytes: 2, Cycles: 6, action: C.ror, addr: zeropageX},
-		0x6E: {Name: "ROR", bytes: 3, Cycles: 6, action: C.ror, addr: absolute},
-		0x7E: {Name: "ROR", bytes: 3, Cycles: 7, action: C.ror, addr: absoluteX},
+		0x6A: {Name: "ROR", bytes: 1, Cycles: 2, action: C.ROR_imp, addr: implied},
+		0x66: {Name: "ROR", bytes: 2, Cycles: 5, action: C.ROR_zep, addr: zeropage},
+		0x76: {Name: "ROR", bytes: 2, Cycles: 6, action: C.ROR_zpx, addr: zeropageX},
+		0x6E: {Name: "ROR", bytes: 3, Cycles: 6, action: C.ROR_abs, addr: absolute},
+		0x7E: {Name: "ROR", bytes: 3, Cycles: 7, action: C.ROR_abx, addr: absoluteX},
 
 		0x40: {Name: "RTI", bytes: 1, Cycles: 6, action: C.RTI_imp, addr: implied},
 

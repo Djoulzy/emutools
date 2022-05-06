@@ -1,6 +1,39 @@
 package mos6510_2
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
+
+func (C *CPU) brk() {
+	switch C.Inst.addr {
+	case implied:
+		C.pushWordStack(C.PC + 1)
+		C.setB(true)
+		C.pushByteStack(C.S)
+		C.PC = C.readWord(IRQBRK_Vector)
+	default:
+		log.Fatal("Bad addressing mode")
+	}
+}
+
+func (C *CPU) nop() {
+	switch C.Inst.addr {
+	case implied:
+		fallthrough
+	case immediate:
+		fallthrough
+	case zeropage:
+		fallthrough
+	case zeropageX:
+		fallthrough
+	case absolute:
+		fallthrough
+	case absoluteX:
+	default:
+		log.Fatal("Bad addressing mode")
+	}
+}
 
 func (C *CPU) alr() {
 	var val byte
@@ -211,4 +244,20 @@ func (C *CPU) dcp() {
 	C.setC(val >= 0)
 	C.updateN(byte(val))
 	C.updateZ(byte(val))
+}
+
+func (C *CPU) rla() {
+	fmt.Printf("%s\nNot implemented: %v\n", C.Trace(), C.Inst)
+}
+
+func (C *CPU) sax() {
+	fmt.Printf("Not implemented: %v\n", C.Inst)
+}
+
+func (C *CPU) slo() {
+	fmt.Printf("Not implemented: %v\n", C.Inst)
+}
+
+func (C *CPU) sre() {
+	fmt.Printf("Not implemented: %v\n", C.Inst)
 }

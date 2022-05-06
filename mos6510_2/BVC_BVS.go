@@ -1,10 +1,10 @@
 package mos6510_2
 
 ///////////////////////////////////////////////////////
-//                        BCC                        //
+//                        BVC                        //
 ///////////////////////////////////////////////////////
 
-func (C *CPU) BCC_rel() {
+func (C *CPU) BVC_rel() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -13,7 +13,7 @@ func (C *CPU) BCC_rel() {
 		C.PC++
 	case 3:
 		C.instCode = C.ram.Read(C.PC)
-		if !C.issetC() {
+		if !C.issetV() {
 			dest := uint16(int(C.PC) + int(int8(C.OperLO)))
 			if C.PC&0xFF00 != dest&0xFF00 {
 				C.pageCrossed = true
@@ -44,10 +44,10 @@ func (C *CPU) BCC_rel() {
 }
 
 ///////////////////////////////////////////////////////
-//                        BCS                        //
+//                        BVS                        //
 ///////////////////////////////////////////////////////
 
-func (C *CPU) BCS_rel() {
+func (C *CPU) BVS_rel() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -56,7 +56,7 @@ func (C *CPU) BCS_rel() {
 		C.PC++
 	case 3:
 		C.instCode = C.ram.Read(C.PC)
-		if C.issetC() {
+		if C.issetV() {
 			dest := uint16(int(C.PC) + int(int8(C.OperLO)))
 			if C.PC&0xFF00 != dest&0xFF00 {
 				C.pageCrossed = true
