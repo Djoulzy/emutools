@@ -4,58 +4,6 @@ import (
 	"log"
 )
 
-func (C *CPU) bcc() {
-	switch C.Inst.addr {
-	case relative:
-		C.Oper = C.getRelativeAddr(C.Oper)
-		if !C.issetC() {
-			C.Inst.addr = Branching
-			C.State = Compute
-			C.Inst.Cycles++
-			return
-		}
-	case Branching:
-		if C.PC&0xFF00 == C.Oper&0xFF00 {
-			C.PC = C.Oper
-		} else {
-			C.Inst.addr = CrossPage
-			C.State = Compute
-			C.Inst.Cycles++
-			return
-		}
-	case CrossPage:
-		C.PC = C.Oper
-	default:
-		log.Fatal("Bad addressing mode")
-	}
-}
-
-func (C *CPU) bcs() {
-	switch C.Inst.addr {
-	case relative:
-		C.Oper = C.getRelativeAddr(C.Oper)
-		if C.issetC() {
-			C.Inst.addr = Branching
-			C.State = Compute
-			C.Inst.Cycles++
-			return
-		}
-	case Branching:
-		if C.PC&0xFF00 == C.Oper&0xFF00 {
-			C.PC = C.Oper
-		} else {
-			C.Inst.addr = CrossPage
-			C.State = Compute
-			C.Inst.Cycles++
-			return
-		}
-	case CrossPage:
-		C.PC = C.Oper
-	default:
-		log.Fatal("Bad addressing mode")
-	}
-}
-
 func (C *CPU) beq() {
 	switch C.Inst.addr {
 	case relative:

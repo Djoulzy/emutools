@@ -33,9 +33,9 @@ func (C *CPU) initLanguage() {
 		0x0E: {Name: "ASL", bytes: 3, Cycles: 6, action: C.ASL_abs, addr: absolute},
 		0x1E: {Name: "ASL", bytes: 3, Cycles: 7, action: C.ASL_abx, addr: absoluteX},
 
-		0x90: {Name: "BCC", bytes: 2, Cycles: 2, action: C.bcc, addr: relative},
+		0x90: {Name: "BCC", bytes: 2, Cycles: 2, action: C.BCC_rel, addr: relative},
 
-		0xB0: {Name: "BCS", bytes: 2, Cycles: 2, action: C.bcs, addr: relative},
+		0xB0: {Name: "BCS", bytes: 2, Cycles: 2, action: C.BCS_rel, addr: relative},
 
 		0xF0: {Name: "BEQ", bytes: 2, Cycles: 2, action: C.beq, addr: relative},
 
