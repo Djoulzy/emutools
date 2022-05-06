@@ -71,13 +71,13 @@ func (C *CPU) initLanguage() {
 		0xC1: {Name: "CMP", bytes: 2, Cycles: 6, action: C.CMP_inx, addr: indirectX},
 		0xD1: {Name: "CMP", bytes: 2, Cycles: 5, action: C.CMP_iny, addr: indirectY},
 
-		0xE0: {Name: "CPX", bytes: 2, Cycles: 2, action: C.cpx, addr: immediate},
-		0xE4: {Name: "CPX", bytes: 2, Cycles: 3, action: C.cpx, addr: zeropage},
-		0xEC: {Name: "CPX", bytes: 3, Cycles: 4, action: C.cpx, addr: absolute},
+		0xE0: {Name: "CPX", bytes: 2, Cycles: 2, action: C.CPX_imm, addr: immediate},
+		0xE4: {Name: "CPX", bytes: 2, Cycles: 3, action: C.CPX_zep, addr: zeropage},
+		0xEC: {Name: "CPX", bytes: 3, Cycles: 4, action: C.CPX_abs, addr: absolute},
 
-		0xC0: {Name: "CPY", bytes: 2, Cycles: 2, action: C.cpy, addr: immediate},
-		0xC4: {Name: "CPY", bytes: 2, Cycles: 3, action: C.cpy, addr: zeropage},
-		0xCC: {Name: "CPY", bytes: 3, Cycles: 4, action: C.cpy, addr: absolute},
+		0xC0: {Name: "CPY", bytes: 2, Cycles: 2, action: C.CPY_imm, addr: immediate},
+		0xC4: {Name: "CPY", bytes: 2, Cycles: 3, action: C.CPY_zep, addr: zeropage},
+		0xCC: {Name: "CPY", bytes: 3, Cycles: 4, action: C.CPY_abs, addr: absolute},
 
 		// 6510
 		0xC7: {Name: "DCP", bytes: 2, Cycles: 5, action: C.dcp, addr: zeropage},
@@ -124,10 +124,10 @@ func (C *CPU) initLanguage() {
 		0xFF: {Name: "ISC", bytes: 3, Cycles: 7, action: C.isc, addr: absoluteX},
 		0xFB: {Name: "ISC", bytes: 3, Cycles: 7, action: C.isc, addr: absoluteY},
 
-		0x4C: {Name: "JMP", bytes: 3, Cycles: 3, action: C.jmp, addr: absolute},
-		0x6C: {Name: "JMP", bytes: 3, Cycles: 5, action: C.jmp, addr: indirect},
+		0x4C: {Name: "JMP", bytes: 3, Cycles: 3, action: C.JMP_abs, addr: absolute},
+		0x6C: {Name: "JMP", bytes: 3, Cycles: 5, action: C.JMP_ind, addr: indirect},
 
-		0x20: {Name: "JSR", bytes: 3, Cycles: 6, action: C.jsr, addr: absolute},
+		0x20: {Name: "JSR", bytes: 3, Cycles: 6, action: C.JSR_abs, addr: absolute},
 
 		// 6510
 		0x02: {Name: "KIL", bytes: 1, Cycles: 1, action: func() { C.State = Idle }, addr: implied},
@@ -237,9 +237,9 @@ func (C *CPU) initLanguage() {
 		0x6E: {Name: "ROR", bytes: 3, Cycles: 6, action: C.ror, addr: absolute},
 		0x7E: {Name: "ROR", bytes: 3, Cycles: 7, action: C.ror, addr: absoluteX},
 
-		0x40: {Name: "RTI", bytes: 1, Cycles: 6, action: C.rti, addr: implied},
+		0x40: {Name: "RTI", bytes: 1, Cycles: 6, action: C.RTI_imp, addr: implied},
 
-		0x60: {Name: "RTS", bytes: 1, Cycles: 6, action: C.rts, addr: implied},
+		0x60: {Name: "RTS", bytes: 1, Cycles: 6, action: C.RTS_imp, addr: implied},
 
 		// 6510
 		0x87: {Name: "SAX", bytes: 2, Cycles: 3, action: C.sax, addr: zeropage},

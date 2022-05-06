@@ -1,8 +1,6 @@
 package mos6510_2
 
-import (
-	"log"
-)
+var tmp int
 
 ///////////////////////////////////////////////////////
 //                        CMP                        //
@@ -15,7 +13,7 @@ func (C *CPU) CMP_imm() {
 	case 2:
 		C.OperLO = C.ram.Read(C.PC)
 		C.PC++
-		tmp := int(C.A) - int(C.OperLO)
+		tmp = int(C.A) - int(C.OperLO)
 
 		C.setC(tmp >= 0)
 		C.updateN(byte(tmp))
@@ -32,7 +30,7 @@ func (C *CPU) CMP_zep() {
 		C.OperLO = C.ram.Read(C.PC)
 		C.PC++
 	case 3:
-		tmp := int(C.A) - int(C.ram.Read(uint16(C.OperLO)))
+		tmp = int(C.A) - int(C.ram.Read(uint16(C.OperLO)))
 		C.setC(tmp >= 0)
 		C.updateN(byte(tmp))
 		C.updateZ(byte(tmp))
@@ -51,7 +49,7 @@ func (C *CPU) CMP_zpx() {
 		C.ram.Read(uint16(C.OperLO))
 		C.OperLO = C.OperLO + C.X
 	case 4:
-		tmp := int(C.A) - int(C.ram.Read(uint16(C.OperLO)))
+		tmp = int(C.A) - int(C.ram.Read(uint16(C.OperLO)))
 		C.setC(tmp >= 0)
 		C.updateN(byte(tmp))
 		C.updateZ(byte(tmp))
@@ -70,7 +68,7 @@ func (C *CPU) CMP_abs() {
 		C.OperHI = C.ram.Read(C.PC)
 		C.PC++
 	case 4:
-		tmp := int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
+		tmp = int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
 		C.setC(tmp >= 0)
 		C.updateN(byte(tmp))
 		C.updateZ(byte(tmp))
@@ -95,7 +93,7 @@ func (C *CPU) CMP_abx() {
 		C.OperLO += C.X
 		C.PC++
 	case 4:
-		tmp := int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
+		tmp = int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
 		if C.pageCrossed {
 			C.OperHI++
 		} else {
@@ -105,7 +103,7 @@ func (C *CPU) CMP_abx() {
 			C.CycleCount = 0
 		}
 	case 5:
-		tmp := int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
+		tmp = int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
 		C.setC(tmp >= 0)
 		C.updateN(byte(tmp))
 		C.updateZ(byte(tmp))
@@ -130,7 +128,7 @@ func (C *CPU) CMP_aby() {
 		C.OperLO += C.Y
 		C.PC++
 	case 4:
-		tmp := int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
+		tmp = int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
 		if C.pageCrossed {
 			C.OperHI++
 		} else {
@@ -140,7 +138,7 @@ func (C *CPU) CMP_aby() {
 			C.CycleCount = 0
 		}
 	case 5:
-		tmp := int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
+		tmp = int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
 		C.setC(tmp >= 0)
 		C.updateN(byte(tmp))
 		C.updateZ(byte(tmp))
@@ -163,7 +161,7 @@ func (C *CPU) CMP_inx() {
 	case 5:
 		C.IndAddrHI = C.ram.Read(uint16(C.Pointer + 1))
 	case 6:
-		tmp := int(C.A) - int(C.ram.Read((uint16(C.IndAddrHI)<<8)+uint16(C.IndAddrLO)))
+		tmp = int(C.A) - int(C.ram.Read((uint16(C.IndAddrHI)<<8)+uint16(C.IndAddrLO)))
 		C.setC(tmp >= 0)
 		C.updateN(byte(tmp))
 		C.updateZ(byte(tmp))
@@ -189,7 +187,7 @@ func (C *CPU) CMP_iny() {
 		}
 		C.IndAddrLO += C.Y
 	case 5:
-		tmp := int(C.A) - int(C.ram.Read((uint16(C.IndAddrHI)<<8)+uint16(C.IndAddrLO)))
+		tmp = int(C.A) - int(C.ram.Read((uint16(C.IndAddrHI)<<8)+uint16(C.IndAddrLO)))
 		if C.pageCrossed {
 			C.IndAddrHI++
 		} else {
@@ -199,7 +197,7 @@ func (C *CPU) CMP_iny() {
 			C.CycleCount = 0
 		}
 	case 6:
-		tmp := int(C.A) - int(C.ram.Read((uint16(C.IndAddrHI)<<8)+uint16(C.IndAddrLO)))
+		tmp = int(C.A) - int(C.ram.Read((uint16(C.IndAddrHI)<<8)+uint16(C.IndAddrLO)))
 		C.setC(tmp >= 0)
 		C.updateN(byte(tmp))
 		C.updateZ(byte(tmp))
@@ -211,44 +209,108 @@ func (C *CPU) CMP_iny() {
 //                        CPX                        //
 ///////////////////////////////////////////////////////
 
-func (C *CPU) cpx() {
-	var val int
+func (C *CPU) CPX_imm() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+		tmp = int(C.X) - int(C.OperLO)
 
-	switch C.Inst.addr {
-	case immediate:
-		val = int(C.X) - int(C.Oper)
-	case zeropage:
-		val = int(C.X) - int(C.ram.Read(C.Oper))
-	case absolute:
-		val = int(C.X) - int(C.ram.Read(C.Oper))
-	default:
-		log.Fatal("Bad addressing mode")
+		C.setC(tmp >= 0)
+		C.updateN(byte(tmp))
+		C.updateZ(byte(tmp))
+		C.CycleCount = 0
 	}
-	C.setC(val >= 0)
-	C.updateN(byte(val))
-	C.updateZ(byte(val))
+}
 
+func (C *CPU) CPX_zep() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		tmp = int(C.X) - int(C.ram.Read(uint16(C.OperLO)))
+		C.setC(tmp >= 0)
+		C.updateN(byte(tmp))
+		C.updateZ(byte(tmp))
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) CPX_abs() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.OperHI = C.ram.Read(C.PC)
+		C.PC++
+	case 4:
+		tmp = int(C.X) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
+		C.setC(tmp >= 0)
+		C.updateN(byte(tmp))
+		C.updateZ(byte(tmp))
+		C.CycleCount = 0
+	}
 }
 
 ///////////////////////////////////////////////////////
 //                        CPY                        //
 ///////////////////////////////////////////////////////
 
-func (C *CPU) cpy() {
-	var val int
+func (C *CPU) CPY_imm() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+		tmp = int(C.Y) - int(C.OperLO)
 
-	switch C.Inst.addr {
-	case immediate:
-		val = int(C.Y) - int(C.Oper)
-	case zeropage:
-		val = int(C.Y) - int(C.ram.Read(C.Oper))
-	case absolute:
-		val = int(C.Y) - int(C.ram.Read(C.Oper))
-	default:
-		log.Fatal("Bad addressing mode")
+		C.setC(tmp >= 0)
+		C.updateN(byte(tmp))
+		C.updateZ(byte(tmp))
+		C.CycleCount = 0
 	}
-	C.setC(val >= 0)
-	C.updateN(byte(val))
-	C.updateZ(byte(val))
+}
 
+func (C *CPU) CPY_zep() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		tmp = int(C.Y) - int(C.ram.Read(uint16(C.OperLO)))
+		C.setC(tmp >= 0)
+		C.updateN(byte(tmp))
+		C.updateZ(byte(tmp))
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) CPY_abs() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.OperHI = C.ram.Read(C.PC)
+		C.PC++
+	case 4:
+		tmp = int(C.Y) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
+		C.setC(tmp >= 0)
+		C.updateN(byte(tmp))
+		C.updateZ(byte(tmp))
+		C.CycleCount = 0
+	}
 }
