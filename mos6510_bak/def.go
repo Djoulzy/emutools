@@ -1,4 +1,4 @@
-package mos6510
+package mos6510_bak
 
 import (
 	"github.com/Djoulzy/emutools/mem"
@@ -104,14 +104,6 @@ type CPU struct {
 	FullInst  string
 	Inst      Instruction
 
-	OperHI      byte
-	OperLO      byte
-	Pointer     byte
-	IndAddrLO   byte
-	IndAddrHI   byte
-	tmpBuff     byte
-	pageCrossed bool
-
 	Oper         uint16
 	cross_oper   uint16
 	val_zp_lo    byte
@@ -120,7 +112,7 @@ type CPU struct {
 	val_absXY    byte
 	comp_result  byte
 
-	CycleCount int
+	cycleCount int
 	State      cpuState
 
 	NMI_Raised bool

@@ -48,9 +48,9 @@ func (C *CPU) Init(MEM *mem.BANK) {
 	C.ram = MEM
 	C.stack = MEM.Layouts[0].Layers[0][StackStart : StackStart+256]
 	C.ramSize = len(MEM.Layouts[0].Layers[0])
-	fmt.Printf("%d\n", C.ramSize)
 	C.initLanguage()
 	C.Reset()
+	C.CycleCount = 0
 }
 
 //////////////////////////////////
@@ -159,10 +159,10 @@ func (C *CPU) GoTo(addr uint16) {
 
 func (C *CPU) ComputeInstruction() {
 	C.FullInst = fmt.Sprintf("%04X: %s", C.InstStart, Disassemble(C.Inst, C.Oper))
-	if C.cycleCount != C.Inst.Cycles {
-		log.Printf("%s - Wanted: %d - Getting: %d\n", C.FullInst, C.Inst.Cycles, C.cycleCount)
+	if C.CycleCount != C.Inst.Cycles {
+		log.Printf("%s - Wanted: %d - Getting: %d\n", C.FullInst, C.Inst.Cycles, C.CycleCount)
 	}
-	if C.cycleCount == C.Inst.Cycles {
+	if C.CycleCount == C.Inst.Cycles {
 		if C.NMI_Raised || C.IRQ_Raised {
 			if C.Inst.Cycles <= 2 && !C.INT_delay {
 				C.INT_delay = true
@@ -185,249 +185,15 @@ func (C *CPU) ComputeInstruction() {
 func (C *CPU) NextCycle() {
 	var ok bool
 
-	C.cycleCount++
-	// fmt.Printf("%d - %d\n", C.cycleCount, C.State)
-	switch C.State {
-	case Idle:
-		C.cycleCount = 0
-		C.State++
-
-	////////////////////////////////////////////////
-	// Cycle 1
-	////////////////////////////////////////////////
-	case ReadInstruction:
-		C.cycleCount = 1
-		C.InstStart = C.PC
+	C.CycleCount++
+	switch C.CycleCount {
+	case 1:
 		C.instCode = C.ram.Read(C.PC)
-		C.instDump = fmt.Sprintf("%02X", C.instCode)
-
 		if C.Inst, ok = C.Mnemonic[C.instCode]; !ok {
 			log.Printf(fmt.Sprintf("Unknown instruction: %02X at %04X\n", C.instCode, C.PC))
-			// C.State = Idle
 		}
-		if C.Inst.addr == implied {
-			C.State = Compute
-			C.PC += 1
-			C.CheckInterrupts()
-		} else {
-			C.State = ReadOperLO
-			if C.Inst.Cycles <= 3 {
-				C.CheckInterrupts()
-			}
-		}
-
-	////////////////////////////////////////////////
-	// Cycle 2
-	////////////////////////////////////////////////
-	case ReadOperLO:
-		C.Oper = uint16(C.ram.Read(C.PC + 1))
-		C.instDump += fmt.Sprintf(" %02X", C.Oper)
-
-		switch C.Inst.addr {
-		case relative:
-			fallthrough
-		case immediate:
-			C.State = Compute
-			C.PC += 2
-			if C.Inst.Cycles == 2 {
-				C.ComputeInstruction()
-			}
-		case absolute:
-			fallthrough
-		case indirect:
-			fallthrough
-		case absoluteX:
-			fallthrough
-		case absoluteY:
-			C.State = ReadOperHI
-		case zeropage:
-			fallthrough
-		case zeropageX:
-			fallthrough
-		case zeropageY:
-			fallthrough
-		case indirectX:
-			fallthrough
-		case indirectY:
-			C.State = ReadZP
-		default:
-			log.Fatal("Erreur de cycle")
-		}
-		if C.Inst.Cycles == 4 {
-			C.CheckInterrupts()
-		}
-
-	////////////////////////////////////////////////
-	// Cycle 3
-	////////////////////////////////////////////////
-	case ReadZP:
-		C.PC += 2
-		switch C.Inst.addr {
-		case zeropage:
-			C.State = Compute
-			if C.Inst.Cycles == 3 {
-				C.ComputeInstruction()
-			}
-		case zeropageX:
-			fallthrough
-		case zeropageY:
-			C.State = ReadZP_XY
-		case indirectX:
-			fallthrough
-		case indirectY:
-			C.State = ReadIndXY_LO
-		default:
-			log.Fatal("Erreur de cycle")
-		}
-		if C.Inst.Cycles == 5 {
-			C.CheckInterrupts()
-		}
-
-	case ReadOperHI: // Cycle 3
-		tmp := C.ram.Read(C.PC + 2)
-		C.Oper += uint16(tmp) << 8
-		C.instDump += fmt.Sprintf(" %02X", tmp)
-
-		C.PC += 3
-		switch C.Inst.addr {
-		case absolute:
-			C.State = Compute
-			if C.Inst.Cycles == 3 {
-				C.ComputeInstruction()
-			}
-		case absoluteX:
-			fallthrough
-		case absoluteY:
-			C.State = ReadAbsXY
-		case indirect:
-			C.State = ReadIndirect
-		default:
-			log.Fatal("Erreur de cycle")
-		}
-		if C.Inst.Cycles == 5 {
-			C.CheckInterrupts()
-		}
-
-	////////////////////////////////////////////////
-	// Cycle 4
-	////////////////////////////////////////////////
-	case ReadZP_XY: // Cycle 4
-		switch C.Inst.addr {
-		case zeropageX:
-			fallthrough
-		case zeropageY:
-			C.State = Compute
-			if C.Inst.Cycles == 4 {
-				C.ComputeInstruction()
-			}
-		default:
-			log.Fatal("Erreur de cycle")
-		}
-
-	case ReadIndXY_LO: // Cycle 4
-		switch C.Inst.addr {
-		case indirectX:
-			C.State = ReadIndXY_HI
-		case indirectY:
-			C.State = ReadIndXY_HI
-		default:
-			log.Fatal("Erreur de cycle")
-		}
-		if C.Inst.Cycles == 6 {
-			C.CheckInterrupts()
-		}
-
-	case ReadIndirect: // Cycle 4
-		C.State = Compute
-
-	case ReadAbsXY: // Cycle 4
-		switch C.Inst.addr {
-		case absoluteX:
-			fallthrough
-		case absoluteY:
-			C.State = Compute
-			if C.Inst.Cycles == 4 {
-				C.ComputeInstruction()
-			}
-		default:
-			log.Fatal("Erreur de cycle")
-		}
-
-	////////////////////////////////////////////////
-	// Cycle 5
-	////////////////////////////////////////////////
-
-	case ReadIndXY_HI:
-		switch C.Inst.addr {
-		case indirectX:
-			C.State = Compute
-		case indirectY:
-			C.State = Compute
-			if C.Inst.Cycles == 5 {
-				C.ComputeInstruction()
-			}
-		default:
-			log.Fatal("Erreur de cycle")
-		}
-		if C.Inst.Cycles > 6 {
-			C.CheckInterrupts()
-		}
-
-	////////////////////////////////////////////////
-	// Cycle 6-7-8
-	////////////////////////////////////////////////
-
-	case Compute:
-		if C.Inst.Cycles == C.cycleCount {
-			C.ComputeInstruction()
-		}
-
-	////////////////////////////////////////////////
-	// Interrupt
-	////////////////////////////////////////////////
-
-	case NMI1:
-		C.NMI_Raised = false
-		C.INT_delay = false
-		C.State = NMI2
-	case NMI2:
-		C.pushWordStack(C.PC)
-		C.State = NMI3
-	case NMI3:
-		C.State = NMI4
-	case NMI4:
-		C.pushByteStack(C.S)
-		C.State = NMI5
-	case NMI5:
-		C.State = NMI6
-	case NMI6:
-		C.State = NMI7
-	case NMI7:
-		C.PC = C.readWord(0xFFFA)
-		C.State = ReadInstruction
-
-	case IRQ1:
-		C.IRQ_Raised = false
-		C.INT_delay = false
-		C.State = IRQ2
-	case IRQ2:
-		C.pushWordStack(C.PC)
-		C.State = IRQ3
-	case IRQ3:
-		C.State = IRQ4
-	case IRQ4:
-		C.pushByteStack(C.S)
-		C.State = IRQ5
-	case IRQ5:
-		C.State = IRQ6
-	case IRQ6:
-		C.setI(true)
-		C.State = IRQ7
-	case IRQ7:
-		C.PC = C.readWord(0xFFFE)
-		C.State = ReadInstruction
-
+		fallthrough
 	default:
-		log.Fatal("Unknown CPU state\n")
+		C.Inst.action()
 	}
 }

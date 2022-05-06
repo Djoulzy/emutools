@@ -1,4 +1,4 @@
-module github.com/Djoulzy/emutools/mos6510
+module github.com/Djoulzy/emutools/mos6510_bak
 
 go 1.18
 

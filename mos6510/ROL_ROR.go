@@ -1,10 +1,28 @@
 package mos6510
 
 ///////////////////////////////////////////////////////
-//                        DEC                        //
+//                        ROL                        //
 ///////////////////////////////////////////////////////
 
-func (C *CPU) DEC_zep() {
+func (C *CPU) ROL_imp() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.ram.Read(C.PC) // Read and forget
+		carry := C.A&0x80 == 0x80
+		C.A <<= 1
+		if C.issetC() {
+			C.A++
+		}
+		C.setC(carry)
+		C.updateN(C.A)
+		C.updateZ(C.A)
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) ROL_zep() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -15,18 +33,21 @@ func (C *CPU) DEC_zep() {
 		C.tmpBuff = C.ram.Read(uint16(C.OperLO))
 	case 4:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff--
+		carry := C.tmpBuff&0x80 == 0x80
+		C.tmpBuff <<= 1
+		if C.issetC() {
+			C.tmpBuff++
+		}
+		C.setC(carry)
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-
 		C.updateN(C.tmpBuff)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0
 	}
 }
 
-func (C *CPU) DEC_zpx() {
+func (C *CPU) ROL_zpx() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -40,18 +61,21 @@ func (C *CPU) DEC_zpx() {
 		C.tmpBuff = C.ram.Read(uint16(C.OperLO))
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff--
+		carry := C.tmpBuff&0x80 == 0x80
+		C.tmpBuff <<= 1
+		if C.issetC() {
+			C.tmpBuff++
+		}
+		C.setC(carry)
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-
 		C.updateN(C.tmpBuff)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0
 	}
 }
 
-func (C *CPU) DEC_abs() {
+func (C *CPU) ROL_abs() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -65,8 +89,12 @@ func (C *CPU) DEC_abs() {
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff--
+		carry := C.tmpBuff&0x80 == 0x80
+		C.tmpBuff <<= 1
+		if C.issetC() {
+			C.tmpBuff++
+		}
+		C.setC(carry)
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
@@ -76,7 +104,7 @@ func (C *CPU) DEC_abs() {
 	}
 }
 
-func (C *CPU) DEC_abx() {
+func (C *CPU) ROL_abx() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -101,11 +129,14 @@ func (C *CPU) DEC_abx() {
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff--
+		carry := C.tmpBuff&0x80 == 0x80
+		C.tmpBuff <<= 1
+		if C.issetC() {
+			C.tmpBuff++
+		}
+		C.setC(carry)
 	case 7:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-
 		C.updateN(C.tmpBuff)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0
@@ -113,10 +144,28 @@ func (C *CPU) DEC_abx() {
 }
 
 ///////////////////////////////////////////////////////
-//                        INC                        //
+//                        ROR                        //
 ///////////////////////////////////////////////////////
 
-func (C *CPU) INC_zep() {
+func (C *CPU) ROR_imp() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.ram.Read(C.PC) // Read and forget
+		carry := C.A&0x01 > 0
+		C.A >>= 1
+		if C.issetC() {
+			C.A |= 0x80
+		}
+		C.setC(carry)
+		C.updateN(C.A)
+		C.updateZ(C.A)
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) ROR_zep() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -127,18 +176,21 @@ func (C *CPU) INC_zep() {
 		C.tmpBuff = C.ram.Read(uint16(C.OperLO))
 	case 4:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff++
+		carry := C.tmpBuff&0x01 > 0
+		C.tmpBuff >>= 1
+		if C.issetC() {
+			C.tmpBuff |= 0x80
+		}
+		C.setC(carry)
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-
 		C.updateN(C.tmpBuff)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0
 	}
 }
 
-func (C *CPU) INC_zpx() {
+func (C *CPU) ROR_zpx() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -152,18 +204,21 @@ func (C *CPU) INC_zpx() {
 		C.tmpBuff = C.ram.Read(uint16(C.OperLO))
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff++
+		carry := C.tmpBuff&0x01 > 0
+		C.tmpBuff >>= 1
+		if C.issetC() {
+			C.tmpBuff |= 0x80
+		}
+		C.setC(carry)
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-
 		C.updateN(C.tmpBuff)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0
 	}
 }
 
-func (C *CPU) INC_abs() {
+func (C *CPU) ROR_abs() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -177,8 +232,12 @@ func (C *CPU) INC_abs() {
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff++
+		carry := C.tmpBuff&0x01 > 0
+		C.tmpBuff >>= 1
+		if C.issetC() {
+			C.tmpBuff |= 0x80
+		}
+		C.setC(carry)
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
@@ -188,7 +247,7 @@ func (C *CPU) INC_abs() {
 	}
 }
 
-func (C *CPU) INC_abx() {
+func (C *CPU) ROR_abx() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -213,11 +272,14 @@ func (C *CPU) INC_abx() {
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff++
+		carry := C.tmpBuff&0x01 > 0
+		C.tmpBuff >>= 1
+		if C.issetC() {
+			C.tmpBuff |= 0x80
+		}
+		C.setC(carry)
 	case 7:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-
 		C.updateN(C.tmpBuff)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0

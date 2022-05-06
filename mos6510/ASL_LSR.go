@@ -1,10 +1,25 @@
 package mos6510
 
 ///////////////////////////////////////////////////////
-//                        DEC                        //
+//                        ASL                        //
 ///////////////////////////////////////////////////////
 
-func (C *CPU) DEC_zep() {
+func (C *CPU) ASL_imp() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.ram.Read(C.PC) // Read and forget
+		C.setC(C.A&0b10000000 > 1)
+		C.A <<= 1
+
+		C.updateN(C.A)
+		C.updateZ(C.A)
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) ASL_zep() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -16,7 +31,7 @@ func (C *CPU) DEC_zep() {
 	case 4:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff--
+		C.tmpBuff <<= 1
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
@@ -26,7 +41,7 @@ func (C *CPU) DEC_zep() {
 	}
 }
 
-func (C *CPU) DEC_zpx() {
+func (C *CPU) ASL_zpx() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -41,7 +56,7 @@ func (C *CPU) DEC_zpx() {
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff--
+		C.tmpBuff <<= 1
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
@@ -51,7 +66,7 @@ func (C *CPU) DEC_zpx() {
 	}
 }
 
-func (C *CPU) DEC_abs() {
+func (C *CPU) ASL_abs() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -66,7 +81,7 @@ func (C *CPU) DEC_abs() {
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff--
+		C.tmpBuff <<= 1
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
@@ -76,7 +91,7 @@ func (C *CPU) DEC_abs() {
 	}
 }
 
-func (C *CPU) DEC_abx() {
+func (C *CPU) ASL_abx() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -102,7 +117,7 @@ func (C *CPU) DEC_abx() {
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff--
+		C.tmpBuff <<= 1
 	case 7:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
@@ -113,10 +128,25 @@ func (C *CPU) DEC_abx() {
 }
 
 ///////////////////////////////////////////////////////
-//                        INC                        //
+//                        LSR                        //
 ///////////////////////////////////////////////////////
 
-func (C *CPU) INC_zep() {
+func (C *CPU) LSR_imp() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.ram.Read(C.PC) // Read and forget
+		C.setC(C.A&0x01 == 0x01)
+		C.A >>= 1
+
+		C.updateN(C.A)
+		C.updateZ(C.A)
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) LSR_zep() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -127,8 +157,8 @@ func (C *CPU) INC_zep() {
 		C.tmpBuff = C.ram.Read(uint16(C.OperLO))
 	case 4:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff++
+		C.setC(C.tmpBuff&0x01 == 0x01)
+		C.tmpBuff >>= 1
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
@@ -138,7 +168,7 @@ func (C *CPU) INC_zep() {
 	}
 }
 
-func (C *CPU) INC_zpx() {
+func (C *CPU) LSR_zpx() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -152,8 +182,8 @@ func (C *CPU) INC_zpx() {
 		C.tmpBuff = C.ram.Read(uint16(C.OperLO))
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff++
+		C.setC(C.tmpBuff&0x01 == 0x01)
+		C.tmpBuff >>= 1
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
@@ -163,7 +193,7 @@ func (C *CPU) INC_zpx() {
 	}
 }
 
-func (C *CPU) INC_abs() {
+func (C *CPU) LSR_abs() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -177,8 +207,8 @@ func (C *CPU) INC_abs() {
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff++
+		C.setC(C.tmpBuff&0x01 == 0x01)
+		C.tmpBuff >>= 1
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
@@ -188,7 +218,7 @@ func (C *CPU) INC_abs() {
 	}
 }
 
-func (C *CPU) INC_abx() {
+func (C *CPU) LSR_abx() {
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -213,8 +243,8 @@ func (C *CPU) INC_abx() {
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
-		C.tmpBuff++
+		C.setC(C.tmpBuff&0x01 == 0x01)
+		C.tmpBuff >>= 1
 	case 7:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
