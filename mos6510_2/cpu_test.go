@@ -407,6 +407,36 @@ func TestSBC(t *testing.T) {
 	finalize(proc.Inst.Name, allGood)
 }
 
+func TestCMP(t *testing.T) {
+	var allGood bool = true
+	mem.Clear(RAM)
+
+	ts := TestSuite{}
+	ts.Add(TestData{code: "0200 C9 20", acc: 0x50, flag: 0b00110000, resFlag: 0b00110001, cycles: 2})
+	ts.Add(TestData{code: "0200 C9 20", acc: 0xF0, flag: 0b00110000, resFlag: 0b10110001, cycles: 2})
+	ts.Add(TestData{code: "0200 C9 20", acc: 0x00, flag: 0b00110000, resFlag: 0b10110000, cycles: 2})
+	ts.Add(TestData{code: "0200 C9 20", acc: 0x20, flag: 0b00110000, resFlag: 0b00110011, cycles: 2})
+	ts.Add(TestData{code: "0200 C9 20", acc: 0x01, flag: 0b00110000, resFlag: 0b10110000, cycles: 2})
+	ts.Add(TestData{code: "0200 C9 00", acc: 0x00, flag: 0b00110000, resFlag: 0b00110011, cycles: 2})
+	ts.Add(TestData{code: "0200 C9 FF", acc: 0xFF, flag: 0b00110000, resFlag: 0b00110011, cycles: 2})
+
+	RAM[0x0408] = 0xEE
+	RAM[0xC1] = 0x00
+	RAM[0xC2] = 0x04
+	ts.Add(TestData{code: "0200 D1 C1", acc: 0x50, y: 0x08, flag: 0b00110000, resFlag: 0b00110000, cycles: 5})
+	ts.Add(TestData{code: "0200 D1 C1", acc: 0xF0, y: 0x08, flag: 0b00110000, resFlag: 0b00110001, cycles: 5})
+	ts.Add(TestData{code: "0200 D1 C1", acc: 0x00, y: 0x08, flag: 0b00110000, resFlag: 0b00110000, cycles: 5})
+	ts.Add(TestData{code: "0200 D1 C1", acc: 0x20, y: 0x08, flag: 0b00110000, resFlag: 0b00110000, cycles: 5})
+	ts.Add(TestData{code: "0200 D1 C1", acc: 0xEE, y: 0x08, flag: 0b00110000, resFlag: 0b00110011, cycles: 5})
+	ts.Add(TestData{code: "0200 D1 C1", acc: 0xFF, y: 0x08, flag: 0b00110000, resFlag: 0b00110001, cycles: 5})
+
+	for _, table := range ts.data {
+		table.run()
+		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
+		allGood = allGood && table.checkCycles(t, "Cycles")
+	}
+	finalize(proc.Inst.Name, allGood)
+}
 
 // func TestBNE(t *testing.T) {
 // 	var allGood bool = true
@@ -424,36 +454,6 @@ func TestSBC(t *testing.T) {
 // }
 
 
-// func TestCMP(t *testing.T) {
-// 	var allGood bool = true
-// 	mem.Clear(RAM)
-
-// 	ts := TestSuite{proc: &proc, inst: 0xC9}
-// 	ts.Add(TestData{acc: 0x50, oper: 0x20, flag: 0b00110000, resFlag: 0b00110001})
-// 	ts.Add(TestData{acc: 0xF0, oper: 0x20, flag: 0b00110000, resFlag: 0b10110001})
-// 	ts.Add(TestData{acc: 0x00, oper: 0x20, flag: 0b00110000, resFlag: 0b10110000})
-// 	ts.Add(TestData{acc: 0x20, oper: 0x20, flag: 0b00110000, resFlag: 0b00110011})
-// 	ts.Add(TestData{acc: 0x01, oper: 0x20, flag: 0b00110000, resFlag: 0b10110000})
-// 	ts.Add(TestData{acc: 0x00, oper: 0x00, flag: 0b00110000, resFlag: 0b00110011})
-// 	ts.Add(TestData{acc: 0xFF, oper: 0xFF, flag: 0b00110000, resFlag: 0b00110011})
-
-// 	ts.inst = 0xD1
-// 	ts.Add(TestData{acc: 0x50, y: 0x08, oper: 0xC1, flag: 0b00110000, resFlag: 0b00110000})
-// 	ts.Add(TestData{acc: 0xF0, y: 0x08, oper: 0xC1, flag: 0b00110000, resFlag: 0b00110001})
-// 	ts.Add(TestData{acc: 0x00, y: 0x08, oper: 0xC1, flag: 0b00110000, resFlag: 0b00110000})
-// 	ts.Add(TestData{acc: 0x20, y: 0x08, oper: 0xC1, flag: 0b00110000, resFlag: 0b00110000})
-// 	ts.Add(TestData{acc: 0xEE, y: 0x08, oper: 0xC1, flag: 0b00110000, resFlag: 0b00110011})
-// 	ts.Add(TestData{acc: 0xFF, y: 0x08, oper: 0xC1, flag: 0b00110000, resFlag: 0b00110001})
-
-// 	for _, table := range ts.data {
-// 		proc.ram.Write(0x0408, 0xEE)
-// 		proc.ram.Write(0xC1, 0x00)
-// 		proc.ram.Write(0xC2, 0x04)
-// 		table.run()
-// 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
-// 	}
-// 	finalize(proc.Mnemonic[ts.inst].Name, allGood)
-// }
 
 // func TestROR(t *testing.T) {
 // 	var allGood bool = true

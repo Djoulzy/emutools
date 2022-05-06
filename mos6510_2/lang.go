@@ -62,14 +62,14 @@ func (C *CPU) initLanguage() {
 
 		0xB8: {Name: "CLV", bytes: 1, Cycles: 2, action: C.clv, addr: implied},
 
-		0xC9: {Name: "CMP", bytes: 2, Cycles: 2, action: C.cmp, addr: immediate},
-		0xC5: {Name: "CMP", bytes: 2, Cycles: 3, action: C.cmp, addr: zeropage},
-		0xD5: {Name: "CMP", bytes: 2, Cycles: 4, action: C.cmp, addr: zeropageX},
-		0xCD: {Name: "CMP", bytes: 3, Cycles: 4, action: C.cmp, addr: absolute},
-		0xDD: {Name: "CMP", bytes: 3, Cycles: 4, action: C.cmp, addr: absoluteX},
-		0xD9: {Name: "CMP", bytes: 3, Cycles: 4, action: C.cmp, addr: absoluteY},
-		0xC1: {Name: "CMP", bytes: 2, Cycles: 6, action: C.cmp, addr: indirectX},
-		0xD1: {Name: "CMP", bytes: 2, Cycles: 5, action: C.cmp, addr: indirectY},
+		0xC9: {Name: "CMP", bytes: 2, Cycles: 2, action: C.CMP_imm, addr: immediate},
+		0xC5: {Name: "CMP", bytes: 2, Cycles: 3, action: C.CMP_zep, addr: zeropage},
+		0xD5: {Name: "CMP", bytes: 2, Cycles: 4, action: C.CMP_zpx, addr: zeropageX},
+		0xCD: {Name: "CMP", bytes: 3, Cycles: 4, action: C.CMP_abs, addr: absolute},
+		0xDD: {Name: "CMP", bytes: 3, Cycles: 4, action: C.CMP_abx, addr: absoluteX},
+		0xD9: {Name: "CMP", bytes: 3, Cycles: 4, action: C.CMP_aby, addr: absoluteY},
+		0xC1: {Name: "CMP", bytes: 2, Cycles: 6, action: C.CMP_inx, addr: indirectX},
+		0xD1: {Name: "CMP", bytes: 2, Cycles: 5, action: C.CMP_iny, addr: indirectY},
 
 		0xE0: {Name: "CPX", bytes: 2, Cycles: 2, action: C.cpx, addr: immediate},
 		0xE4: {Name: "CPX", bytes: 2, Cycles: 3, action: C.cpx, addr: zeropage},

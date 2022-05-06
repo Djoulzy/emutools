@@ -109,7 +109,7 @@ type CPU struct {
 	Pointer     byte
 	IndAddrLO   byte
 	IndAddrHI   byte
-	RMWBuff     byte
+	tmpBuff     byte
 	pageCrossed bool
 
 	Oper         uint16
