@@ -8,9 +8,9 @@ import (
 func (C *CPU) brk() {
 	switch C.Inst.addr {
 	case implied:
-		C.pushWordStack(C.PC + 1)
+		// C.pushWordStack(C.PC + 1)
 		C.setB(true)
-		C.pushByteStack(C.S)
+		// C.pushByteStack(C.S)
 		C.PC = C.readWord(IRQBRK_Vector)
 	default:
 		log.Fatal("Bad addressing mode")
@@ -129,7 +129,7 @@ func (C *CPU) isc() {
 			C.A = byte(val)
 		} else {
 			C.Inst.addr = CrossPage
-			C.State = Compute
+			// C.State = Compute
 			C.Inst.Cycles++
 			return
 		}
@@ -145,7 +145,7 @@ func (C *CPU) isc() {
 			C.A = byte(val)
 		} else {
 			C.Inst.addr = CrossPage
-			C.State = Compute
+			// C.State = Compute
 			C.Inst.Cycles++
 			return
 		}
@@ -169,7 +169,7 @@ func (C *CPU) isc() {
 			C.A = byte(val)
 		} else {
 			C.Inst.addr = CrossPage
-			C.State = Compute
+			// C.State = Compute
 			C.Inst.Cycles++
 			return
 		}
@@ -210,7 +210,7 @@ func (C *CPU) dcp() {
 			val = int(C.A) - int(C.ram.Read(C.cross_oper)) - 1
 		} else {
 			C.Inst.addr = CrossPage
-			C.State = Compute
+			// C.State = Compute
 			C.Inst.Cycles++
 			return
 		}
@@ -220,7 +220,7 @@ func (C *CPU) dcp() {
 			val = int(C.A) - int(C.ram.Read(C.cross_oper)) - 1
 		} else {
 			C.Inst.addr = CrossPage
-			C.State = Compute
+			// C.State = Compute
 			C.Inst.Cycles++
 			return
 		}
@@ -232,7 +232,7 @@ func (C *CPU) dcp() {
 			val = int(C.A) - int(C.ram.Read(C.cross_oper)) - 1
 		} else {
 			C.Inst.addr = CrossPage
-			C.State = Compute
+			// C.State = Compute
 			C.Inst.Cycles++
 			return
 		}
@@ -247,7 +247,7 @@ func (C *CPU) dcp() {
 }
 
 func (C *CPU) rla() {
-	fmt.Printf("%s\nNot implemented: %v\n", C.Trace(), C.Inst)
+	fmt.Printf("Not implemented: %v\n", C.Inst)
 }
 
 func (C *CPU) sax() {

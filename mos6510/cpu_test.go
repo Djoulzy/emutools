@@ -166,30 +166,30 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestStack(t *testing.T) {
-	var allGood bool = true
-	mem.Clear(RAM)
-	for i := 0; i <= 0xFF; i++ {
-		proc.pushByteStack(byte(i))
-	}
-	for i := 0xFF; i >= 0; i-- {
-		if proc.pullByteStack() != byte(i) {
-			t.Errorf("Bad stack operation")
-			allGood = false
-		}
-	}
+// func TestStack(t *testing.T) {
+// 	var allGood bool = true
+// 	mem.Clear(RAM)
+// 	for i := 0; i <= 0xFF; i++ {
+// 		proc.pushByteStack(byte(i))
+// 	}
+// 	for i := 0xFF; i >= 0; i-- {
+// 		if proc.pullByteStack() != byte(i) {
+// 			t.Errorf("Bad stack operation")
+// 			allGood = false
+// 		}
+// 	}
 
-	for i := 0; i <= 0x7F; i++ {
-		proc.pushWordStack(uint16(i))
-	}
-	for i := 0x7F; i >= 0; i-- {
-		if proc.pullWordStack() != uint16(i) {
-			t.Errorf("Bad stack operation")
-			allGood = false
-		}
-	}
-	finalize("Stack", allGood)
-}
+// 	for i := 0; i <= 0x7F; i++ {
+// 		proc.pushWordStack(uint16(i))
+// 	}
+// 	for i := 0x7F; i >= 0; i-- {
+// 		if proc.pullWordStack() != uint16(i) {
+// 			t.Errorf("Bad stack operation")
+// 			allGood = false
+// 		}
+// 	}
+// 	finalize("Stack", allGood)
+// }
 
 func TestLDA(t *testing.T) {
 	var allGood bool = true

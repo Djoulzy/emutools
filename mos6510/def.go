@@ -55,17 +55,6 @@ type cpuState int
 
 const (
 	Idle cpuState = iota
-	ReadInstruction
-	ReadOperLO
-	ReadOperHI
-	ReadZP
-	ReadZP_XY
-	ReadAbsolute
-	ReadAbsXY
-	ReadIndirect
-	ReadIndXY_LO
-	ReadIndXY_HI
-	Compute
 	IRQ1
 	IRQ2
 	IRQ3
@@ -102,6 +91,7 @@ type CPU struct {
 	instDump  string
 	instCode  byte
 	FullInst  string
+	FullDebug string
 	Inst      Instruction
 
 	OperHI      byte
@@ -121,7 +111,6 @@ type CPU struct {
 	comp_result  byte
 
 	CycleCount int
-	State      cpuState
 
 	NMI_Raised bool
 	IRQ_Raised bool

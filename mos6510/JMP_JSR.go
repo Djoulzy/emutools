@@ -50,10 +50,10 @@ func (C *CPU) JSR_abs() {
 		C.PC++
 	case 3:
 	case 4:
-		C.stack[C.SP] = byte(C.PC)
+		C.stack[C.SP] = byte(C.PC >> 8)
 		C.SP--
 	case 5:
-		C.stack[C.SP] = byte(C.PC >> 8)
+		C.stack[C.SP] = byte(C.PC)
 		C.SP--
 	case 6:
 		C.OperHI = C.ram.Read(C.PC)

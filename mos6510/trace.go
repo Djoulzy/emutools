@@ -21,100 +21,50 @@ func (C *CPU) registers() string {
 	return res
 }
 
-func Disassemble(inst Instruction, oper uint16) string {
+func (C *CPU) disassemble() string {
 	var token string
 
-	switch inst.addr {
+	switch C.Inst.addr {
 	case implied:
 		token = fmt.Sprintf("")
 	case immediate:
-		token = fmt.Sprintf(" #$%02X", oper)
+		token = fmt.Sprintf(" #$%02X", C.ram.Read(C.PC+1))
 	case relative:
-		token = fmt.Sprintf(" $%02X", oper)
+		token = fmt.Sprintf(" $%02X", C.ram.Read(C.PC+1))
 	case zeropage:
-		token = fmt.Sprintf(" $%02X", oper)
+		token = fmt.Sprintf(" $%02X", C.ram.Read(C.PC+1))
 	case zeropageX:
-		token = fmt.Sprintf(" $%02X,X", oper)
+		token = fmt.Sprintf(" $%02X,X", C.ram.Read(C.PC+1))
 	case zeropageY:
-		token = fmt.Sprintf(" $%02X,Y", oper)
+		token = fmt.Sprintf(" $%02X,Y", C.ram.Read(C.PC+1))
 	case Branching:
 		fallthrough
 	case CrossPage:
 		fallthrough
 	case absolute:
-		token = fmt.Sprintf(" $%04X", oper)
+		token = fmt.Sprintf(" $%02X%02X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
 	case absoluteX:
-		token = fmt.Sprintf(" $%04X,X", oper)
+		token = fmt.Sprintf(" $%02X%02X,X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
 	case absoluteY:
-		token = fmt.Sprintf(" $%04X,Y", oper)
+		token = fmt.Sprintf(" $%02X%02X,Y", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
 	case indirect:
-		token = fmt.Sprintf(" ($%04X)", oper)
+		token = fmt.Sprintf(" ($%02X%02X)", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
 	case indirectX:
-		token = fmt.Sprintf(" ($%02X,X)", oper)
+		token = fmt.Sprintf(" ($%02X,X)", C.ram.Read(C.PC+1))
 	case indirectY:
-		token = fmt.Sprintf(" ($%02X),Y", oper)
+		token = fmt.Sprintf(" ($%02X),Y", C.ram.Read(C.PC+1))
 	}
-	return inst.Name + token
+	return C.Inst.Name + token
 }
 
-func (C *CPU) Trace() string {
-	return fmt.Sprintf("%s   A:%c[1;33m%02X%c[0m X:%c[1;33m%02X%c[0m Y:%c[1;33m%02X%c[0m SP:%c[1;33m%02X%c[0m   %c[1;31m%04X%c[0m: %-8s %c[1;30m(%d)%c[0m %c[1;37m%-10s%c[0m",
-		C.registers(), 27, C.A, 27, 27, C.X, 27, 27, C.Y, 27, 27, C.SP, 27, 27, C.InstStart, 27, C.instDump, 27, C.Inst.Cycles, 27, 27, C.FullInst, 27)
+func (C *CPU) trace() string {
+	return fmt.Sprintf("%s   A:%c[1;33m%02X%c[0m X:%c[1;33m%02X%c[0m Y:%c[1;33m%02X%c[0m SP:%c[1;33m%02X%c[0m   %c[1;31m%04X%c[0m: %c[1;37m%-10s%c[0m",
+		C.registers(), 27, C.A, 27, 27, C.X, 27, 27, C.Y, 27, 27, C.SP, 27, 27, C.InstStart, 27, 27, C.FullInst, 27)
 }
 
-func (C *CPU) DumpRom(start int) [][]byte {
-	var code byte
-	var listing [][]byte
-	var inst Instruction
-	var ok bool
-
-	listing = make([][]byte, C.ramSize)
-	pc := start
-	for pc < C.ramSize {
-		code = C.ram.Read(uint16(pc))
-		if inst, ok = C.Mnemonic[code]; ok {
-			// listing[pc] = make([]byte, 5)
-			switch inst.addr {
-			case implied:
-				listing[pc] = []byte{code}
-			case immediate:
-				// token = fmt.Sprintf(" #$%02X", oper)
-				listing[pc] = []byte{code, 1, C.ram.Read(uint16(pc) + 1)}
-			case relative:
-			case zeropage:
-				// token = fmt.Sprintf(" $%02X", oper)
-				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 1)}
-			case zeropageX:
-				// token = fmt.Sprintf(" $%02X,X", oper)
-				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 1), 0, 1}
-			case zeropageY:
-				// token = fmt.Sprintf(" $%02X,Y", oper)
-				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 1), 0, 2}
-			case absolute:
-				// token = fmt.Sprintf(" $%04X", oper)
-				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 2), C.ram.Read(uint16(pc) + 1)}
-			case absoluteX:
-				// token = fmt.Sprintf(" $%04X,X", oper)
-				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 2), C.ram.Read(uint16(pc) + 1), 4}
-			case absoluteY:
-				// token = fmt.Sprintf(" $%04X,Y", oper)
-				listing[pc] = []byte{code, 2, C.ram.Read(uint16(pc) + 2), C.ram.Read(uint16(pc) + 1), 5}
-			case indirect:
-				// token = fmt.Sprintf(" ($%04X)", oper)
-				listing[pc] = []byte{code, 3, C.ram.Read(uint16(pc) + 2), C.ram.Read(uint16(pc) + 1), 6}
-			case indirectX:
-				// token = fmt.Sprintf(" ($%02X,X)", oper)
-				listing[pc] = []byte{code, 3, C.ram.Read(uint16(pc) + 1), 0, 7}
-			case indirectY:
-				// token = fmt.Sprintf(" ($%02X),Y", oper)
-				listing[pc] = []byte{code, 3, C.ram.Read(uint16(pc) + 1), 0, 8}
-			}
-			pc += int(inst.bytes)
-		} else {
-			pc++
-		}
-	}
-	return listing
+func (C *CPU) composeDebug() {
+	C.FullInst = C.disassemble()
+	C.FullDebug = C.trace()
 }
 
 func ColVal(val time.Duration) string {

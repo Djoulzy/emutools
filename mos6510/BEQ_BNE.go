@@ -22,24 +22,20 @@ func (C *CPU) BEQ_rel() {
 				C.PC = dest
 			}
 		} else {
-			C.Inst = C.Mnemonic[C.instCode]
-			C.PC++
 			C.CycleCount = 1
+			C.firstCycle()
 		}
 	case 4:
 		C.instCode = C.ram.Read(C.PC)
 		if C.pageCrossed {
 			C.PC = uint16(int(C.PC) + int(int8(C.OperLO)))
 		} else {
-			C.Inst = C.Mnemonic[C.instCode]
-			C.PC++
 			C.CycleCount = 1
+			C.firstCycle()
 		}
 	case 5:
-		C.instCode = C.ram.Read(C.PC)
-		C.Inst = C.Mnemonic[C.instCode]
-		C.PC++
 		C.CycleCount = 1
+		C.firstCycle()
 	}
 }
 
@@ -66,24 +62,20 @@ func (C *CPU) BNE_rel() {
 				C.PC = dest
 			}
 		} else {
-			C.Inst = C.Mnemonic[C.instCode]
-			C.PC++
 			C.CycleCount = 1
+			C.firstCycle()
 		}
 	case 4:
 		C.instCode = C.ram.Read(C.PC)
 		if C.pageCrossed {
 			C.PC = uint16(int(C.PC) + int(int8(C.OperLO)))
 		} else {
-			C.Inst = C.Mnemonic[C.instCode]
-			C.PC++
 			C.CycleCount = 1
+			C.firstCycle()
 		}
 	case 5:
-		C.instCode = C.ram.Read(C.PC)
-		C.Inst = C.Mnemonic[C.instCode]
-		C.PC++
 		C.CycleCount = 1
+		C.firstCycle()
 	}
 
 }
