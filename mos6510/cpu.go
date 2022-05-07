@@ -28,10 +28,6 @@ func (C *CPU) Reset() {
 	C.IRQ_Raised = false
 	C.INT_delay = false
 
-	// PLA Settings (Bank switching)
-	// C.ram.Write(0x0000, 0x2F)
-	// C.ram.Write(0x0001, 0x1F)
-
 	// Cold Start:
 	C.PC = C.readWord(COLDSTART_Vector)
 	fmt.Printf("mos6510 - PC: %04X\n", C.PC)
@@ -100,42 +96,6 @@ func (C *CPU) readWord(addr uint16) uint16 {
 }
 
 //////////////////////////////////
-//////// Stack Operations ////////
-//////////////////////////////////
-
-// Byte
-// func (C *CPU) pushByteStack(val byte) {
-// 	// if C.SP < 90 {
-// 	// 	os.Exit(1)
-// 	// }
-// 	C.stack[C.SP] = val
-// 	C.SP--
-// }
-
-// func (C *CPU) pullByteStack() byte {
-// 	C.SP++
-// 	// if C.SP == 0x00 {
-// 	// 	C.ram.DumpStack(C.SP)
-// 	// 	log.Fatal("Stack overflow")
-// 	// }
-// 	return C.stack[C.SP]
-// }
-
-// Word
-// func (C *CPU) pushWordStack(val uint16) {
-// 	low := byte(val)
-// 	hi := byte(val >> 8)
-// 	C.pushByteStack(hi)
-// 	C.pushByteStack(low)
-// }
-
-// func (C *CPU) pullWordStack() uint16 {
-// 	low := C.pullByteStack()
-// 	hi := uint16(C.pullByteStack()) << 8
-// 	return hi + uint16(low)
-// }
-
-//////////////////////////////////
 /////////// Interrupts ///////////
 //////////////////////////////////
 
@@ -184,7 +144,16 @@ func (C *CPU) GoTo(addr uint16) {
 func (C *CPU) firstCycle() {
 	var ok bool
 	C.InstStart = C.PC
-	C.instCode = C.ram.Read(C.PC)
+	if C.NMI_Raised || C.IRQ_Raised {
+		if C.IRQ_Raised {
+			C.instCode = 0x6F
+		}
+		if C.NMI_Raised {
+			C.instCode = 0x7F
+		}
+	} else {
+		C.instCode = C.ram.Read(C.PC)
+	}
 	if C.Inst, ok = C.Mnemonic[C.instCode]; !ok {
 		log.Printf(fmt.Sprintf("Unknown instruction: %02X at %04X\n", C.instCode, C.PC))
 	}
@@ -199,5 +168,8 @@ func (C *CPU) NextCycle() {
 		C.firstCycle()
 	default:
 		C.Inst.action()
+	}
+	if C.CycleCount < C.Inst.Cycles {
+		C.CheckInterrupts()
 	}
 }

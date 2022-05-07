@@ -5,18 +5,6 @@ import (
 	"log"
 )
 
-func (C *CPU) brk() {
-	switch C.Inst.addr {
-	case implied:
-		// C.pushWordStack(C.PC + 1)
-		C.setB(true)
-		// C.pushByteStack(C.S)
-		C.PC = C.readWord(IRQBRK_Vector)
-	default:
-		log.Fatal("Bad addressing mode")
-	}
-}
-
 func (C *CPU) nop() {
 	switch C.Inst.addr {
 	case implied:

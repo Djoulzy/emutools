@@ -48,7 +48,7 @@ func (C *CPU) initLanguage() {
 
 		0x10: {Name: "BPL", bytes: 2, Cycles: 2, action: C.BPL_rel, addr: relative},
 
-		0x00: {Name: "BRK", bytes: 1, Cycles: 7, action: C.brk, addr: implied},
+		0x00: {Name: "BRK", bytes: 1, Cycles: 7, action: C.BRK_imp, addr: implied},
 
 		0x50: {Name: "BVC", bytes: 2, Cycles: 2, action: C.BVC_rel, addr: relative},
 
@@ -310,5 +310,8 @@ func (C *CPU) initLanguage() {
 		0x9A: {Name: "TXS", bytes: 1, Cycles: 2, action: C.TXS_imp, addr: implied},
 
 		0x98: {Name: "TYA", bytes: 1, Cycles: 2, action: C.TYA_imp, addr: implied},
+
+		0x6F: {Name: "IRQ", bytes: 1, Cycles: 7, action: C.IRQ_imp, addr: implied},
+		0x7F: {Name: "NMI", bytes: 1, Cycles: 7, action: C.NMI_imp, addr: implied},
 	}
 }
