@@ -79,6 +79,7 @@ func (C *CPU) AND_abx() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.X)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -112,6 +113,7 @@ func (C *CPU) AND_aby() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -169,6 +171,7 @@ func (C *CPU) AND_iny() {
 		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
 		if (uint16(C.IndAddrLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -269,6 +272,7 @@ func (C *CPU) ORA_abx() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.X)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -302,6 +306,7 @@ func (C *CPU) ORA_aby() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -359,6 +364,7 @@ func (C *CPU) ORA_iny() {
 		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
 		if (uint16(C.IndAddrLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -459,6 +465,7 @@ func (C *CPU) EOR_abx() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.X)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -492,6 +499,7 @@ func (C *CPU) EOR_aby() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -549,6 +557,7 @@ func (C *CPU) EOR_iny() {
 		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
 		if (uint16(C.IndAddrLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}

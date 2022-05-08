@@ -17,6 +17,7 @@ func (C *CPU) BCC_rel() {
 			dest := uint16(int(C.PC) + int(int8(C.OperLO)))
 			if C.PC&0xFF00 != dest&0xFF00 {
 				C.pageCrossed = true
+				C.Inst.Cycles++
 			} else {
 				C.pageCrossed = false
 				C.PC = dest
@@ -60,6 +61,7 @@ func (C *CPU) BCS_rel() {
 			dest := uint16(int(C.PC) + int(int8(C.OperLO)))
 			if C.PC&0xFF00 != dest&0xFF00 {
 				C.pageCrossed = true
+				C.Inst.Cycles++
 			} else {
 				C.pageCrossed = false
 				C.PC = dest

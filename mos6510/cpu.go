@@ -169,7 +169,7 @@ func (C *CPU) NextCycle() {
 	default:
 		C.Inst.action()
 	}
-	if C.CycleCount < C.Inst.Cycles {
+	if C.CycleCount < C.Inst.Cycles-1 {
 		C.CheckInterrupts()
 	}
 }

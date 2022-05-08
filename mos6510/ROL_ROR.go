@@ -115,6 +115,7 @@ func (C *CPU) ROL_abx() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.X)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -258,6 +259,7 @@ func (C *CPU) ROR_abx() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.X)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}

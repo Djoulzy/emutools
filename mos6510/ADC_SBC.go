@@ -127,6 +127,7 @@ func (C *CPU) ADC_abx() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.X)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -162,6 +163,7 @@ func (C *CPU) ADC_aby() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -223,6 +225,7 @@ func (C *CPU) ADC_iny() {
 		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
 		if (uint16(C.IndAddrLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -334,6 +337,7 @@ func (C *CPU) SBC_abx() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.X)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -369,6 +373,7 @@ func (C *CPU) SBC_aby() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
@@ -430,6 +435,7 @@ func (C *CPU) SBC_iny() {
 		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
 		if (uint16(C.IndAddrLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}

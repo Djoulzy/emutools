@@ -17,6 +17,7 @@ func (C *CPU) BEQ_rel() {
 			dest := uint16(int(C.PC) + int(int8(C.OperLO)))
 			if C.PC&0xFF00 != dest&0xFF00 {
 				C.pageCrossed = true
+				C.Inst.Cycles++
 			} else {
 				C.pageCrossed = false
 				C.PC = dest
@@ -57,6 +58,7 @@ func (C *CPU) BNE_rel() {
 			// log.Printf("PC: %04X + %d = Dest: %04X\n", C.PC, int8(C.OperLO), dest)
 			if C.PC&0xFF00 != dest&0xFF00 {
 				C.pageCrossed = true
+				C.Inst.Cycles++
 			} else {
 				C.pageCrossed = false
 				C.PC = dest

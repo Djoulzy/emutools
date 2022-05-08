@@ -79,6 +79,7 @@ func (C *CPU) LDX_aby() {
 		C.OperHI = C.ram.Read(C.PC)
 		if (uint16(C.OperLO) + uint16(C.Y)) > 0x00FF {
 			C.pageCrossed = true
+			C.Inst.Cycles++
 		} else {
 			C.pageCrossed = false
 		}
