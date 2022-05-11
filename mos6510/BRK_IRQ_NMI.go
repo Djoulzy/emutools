@@ -40,6 +40,7 @@ func (C *CPU) IRQ_imp() {
 	switch C.CycleCount {
 	case 1:
 		C.IRQ_Raised = false
+		C.INT_delay = false
 	case 2:
 	case 3:
 		C.stack[C.SP] = byte(C.PC >> 8)
@@ -69,6 +70,7 @@ func (C *CPU) NMI_imp() {
 	switch C.CycleCount {
 	case 1:
 		C.NMI_Raised = false
+		C.INT_delay = false
 	case 2:
 	case 3:
 		C.stack[C.SP] = byte(C.PC >> 8)

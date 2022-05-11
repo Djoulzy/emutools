@@ -128,7 +128,7 @@ func (C *CPU) setV(val bool) {
 
 func (C *CPU) setD(val bool) {
 	if val {
-		log.Printf("%04X - %s", C.InstStart, C.registers())
+		log.Printf("DECIMAL FLAG: %04X - %s", C.InstStart, C.registers())
 		// log.Fatal("Decimal flag")
 		C.S |= ^D_mask
 	} else {
