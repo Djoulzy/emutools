@@ -28,38 +28,38 @@ func (C *CPU) disassemble() string {
 	case implied:
 		token = fmt.Sprintf("")
 	case immediate:
-		token = fmt.Sprintf(" #$%02X", C.ram.Read(C.PC+1))
+		token = fmt.Sprintf("#$%02X", C.ram.Read(C.PC+1))
 	case relative:
-		token = fmt.Sprintf(" $%02X", C.ram.Read(C.PC+1))
+		token = fmt.Sprintf("$%02X", C.ram.Read(C.PC+1))
 	case zeropage:
-		token = fmt.Sprintf(" $%02X", C.ram.Read(C.PC+1))
+		token = fmt.Sprintf("$%02X", C.ram.Read(C.PC+1))
 	case zeropageX:
-		token = fmt.Sprintf(" $%02X,X", C.ram.Read(C.PC+1))
+		token = fmt.Sprintf("$%02X,X", C.ram.Read(C.PC+1))
 	case zeropageY:
-		token = fmt.Sprintf(" $%02X,Y", C.ram.Read(C.PC+1))
+		token = fmt.Sprintf("$%02X,Y", C.ram.Read(C.PC+1))
 	case Branching:
 		fallthrough
 	case CrossPage:
 		fallthrough
 	case absolute:
-		token = fmt.Sprintf(" $%02X%02X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
+		token = fmt.Sprintf("$%02X%02X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
 	case absoluteX:
-		token = fmt.Sprintf(" $%02X%02X,X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
+		token = fmt.Sprintf("$%02X%02X,X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
 	case absoluteY:
-		token = fmt.Sprintf(" $%02X%02X,Y", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
+		token = fmt.Sprintf("$%02X%02X,Y", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
 	case indirect:
-		token = fmt.Sprintf(" ($%02X%02X)", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
+		token = fmt.Sprintf("($%02X%02X)", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
 	case indirectX:
-		token = fmt.Sprintf(" ($%02X,X)", C.ram.Read(C.PC+1))
+		token = fmt.Sprintf("($%02X,X)", C.ram.Read(C.PC+1))
 	case indirectY:
-		token = fmt.Sprintf(" ($%02X),Y", C.ram.Read(C.PC+1))
+		token = fmt.Sprintf("($%02X),Y", C.ram.Read(C.PC+1))
 	}
-	return C.Inst.Name + token
+	return fmt.Sprintf("%04X: %s %s", C.InstStart, C.Inst.Name, token)
 }
 
 func (C *CPU) trace() string {
-	return fmt.Sprintf("%s   A:%c[1;33m%02X%c[0m X:%c[1;33m%02X%c[0m Y:%c[1;33m%02X%c[0m SP:%c[1;33m%02X%c[0m  %c[1;30m(%d)%c[0m%c[1;31m%04X%c[0m: %c[1;37m%-10s%c[0m",
-		C.registers(), 27, C.A, 27, 27, C.X, 27, 27, C.Y, 27, 27, C.SP, 27, 27, C.Inst.Cycles, 27, 27, C.InstStart, 27, 27, C.FullInst, 27)
+	return fmt.Sprintf("%s   A:%c[1;33m%02X%c[0m X:%c[1;33m%02X%c[0m Y:%c[1;33m%02X%c[0m SP:%c[1;33m%02X%c[0m  %c[1;30m(%d)%c[0m %c[1;37m%-10s%c[0m",
+		C.registers(), 27, C.A, 27, 27, C.X, 27, 27, C.Y, 27, 27, C.SP, 27, 27, C.Inst.Cycles, 27, 27, C.FullInst, 27)
 }
 
 func (C *CPU) composeDebug() {

@@ -33,7 +33,9 @@ func (B *BANK) Write(addr uint16, value byte) {
 	if B.Layouts[*B.Selector].ReadOnly[layerNum] {
 		layerNum = 0
 	}
-	// clog.Test("MEM", "Write", "Addr: %04X, Page: %d, Layer: %d", addr, int(addr>>PAGE_DIVIDER), layerNum)
+	// if layerNum == 0 {
+	// 	clog.Test("MEM", "Write", "Addr: %04X, Page: %d, Data: %02X", addr, int(addr>>PAGE_DIVIDER), value)
+	// }
 	B.Layouts[*B.Selector].Accessors[layerNum].MWrite(B.Layouts[*B.Selector].Layers[layerNum], addr-B.Layouts[*B.Selector].Start[layerNum], value)
 }
 

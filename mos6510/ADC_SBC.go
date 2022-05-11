@@ -232,7 +232,6 @@ func (C *CPU) ADC_iny() {
 		C.IndAddrLO += C.Y
 	case 5:
 		tmp := C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
-
 		if C.pageCrossed {
 			C.IndAddrHI++
 		} else {
@@ -442,7 +441,6 @@ func (C *CPU) SBC_iny() {
 		C.IndAddrLO += C.Y
 	case 5:
 		tmp := C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
-
 		if C.pageCrossed {
 			C.IndAddrHI++
 		} else {

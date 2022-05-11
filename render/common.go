@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	Xadjust     = 130
+	Xadjust     = 150
 	Yadjust     = 100
 	fontWidth   = 8
 	fontHeight  = 9

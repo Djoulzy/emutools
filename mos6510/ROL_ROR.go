@@ -88,7 +88,7 @@ func (C *CPU) ROL_abs() {
 	case 4:
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 5:
-		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
+		C.ram.Write((uint16(C.OperHI)<<8)+uint16(C.OperLO), C.tmpBuff)
 		carry := C.tmpBuff&0x80 == 0x80
 		C.tmpBuff <<= 1
 		if C.issetC() {
@@ -96,7 +96,7 @@ func (C *CPU) ROL_abs() {
 		}
 		C.setC(carry)
 	case 6:
-		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
+		C.ram.Write((uint16(C.OperHI)<<8)+uint16(C.OperLO), C.tmpBuff)
 
 		C.updateN(C.tmpBuff)
 		C.updateZ(C.tmpBuff)
@@ -129,7 +129,7 @@ func (C *CPU) ROL_abx() {
 	case 5:
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 6:
-		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
+		C.ram.Write((uint16(C.OperHI)<<8)+uint16(C.OperLO), C.tmpBuff)
 		carry := C.tmpBuff&0x80 == 0x80
 		C.tmpBuff <<= 1
 		if C.issetC() {
@@ -137,7 +137,7 @@ func (C *CPU) ROL_abx() {
 		}
 		C.setC(carry)
 	case 7:
-		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
+		C.ram.Write((uint16(C.OperHI)<<8)+uint16(C.OperLO), C.tmpBuff)
 		C.updateN(C.tmpBuff)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0
@@ -232,7 +232,7 @@ func (C *CPU) ROR_abs() {
 	case 4:
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 5:
-		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
+		C.ram.Write((uint16(C.OperHI)<<8)+uint16(C.OperLO), C.tmpBuff)
 		carry := C.tmpBuff&0x01 > 0
 		C.tmpBuff >>= 1
 		if C.issetC() {
@@ -240,7 +240,7 @@ func (C *CPU) ROR_abs() {
 		}
 		C.setC(carry)
 	case 6:
-		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
+		C.ram.Write((uint16(C.OperHI)<<8)+uint16(C.OperLO), C.tmpBuff)
 
 		C.updateN(C.tmpBuff)
 		C.updateZ(C.tmpBuff)
@@ -273,7 +273,7 @@ func (C *CPU) ROR_abx() {
 	case 5:
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 6:
-		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
+		C.ram.Write((uint16(C.OperHI)<<8)+uint16(C.OperLO), C.tmpBuff)
 		carry := C.tmpBuff&0x01 > 0
 		C.tmpBuff >>= 1
 		if C.issetC() {
@@ -281,7 +281,7 @@ func (C *CPU) ROR_abx() {
 		}
 		C.setC(carry)
 	case 7:
-		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
+		C.ram.Write((uint16(C.OperHI)<<8)+uint16(C.OperLO), C.tmpBuff)
 		C.updateN(C.tmpBuff)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0

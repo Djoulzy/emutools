@@ -86,12 +86,13 @@ func (C *CPU) AND_abx() {
 		C.OperLO += C.X
 		C.PC++
 	case 4:
-		C.A &= C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
-		C.updateN(C.A)
-		C.updateZ(C.A)
+		tmp := C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 		if C.pageCrossed {
 			C.OperHI++
 		} else {
+			C.A &= tmp
+			C.updateN(C.A)
+			C.updateZ(C.A)
 			C.CycleCount = 0
 		}
 	case 5:
@@ -120,12 +121,13 @@ func (C *CPU) AND_aby() {
 		C.OperLO += C.Y
 		C.PC++
 	case 4:
-		C.A &= C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
-		C.updateN(C.A)
-		C.updateZ(C.A)
+		tmp := C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 		if C.pageCrossed {
 			C.OperHI++
 		} else {
+			C.A &= tmp
+			C.updateN(C.A)
+			C.updateZ(C.A)
 			C.CycleCount = 0
 		}
 	case 5:
@@ -177,12 +179,13 @@ func (C *CPU) AND_iny() {
 		}
 		C.IndAddrLO += C.Y
 	case 5:
-		C.A &= C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
-		C.updateN(C.A)
-		C.updateZ(C.A)
+		tmp := C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
 		if C.pageCrossed {
 			C.IndAddrHI++
 		} else {
+			C.A &= tmp
+			C.updateN(C.A)
+			C.updateZ(C.A)
 			C.CycleCount = 0
 		}
 	case 6:
@@ -279,12 +282,13 @@ func (C *CPU) ORA_abx() {
 		C.OperLO += C.X
 		C.PC++
 	case 4:
-		C.A |= C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
-		C.updateN(C.A)
-		C.updateZ(C.A)
+		tmp := C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 		if C.pageCrossed {
 			C.OperHI++
 		} else {
+			C.A |= tmp
+			C.updateN(C.A)
+			C.updateZ(C.A)
 			C.CycleCount = 0
 		}
 	case 5:
@@ -313,12 +317,13 @@ func (C *CPU) ORA_aby() {
 		C.OperLO += C.Y
 		C.PC++
 	case 4:
-		C.A |= C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
-		C.updateN(C.A)
-		C.updateZ(C.A)
+		tmp := C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 		if C.pageCrossed {
 			C.OperHI++
 		} else {
+			C.A |= tmp
+			C.updateN(C.A)
+			C.updateZ(C.A)
 			C.CycleCount = 0
 		}
 	case 5:
@@ -370,12 +375,13 @@ func (C *CPU) ORA_iny() {
 		}
 		C.IndAddrLO += C.Y
 	case 5:
-		C.A |= C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
-		C.updateN(C.A)
-		C.updateZ(C.A)
+		tmp := C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
 		if C.pageCrossed {
 			C.IndAddrHI++
 		} else {
+			C.A |= tmp
+			C.updateN(C.A)
+			C.updateZ(C.A)
 			C.CycleCount = 0
 		}
 	case 6:
@@ -472,12 +478,13 @@ func (C *CPU) EOR_abx() {
 		C.OperLO += C.X
 		C.PC++
 	case 4:
-		C.A ^= C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
-		C.updateN(C.A)
-		C.updateZ(C.A)
+		tmp := C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 		if C.pageCrossed {
 			C.OperHI++
 		} else {
+			C.A ^= tmp
+			C.updateN(C.A)
+			C.updateZ(C.A)
 			C.CycleCount = 0
 		}
 	case 5:
@@ -506,12 +513,13 @@ func (C *CPU) EOR_aby() {
 		C.OperLO += C.Y
 		C.PC++
 	case 4:
-		C.A ^= C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
-		C.updateN(C.A)
-		C.updateZ(C.A)
+		tmp := C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 		if C.pageCrossed {
 			C.OperHI++
 		} else {
+			C.A ^= tmp
+			C.updateN(C.A)
+			C.updateZ(C.A)
 			C.CycleCount = 0
 		}
 	case 5:
@@ -563,12 +571,14 @@ func (C *CPU) EOR_iny() {
 		}
 		C.IndAddrLO += C.Y
 	case 5:
-		C.A ^= C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
-		C.updateN(C.A)
-		C.updateZ(C.A)
+		tmp := C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
+
 		if C.pageCrossed {
 			C.IndAddrHI++
 		} else {
+			C.A ^= tmp
+			C.updateN(C.A)
+			C.updateZ(C.A)
 			C.CycleCount = 0
 		}
 	case 6:
