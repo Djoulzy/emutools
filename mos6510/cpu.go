@@ -141,16 +141,16 @@ func (C *CPU) GoTo(addr uint16) {
 func (C *CPU) firstCycle() {
 	var ok bool
 	C.InstStart = C.PC
-	// if C.NMI_Raised || C.IRQ_Raised {
-	// 	if C.IRQ_Raised {
-	// 		C.instCode = 0x6F
-	// 	}
-	// 	if C.NMI_Raised {
-	// 		C.instCode = 0x7F
-	// 	}
-	// } else {
+	if C.NMI_Raised || C.IRQ_Raised {
+		if C.IRQ_Raised {
+			C.instCode = 0x6F
+		}
+		if C.NMI_Raised {
+			C.instCode = 0x7F
+		}
+	} else {
 		C.instCode = C.ram.Read(C.PC)
-	// }
+	}
 	if C.Inst, ok = C.Mnemonic[C.instCode]; !ok {
 		log.Printf(fmt.Sprintf("Unknown instruction: %02X at %04X\n", C.instCode, C.PC))
 	}
