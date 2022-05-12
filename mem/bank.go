@@ -61,6 +61,9 @@ func (B *BANK) Dump(startAddr uint16) {
 			} else {
 				ascii += "."
 			}
+			if i == 7 {
+				line = fmt.Sprintf("%s  ", line)
+			}
 			cpt++
 		}
 		fmt.Printf("%s - %s\n", line, ascii)
