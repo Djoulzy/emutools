@@ -141,7 +141,7 @@ func (C *CPU) LSR_imp() {
 		C.setC(C.A&0x01 == 0x01)
 		C.A >>= 1
 
-		C.updateN(C.A)
+		C.setN(false)
 		C.updateZ(C.A)
 		C.CycleCount = 0
 	}
@@ -163,7 +163,7 @@ func (C *CPU) LSR_zep() {
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
-		C.updateN(C.tmpBuff)
+		C.setN(false)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0
 	}
@@ -188,7 +188,7 @@ func (C *CPU) LSR_zpx() {
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
 
-		C.updateN(C.tmpBuff)
+		C.setN(false)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0
 	}
@@ -213,7 +213,7 @@ func (C *CPU) LSR_abs() {
 	case 6:
 		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.tmpBuff)
 
-		C.updateN(C.tmpBuff)
+		C.setN(false)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0
 	}
@@ -250,7 +250,7 @@ func (C *CPU) LSR_abx() {
 	case 7:
 		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.tmpBuff)
 
-		C.updateN(C.tmpBuff)
+		C.setN(false)
 		C.updateZ(C.tmpBuff)
 		C.CycleCount = 0
 	}

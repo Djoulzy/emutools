@@ -15,7 +15,6 @@ func (C *CPU) DEC_zep() {
 		C.tmpBuff = C.ram.Read(uint16(C.OperLO))
 	case 4:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
 		C.tmpBuff--
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
@@ -40,7 +39,6 @@ func (C *CPU) DEC_zpx() {
 		C.tmpBuff = C.ram.Read(uint16(C.OperLO))
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
 		C.tmpBuff--
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
@@ -65,7 +63,6 @@ func (C *CPU) DEC_abs() {
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 5:
 		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
 		C.tmpBuff--
 	case 6:
 		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.tmpBuff)
@@ -101,11 +98,10 @@ func (C *CPU) DEC_abx() {
 	case 5:
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 6:
-		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
+		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.tmpBuff)
 		C.tmpBuff--
 	case 7:
-		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
+		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.tmpBuff)
 
 		C.updateN(C.tmpBuff)
 		C.updateZ(C.tmpBuff)
@@ -128,7 +124,6 @@ func (C *CPU) INC_zep() {
 		C.tmpBuff = C.ram.Read(uint16(C.OperLO))
 	case 4:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
 		C.tmpBuff++
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
@@ -153,7 +148,6 @@ func (C *CPU) INC_zpx() {
 		C.tmpBuff = C.ram.Read(uint16(C.OperLO))
 	case 5:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
 		C.tmpBuff++
 	case 6:
 		C.ram.Write(uint16(C.OperLO), C.tmpBuff)
@@ -178,7 +172,6 @@ func (C *CPU) INC_abs() {
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 5:
 		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
 		C.tmpBuff++
 	case 6:
 		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.tmpBuff)
@@ -215,7 +208,6 @@ func (C *CPU) INC_abx() {
 		C.tmpBuff = C.ram.Read((uint16(C.OperHI) << 8) + uint16(C.OperLO))
 	case 6:
 		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.tmpBuff)
-		C.setC(C.tmpBuff&0b10000000 > 1)
 		C.tmpBuff++
 	case 7:
 		C.ram.Write((uint16(C.OperHI) << 8) + uint16(C.OperLO), C.tmpBuff)
