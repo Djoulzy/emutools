@@ -84,15 +84,16 @@ type CPU struct {
 
 	Mnemonic map[byte]Instruction
 
-	ram       *mem.BANK
-	ramSize   int
-	stack     []byte
-	InstStart uint16
-	instDump  string
-	instCode  byte
-	FullInst  string
-	FullDebug string
-	Inst      Instruction
+	ram        *mem.BANK
+	ramSize    int
+	stack      []byte
+	StackDebug []string
+	InstStart  uint16
+	instDump   string
+	instCode   byte
+	FullInst   string
+	FullDebug  string
+	Inst       Instruction
 
 	OperHI      byte
 	OperLO      byte

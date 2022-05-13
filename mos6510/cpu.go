@@ -19,7 +19,7 @@ func (C *CPU) Reset() {
 	C.A = 0xAA
 	C.X = 0
 	C.Y = 0
-	C.S = 0b00100000
+	C.S = 0b00110000
 	C.SP = 0xFF
 
 	C.IRQ_pin = 0
