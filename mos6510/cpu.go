@@ -30,9 +30,10 @@ func (C *CPU) Reset() {
 
 	// Cold Start:
 	C.setI(true)
-	C.PC = C.readWord(COLDSTART_Vector)
+	// C.PC = C.readWord(COLDSTART_Vector)
+	C.PC = 0xFA62
 	C.StackDebugPt = -1
-	C.GlobalCycles = 0
+	C.GlobalCycles = -1
 	fmt.Printf("mos6510 - PC: %04X\n", C.PC)
 
 	perfStats = make(map[byte][]time.Duration)
@@ -144,16 +145,16 @@ func (C *CPU) GoTo(addr uint16) {
 func (C *CPU) firstCycle() {
 	var ok bool
 	C.InstStart = C.PC
-	if C.NMI_Raised || C.IRQ_Raised {
-		if C.IRQ_Raised {
-			C.instCode = 0x6F
-		}
-		if C.NMI_Raised {
-			C.instCode = 0x7F
-		}
-	} else {
-		C.instCode = C.ram.Read(C.PC)
-	}
+	// if C.NMI_Raised || C.IRQ_Raised {
+	// 	if C.IRQ_Raised {
+	// 		C.instCode = 0x6F
+	// 	}
+	// 	if C.NMI_Raised {
+	// 		C.instCode = 0x7F
+	// 	}
+	// } else {
+	C.instCode = C.ram.Read(C.PC)
+	// }
 	if C.Inst, ok = C.Mnemonic[C.instCode]; !ok {
 		log.Printf(fmt.Sprintf("Unknown instruction: %02X at %04X\n", C.instCode, C.PC))
 	}
@@ -170,22 +171,22 @@ func (C *CPU) NextCycle() {
 	default:
 		C.Inst.action()
 	}
-	C.CheckInterrupts()
-	if C.CycleCount == 0 {
-		if C.NMI_Raised || C.IRQ_Raised {
-			if C.Inst.Cycles <= 2 && !C.INT_delay {
-				C.INT_delay = true
-			} else {
-				if C.IRQ_Raised {
-					C.instCode = 0x6F
-				}
-				if C.NMI_Raised {
-					C.instCode = 0x7F
-				}
-				C.Inst = C.Mnemonic[C.instCode]
-				C.Inst.action()
-				C.CycleCount = 1
-			}
-		}
-	}
+	// C.CheckInterrupts()
+	// if C.CycleCount == 0 {
+	// 	if C.NMI_Raised || C.IRQ_Raised {
+	// 		if C.Inst.Cycles <= 2 && !C.INT_delay {
+	// 			C.INT_delay = true
+	// 		} else {
+	// 			if C.IRQ_Raised {
+	// 				C.instCode = 0x6F
+	// 			}
+	// 			if C.NMI_Raised {
+	// 				C.instCode = 0x7F
+	// 			}
+	// 			C.Inst = C.Mnemonic[C.instCode]
+	// 			C.Inst.action()
+	// 			C.CycleCount = 1
+	// 		}
+	// 	}
+	// }
 }

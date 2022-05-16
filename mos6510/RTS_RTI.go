@@ -23,7 +23,7 @@ func (C *CPU) RTS_imp() {
 		C.PC = (uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO)
 		C.PC++
 		C.CycleCount = 0
-		C.StackDebugPt--
+		C.StackDebugPt -= 2
 	}
 }
 

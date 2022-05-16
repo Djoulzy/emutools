@@ -17,7 +17,7 @@ func (C *CPU) PHA_imp() {
 		C.SP--
 		C.CycleCount = 0
 		C.StackDebugPt++
-		C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%04X: PHA %02X -> %02X:%02X\n", C.InstStart, C.A, C.SP+1, C.stack[C.SP+1])
+		C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - %04X: PHA #$%02X\n", C.SP+1, C.stack[C.SP+1], C.InstStart, C.A)
 	}
 }
 

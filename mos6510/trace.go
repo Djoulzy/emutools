@@ -58,8 +58,8 @@ func (C *CPU) disassemble() string {
 }
 
 func (C *CPU) trace() string {
-	return fmt.Sprintf("%s   A:%c[1;33m%02X%c[0m X:%c[1;33m%02X%c[0m Y:%c[1;33m%02X%c[0m SP:%c[1;33m%02X%c[0m  %c[1;30m(%d)%c[0m %c[1;37m%-10s%c[0m",
-		C.registers(), 27, C.A, 27, 27, C.X, 27, 27, C.Y, 27, 27, C.SP, 27, 27, C.Inst.Cycles, 27, 27, C.FullInst, 27)
+	return fmt.Sprintf("%d  %s   A:%c[1;33m%02X%c[0m X:%c[1;33m%02X%c[0m Y:%c[1;33m%02X%c[0m SP:%c[1;33m%02X%c[0m  %c[1;30m(%d)%c[0m %c[1;37m%-10s%c[0m",
+	C.GlobalCycles, C.registers(), 27, C.A, 27, 27, C.X, 27, 27, C.Y, 27, 27, C.SP, 27, 27, C.Inst.Cycles, 27, 27, C.FullInst, 27)
 }
 
 func (C *CPU) composeDebug() {
@@ -107,8 +107,8 @@ func (C *CPU) DumpStats() {
 }
 
 func (C *CPU) DumpStackDebug() {
-	fmt.Printf("Cycles: %d - %d\n", C.GlobalCycles, C.StackDebugPt)
-	for i := 0; i < C.StackDebugPt; i++ {
+	fmt.Printf("Cycles: %d\n", C.GlobalCycles)
+	for i := 0; i <= C.StackDebugPt; i++ {
 		fmt.Printf("%s", C.StackDebug[i])
 	}
 }
