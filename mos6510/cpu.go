@@ -31,6 +31,8 @@ func (C *CPU) Reset() {
 	// Cold Start:
 	C.setI(true)
 	C.PC = C.readWord(COLDSTART_Vector)
+	C.StackDebugPt = -1
+	C.GlobalCycles = 0
 	fmt.Printf("mos6510 - PC: %04X\n", C.PC)
 
 	perfStats = make(map[byte][]time.Duration)
@@ -43,6 +45,7 @@ func (C *CPU) Init(MEM *mem.BANK) {
 	fmt.Printf("mos6510 - Init\n")
 	C.ram = MEM
 	C.stack = MEM.Layouts[0].Layers[0][StackStart : StackStart+256]
+	C.StackDebug = make([]string, 255)
 	C.ramSize = len(MEM.Layouts[0].Layers[0])
 	C.initLanguage()
 	C.Reset()
@@ -159,6 +162,7 @@ func (C *CPU) firstCycle() {
 }
 
 func (C *CPU) NextCycle() {
+	C.GlobalCycles++
 	C.CycleCount++
 	switch C.CycleCount {
 	case 1:

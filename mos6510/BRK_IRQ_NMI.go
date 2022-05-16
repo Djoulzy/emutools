@@ -1,10 +1,13 @@
 package mos6510
 
+import "fmt"
+
 ///////////////////////////////////////////////////////
 //                        BRK                        //
 ///////////////////////////////////////////////////////
 
 func (C *CPU) BRK_imp() {
+	fmt.Printf("BRK\n")
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -67,6 +70,7 @@ func (C *CPU) IRQ_imp() {
 ///////////////////////////////////////////////////////
 
 func (C *CPU) NMI_imp() {
+	fmt.Printf("NMI\n")
 	switch C.CycleCount {
 	case 1:
 		C.NMI_Raised = false

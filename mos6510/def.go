@@ -84,16 +84,17 @@ type CPU struct {
 
 	Mnemonic map[byte]Instruction
 
-	ram        *mem.BANK
-	ramSize    int
-	stack      []byte
-	StackDebug []string
-	InstStart  uint16
-	instDump   string
-	instCode   byte
-	FullInst   string
-	FullDebug  string
-	Inst       Instruction
+	ram          *mem.BANK
+	ramSize      int
+	stack        []byte
+	StackDebug   []string
+	StackDebugPt int
+	InstStart    uint16
+	instDump     string
+	instCode     byte
+	FullInst     string
+	FullDebug    string
+	Inst         Instruction
 
 	OperHI      byte
 	OperLO      byte
@@ -111,7 +112,8 @@ type CPU struct {
 	val_absXY    byte
 	comp_result  byte
 
-	CycleCount int
+	CycleCount   int
+	GlobalCycles int
 
 	NMI_Raised bool
 	IRQ_Raised bool

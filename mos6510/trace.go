@@ -105,3 +105,10 @@ func (C *CPU) DumpStats() {
 		}
 	}
 }
+
+func (C *CPU) DumpStackDebug() {
+	fmt.Printf("Cycles: %d - %d\n", C.GlobalCycles, C.StackDebugPt)
+	for i := 0; i < C.StackDebugPt; i++ {
+		fmt.Printf("%s", C.StackDebug[i])
+	}
+}

@@ -1,5 +1,7 @@
 package mos6510
 
+import "fmt"
+
 ///////////////////////////////////////////////////////
 //                        RTS                        //
 ///////////////////////////////////////////////////////
@@ -21,6 +23,7 @@ func (C *CPU) RTS_imp() {
 		C.PC = (uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO)
 		C.PC++
 		C.CycleCount = 0
+		C.StackDebugPt--
 	}
 }
 
@@ -29,6 +32,7 @@ func (C *CPU) RTS_imp() {
 ///////////////////////////////////////////////////////
 
 func (C *CPU) RTI_imp() {
+	fmt.Printf("RTI\n")
 	switch C.CycleCount {
 	case 1:
 		C.PC++
