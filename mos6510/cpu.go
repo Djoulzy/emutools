@@ -9,11 +9,12 @@ import (
 )
 
 var perfStats map[byte][]time.Duration
+var start time.Time
 
-func (C *CPU) timeTrack(start time.Time, name string) {
-	elapsed := time.Now().Sub(start)
-	perfStats[C.instCode] = append(perfStats[C.instCode], elapsed)
-}
+// func (C *CPU) timeTrack(start time.Time, name string) {
+// 	elapsed := time.Now().Sub(start)
+// 	perfStats[C.instCode] = append(perfStats[C.instCode], elapsed)
+// }
 
 func (C *CPU) Reset() {
 	C.A = 0xAA
@@ -51,6 +52,8 @@ func (C *CPU) Init(MEM *mem.BANK) {
 	C.initLanguage()
 	C.Reset()
 	C.CycleCount = 0
+
+	start = time.Now()
 }
 
 //////////////////////////////////
@@ -158,12 +161,18 @@ func (C *CPU) firstCycle() {
 	if C.Inst, ok = C.Mnemonic[C.instCode]; !ok {
 		log.Printf(fmt.Sprintf("Unknown instruction: %02X at %04X\n", C.instCode, C.PC))
 	}
-	C.composeDebug()
+	// C.composeDebug()
 	C.Inst.action()
 }
 
 func (C *CPU) NextCycle() {
 	C.GlobalCycles++
+	if C.GlobalCycles >= 0xF4240 {
+		elapsed := time.Now().Sub(start)
+		log.Printf("tick - %1.2f Mhz\n", 1/elapsed.Seconds())
+		C.GlobalCycles = 0
+		start = time.Now()
+	}
 	C.CycleCount++
 	switch C.CycleCount {
 	case 1:

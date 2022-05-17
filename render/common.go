@@ -11,7 +11,7 @@ const (
 	fontHeight  = 9
 	nbCodeLines = 20
 
-	setFPS      = 60
+	setFPS      = 51
 	throttleFPS = 1000 / setFPS
 )
 

@@ -214,7 +214,8 @@ func (S *SDL2Driver) Run() {
 				// buffer = 0
 			}
 		}
-		sdl.Delay(10)
+		// sdl.Delay(10)
+		S.UpdateFrame()
 	}
 }
 
