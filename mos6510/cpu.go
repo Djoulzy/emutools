@@ -43,8 +43,9 @@ func (C *CPU) Reset() {
 	}
 }
 
-func (C *CPU) Init(MEM *mem.BANK) {
+func (C *CPU) Init(Speed int, MEM *mem.BANK) {
 	fmt.Printf("mos6510 - Init\n")
+	C.Clock = Speed
 	C.ram = MEM
 	C.stack = MEM.Layouts[0].Layers[0][StackStart : StackStart+256]
 	C.StackDebug = make([]string, 255)
@@ -145,6 +146,8 @@ func (C *CPU) GoTo(addr uint16) {
 // 	C.Inst.action()
 // }
 
+var throttle time.Duration = 0
+
 func (C *CPU) firstCycle() {
 	var ok bool
 	C.InstStart = C.PC
@@ -161,16 +164,24 @@ func (C *CPU) firstCycle() {
 	if C.Inst, ok = C.Mnemonic[C.instCode]; !ok {
 		log.Printf(fmt.Sprintf("Unknown instruction: %02X at %04X\n", C.instCode, C.PC))
 	}
-	C.composeDebug()
+	// C.composeDebug()
 	C.Inst.action()
 	if C.GlobalCycles >= 0x3E8 {
 		elapsed := time.Now().Sub(start)
-		C.Speed = 0.001 / float64(elapsed.Milliseconds())
-		C.GlobalCycles = 0
-		sleepTime := time.Millisecond - elapsed
-		// log.Printf("%v\n", float64(elapsed.Milliseconds()))
-		time.Sleep(sleepTime)
 		start = time.Now()
+
+		// log.Printf("%s\n", elapsed)
+		C.ActualSpeed = 0.001 / float64(elapsed.Seconds())
+		C.GlobalCycles = 0
+		timeBase := time.Microsecond * time.Duration(1000/float64(C.Clock))
+		diff := timeBase - elapsed
+		if diff > time.Microsecond*25 {
+			throttle += time.Microsecond*5
+		} else if diff < 0 {
+			throttle -= time.Microsecond*5
+		}
+		// log.Printf("Diff: %v  Throttle: %v   Speed: %f\n", diff, throttle, C.ActualSpeed)
+		time.Sleep(throttle)
 	}
 }
 
@@ -201,5 +212,5 @@ func (C *CPU) NextCycle() float64 {
 	// 		}
 	// 	}
 	// }
-	return C.Speed
+	return C.ActualSpeed
 }
