@@ -161,18 +161,21 @@ func (C *CPU) firstCycle() {
 	if C.Inst, ok = C.Mnemonic[C.instCode]; !ok {
 		log.Printf(fmt.Sprintf("Unknown instruction: %02X at %04X\n", C.instCode, C.PC))
 	}
-	// C.composeDebug()
+	C.composeDebug()
 	C.Inst.action()
-}
-
-func (C *CPU) NextCycle() {
-	C.GlobalCycles++
-	if C.GlobalCycles >= 0xF4240 {
+	if C.GlobalCycles >= 0x3E8 {
 		elapsed := time.Now().Sub(start)
-		log.Printf("tick - %1.2f Mhz\n", 1/elapsed.Seconds())
+		C.Speed = 0.001 / float64(elapsed.Milliseconds())
 		C.GlobalCycles = 0
+		sleepTime := time.Millisecond - elapsed
+		// log.Printf("%v\n", float64(elapsed.Milliseconds()))
+		time.Sleep(sleepTime)
 		start = time.Now()
 	}
+}
+
+func (C *CPU) NextCycle() float64 {
+	C.GlobalCycles++
 	C.CycleCount++
 	switch C.CycleCount {
 	case 1:
@@ -198,4 +201,5 @@ func (C *CPU) NextCycle() {
 	// 		}
 	// 	}
 	// }
+	return C.Speed
 }

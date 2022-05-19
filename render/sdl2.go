@@ -36,6 +36,7 @@ type SDL2Driver struct {
 
 	ShowFps  bool
 	ShowCode bool
+	speed    float64
 	mode3D   bool
 }
 
@@ -129,8 +130,10 @@ func (S *SDL2Driver) throttleFPS() {
 			fps = frameCount
 			frameCount = 0
 		}
-		pt := freetype.Pt((S.emuWidth - fontWidth*3), fontHeight)
-		S.font.DrawString(fmt.Sprintf("%d", fps), pt)
+		pt := freetype.Pt((S.emuWidth - fontWidth*7), fontHeight)
+		S.font.DrawString(fmt.Sprintf("%1.1f Mhz", S.speed), pt)
+		pt = freetype.Pt((S.emuWidth - fontWidth*6), fontHeight*2)
+		S.font.DrawString(fmt.Sprintf("%d FPS", fps), pt)
 	}
 }
 
@@ -140,6 +143,10 @@ func (S *SDL2Driver) DumpCode(inst string) {
 	if S.nextCodeLine == nbCodeLines {
 		S.nextCodeLine = 0
 	}
+}
+
+func (S *SDL2Driver) SetSpeed(speed float64) {
+	S.speed = speed
 }
 
 func (S *SDL2Driver) DisplayCode() {
@@ -177,7 +184,7 @@ func (S *SDL2Driver) UpdateFrame() {
 	frameCount++
 }
 
-func (S *SDL2Driver) Run() {
+func (S *SDL2Driver) Run(autoupdate bool) {
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch t := event.(type) {
@@ -214,9 +221,17 @@ func (S *SDL2Driver) Run() {
 				// buffer = 0
 			}
 		}
-		// sdl.Delay(10)
-		S.UpdateFrame()
+
+		if autoupdate {
+			S.UpdateFrame()
+		} else {
+			sdl.Delay(10)
+		}
 	}
+}
+
+func (S *SDL2Driver) Pause(delay uint32) {
+	sdl.Delay(delay)
 }
 
 func (S *SDL2Driver) IOEvents() *KEYPressed {

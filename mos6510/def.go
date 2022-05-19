@@ -114,6 +114,7 @@ type CPU struct {
 
 	CycleCount   int
 	GlobalCycles int
+	Speed        float64
 
 	NMI_Raised bool
 	IRQ_Raised bool
