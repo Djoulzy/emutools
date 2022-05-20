@@ -229,8 +229,6 @@ func (S *SDL2Driver) Run(autoupdate bool) {
 							if err == nil {
 								log.Printf("%s", text)
 								buffer = []byte(text)
-							} else {
-								log.Printf("empty")
 							}
 						}
 					default:
@@ -252,7 +250,6 @@ func (S *SDL2Driver) Run(autoupdate bool) {
 			if S.keybLine.KeyCode == 0 {
 				S.keybLine.Mode = 0
 				S.keybLine.KeyCode = uint(buffer[buffer_pt])
-				log.Printf("%d", S.keybLine.KeyCode)
 				buffer_pt++
 				if buffer_pt == len(buffer) {
 					buffer = []byte("")

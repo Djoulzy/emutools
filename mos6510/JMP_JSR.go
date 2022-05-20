@@ -1,7 +1,5 @@
 package mos6510
 
-import "fmt"
-
 ///////////////////////////////////////////////////////
 //                        JMP                        //
 ///////////////////////////////////////////////////////
@@ -61,9 +59,9 @@ func (C *CPU) JSR_abs() {
 		C.OperHI = C.ram.Read(C.PC)
 		C.PC = (uint16(C.OperHI) << 8) + uint16(C.OperLO)
 		C.CycleCount = 0
-		C.StackDebugPt++
-		C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - %04X: JSR $%02X%02X\n", C.SP+2, C.stack[C.SP+2], C.InstStart, C.OperHI, C.OperLO)
-		C.StackDebugPt++
-		C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - \n", C.SP+1, C.stack[C.SP+1])
+		// C.StackDebugPt++
+		// C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - %04X: JSR $%02X%02X\n", C.SP+2, C.stack[C.SP+2], C.InstStart, C.OperHI, C.OperLO)
+		// C.StackDebugPt++
+		// C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - \n", C.SP+1, C.stack[C.SP+1])
 	}
 }

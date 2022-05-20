@@ -1,7 +1,5 @@
 package mos6510
 
-import "fmt"
-
 ///////////////////////////////////////////////////////
 //                        PHA                        //
 ///////////////////////////////////////////////////////
@@ -16,8 +14,8 @@ func (C *CPU) PHA_imp() {
 		C.stack[C.SP] = C.A
 		C.SP--
 		C.CycleCount = 0
-		C.StackDebugPt++
-		C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - %04X: PHA #$%02X\n", C.SP+1, C.stack[C.SP+1], C.InstStart, C.A)
+		// C.StackDebugPt++
+		// C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - %04X: PHA #$%02X\n", C.SP+1, C.stack[C.SP+1], C.InstStart, C.A)
 	}
 }
 
@@ -38,6 +36,6 @@ func (C *CPU) PLA_imp() {
 		C.updateN(C.A)
 		C.updateZ(C.A)
 		C.CycleCount = 0
-		C.StackDebugPt--
+		// C.StackDebugPt--
 	}
 }
