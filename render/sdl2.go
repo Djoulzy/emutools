@@ -211,16 +211,17 @@ func (S *SDL2Driver) Run(autoupdate bool) {
 						S.keybLine.KeyCode = uint(t.Keysym.Sym)
 						S.keybLine.Mode = 0
 					case 1:
-						if S.keybLine.KeyCode != sdl.K_LSHIFT {
-							S.keybLine.Mode = sdl.K_LSHIFT
-						}
+						S.keybLine.Mode = sdl.K_LSHIFT
+						S.keybLine.KeyCode = uint(t.Keysym.Sym)
 					case 2:
-						if S.keybLine.KeyCode != sdl.K_RSHIFT {
-							S.keybLine.Mode = sdl.K_RSHIFT
+						S.keybLine.Mode = sdl.K_RSHIFT
+						if t.Keysym.Sym != sdl.K_RSHIFT {
+							S.keybLine.KeyCode = uint(t.Keysym.Sym)
 						}
 					case 64:
-						if S.keybLine.KeyCode != sdl.K_LCTRL {
-							S.keybLine.Mode = sdl.K_LCTRL
+						S.keybLine.Mode = sdl.K_LCTRL
+						if t.Keysym.Sym != sdl.K_LCTRL {
+							S.keybLine.KeyCode = uint(t.Keysym.Sym)
 						}
 					case 1024:
 						if t.Keysym.Sym == sdl.K_v {
@@ -239,8 +240,8 @@ func (S *SDL2Driver) Run(autoupdate bool) {
 					log.Printf("KEY DOWN : %d - %d %d", t.Keysym.Mod, S.keybLine.KeyCode, S.keybLine.Mode)
 				case sdl.KEYUP:
 					// *S.keybLine = 1073742049
-					S.keybLine.KeyCode = 0
-					S.keybLine.Mode = 0
+					// S.keybLine.KeyCode = 0
+					// S.keybLine.Mode = 0
 				}
 			default:
 			}
@@ -248,12 +249,16 @@ func (S *SDL2Driver) Run(autoupdate bool) {
 		}
 
 		if buffer_pt < len(buffer) {
-			S.keybLine.Mode = 0
-			S.keybLine.KeyCode = uint(buffer[buffer_pt])
-			buffer_pt++
-		} else {
-			buffer = []byte("")
-			buffer_pt = 0
+			if S.keybLine.KeyCode == 0 {
+				S.keybLine.Mode = 0
+				S.keybLine.KeyCode = uint(buffer[buffer_pt])
+				log.Printf("%d", S.keybLine.KeyCode)
+				buffer_pt++
+				if buffer_pt == len(buffer) {
+					buffer = []byte("")
+					buffer_pt = 0
+				}
+			}
 		}
 
 		if autoupdate {

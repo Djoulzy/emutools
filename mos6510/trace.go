@@ -64,7 +64,7 @@ func (C *CPU) trace() string {
 
 func (C *CPU) composeDebug() {
 	C.FullInst = C.disassemble()
-	// C.FullDebug = C.trace()
+	C.FullDebug = C.trace()
 }
 
 func ColVal(val time.Duration) string {
