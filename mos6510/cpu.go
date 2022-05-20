@@ -164,7 +164,7 @@ func (C *CPU) firstCycle() {
 	if C.Inst, ok = C.Mnemonic[C.instCode]; !ok {
 		log.Printf(fmt.Sprintf("Unknown instruction: %02X at %04X\n", C.instCode, C.PC))
 	}
-	// C.composeDebug()
+	C.composeDebug()
 	C.Inst.action()
 	if C.GlobalCycles >= 0x3E8 {
 		elapsed := time.Now().Sub(start)
@@ -176,9 +176,9 @@ func (C *CPU) firstCycle() {
 		timeBase := time.Microsecond * time.Duration(1000/float64(C.Clock))
 		diff := timeBase - elapsed
 		if diff > time.Microsecond*25 {
-			throttle += time.Microsecond*5
+			throttle += time.Microsecond * 5
 		} else if diff < 0 {
-			throttle -= time.Microsecond*5
+			throttle -= time.Microsecond * 5
 		}
 		// log.Printf("Diff: %v  Throttle: %v   Speed: %f\n", diff, throttle, C.ActualSpeed)
 		time.Sleep(throttle)

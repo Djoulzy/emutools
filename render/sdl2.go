@@ -184,7 +184,18 @@ func (S *SDL2Driver) UpdateFrame() {
 	frameCount++
 }
 
+func (S *SDL2Driver) GetClipboardText() string {
+	text, err := sdl.GetClipboardText()
+	if err != nil {
+		return ""
+	}
+	return text
+}
+
 func (S *SDL2Driver) Run(autoupdate bool) {
+	var buffer []byte
+	var buffer_pt = 0
+
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch t := event.(type) {
@@ -193,9 +204,12 @@ func (S *SDL2Driver) Run(autoupdate bool) {
 			case *sdl.KeyboardEvent:
 				switch t.Type {
 				case sdl.KEYDOWN:
-					S.keybLine.KeyCode = uint(t.Keysym.Sym)
-					S.keybLine.Mode = 0
+					// S.keybLine.KeyCode = uint(t.Keysym.Sym)
+					// S.keybLine.Mode = 0
 					switch t.Keysym.Mod {
+					case 0:
+						S.keybLine.KeyCode = uint(t.Keysym.Sym)
+						S.keybLine.Mode = 0
 					case 1:
 						if S.keybLine.KeyCode != sdl.K_LSHIFT {
 							S.keybLine.Mode = sdl.K_LSHIFT
@@ -208,8 +222,19 @@ func (S *SDL2Driver) Run(autoupdate bool) {
 						if S.keybLine.KeyCode != sdl.K_LCTRL {
 							S.keybLine.Mode = sdl.K_LCTRL
 						}
+					case 1024:
+						if t.Keysym.Sym == sdl.K_v {
+							text, err := sdl.GetClipboardText()
+							if err == nil {
+								log.Printf("%s", text)
+								buffer = []byte(text)
+							} else {
+								log.Printf("empty")
+							}
+						}
 					default:
-						S.keybLine.Mode = S.keybLine.KeyCode
+						S.keybLine.KeyCode = uint(t.Keysym.Sym)
+						S.keybLine.Mode = 0
 					}
 					log.Printf("KEY DOWN : %d - %d %d", t.Keysym.Mod, S.keybLine.KeyCode, S.keybLine.Mode)
 				case sdl.KEYUP:
@@ -218,8 +243,17 @@ func (S *SDL2Driver) Run(autoupdate bool) {
 					S.keybLine.Mode = 0
 				}
 			default:
-				// buffer = 0
 			}
+
+		}
+
+		if buffer_pt < len(buffer) {
+			S.keybLine.Mode = 0
+			S.keybLine.KeyCode = uint(buffer[buffer_pt])
+			buffer_pt++
+		} else {
+			buffer = []byte("")
+			buffer_pt = 0
 		}
 
 		if autoupdate {
