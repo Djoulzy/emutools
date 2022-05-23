@@ -31,8 +31,8 @@ func (C *CPU) Reset() {
 
 	// Cold Start:
 	C.setI(true)
-	// C.PC = C.readWord(COLDSTART_Vector)
-	C.PC = 0xFA62
+	C.PC = C.readWord(COLDSTART_Vector)
+	// C.PC = 0xFA62
 	C.StackDebugPt = -1
 	C.GlobalCycles = -1
 	fmt.Printf("mos6510 - PC: %04X\n", C.PC)
