@@ -47,7 +47,7 @@ func InitConfig(size int) CONFIG {
 	return C
 }
 
-func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool) {
+func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool, disabled bool) {
 	nbPages := len(content) >> PAGE_DIVIDER
 	startPage := int(start >> PAGE_DIVIDER)
 
@@ -59,7 +59,7 @@ func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool) {
 
 	C.Start = append(C.Start, start)
 	C.ReadOnly = append(C.ReadOnly, mode)
-	C.Disabled = append(C.Disabled, false)
+	C.Disabled = append(C.Disabled, disabled)
 	C.Accessors = append(C.Accessors, C)
 
 	C.PagesUsed = append(C.PagesUsed, make([]bool, C.TotalPages))
