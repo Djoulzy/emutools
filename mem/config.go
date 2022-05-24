@@ -18,24 +18,28 @@ type MEMAccess interface {
 }
 
 type CONFIG struct {
-	Layers       [][]byte    // Liste des couches de memoire
-	LayersName   []string    // Nom de la couche
-	Start        []uint16    // Addresse de début de la couche
-	PagesUsed    [][]bool    // Pages utilisées par la couche
-	ReadOnly     []bool      // Mode d'accès à la couche
-	LayerByPages []int       // Couche active pour la page
-	Accessors    []MEMAccess // Reader/Writer de la couche
-	TotalPages   int         // Nb total de pages
+	Layers       [][]byte       // Liste des couches de memoire
+	LayersName   map[string]int // Nom de la couche
+	NameLayers   map[int]string // Nom de la couche
+	Start        []uint16       // Addresse de début de la couche
+	PagesUsed    [][]bool       // Pages utilisées par la couche
+	ReadOnly     []bool         // Mode d'accès à la couche
+	Disabled     []bool         // Momentanement invisible, on bascule en couche 0 (RAM)
+	LayerByPages []int          // Couche active pour la page
+	Accessors    []MEMAccess    // Reader/Writer de la couche
+	TotalPages   int            // Nb total de pages
 }
 
 func InitConfig(size int) CONFIG {
 	C := CONFIG{}
 
 	C.Layers = make([][]byte, 0, 20)
-	C.LayersName = make([]string, 0, 20)
+	C.LayersName = make(map[string]int)
+	C.NameLayers = make(map[int]string)
 	C.Start = make([]uint16, 0, 20)
 	C.PagesUsed = make([][]bool, 0, 20)
 	C.ReadOnly = make([]bool, 0, 20)
+	C.Disabled = make([]bool, 0, 20)
 	C.Accessors = make([]MEMAccess, 0, 20)
 
 	C.TotalPages = int(size >> PAGE_DIVIDER)
@@ -50,9 +54,12 @@ func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool) {
 	C.Layers = append(C.Layers, content)
 	layerNum := len(C.Layers) - 1
 
-	C.LayersName = append(C.LayersName, name)
+	C.LayersName[name] = layerNum
+	C.NameLayers[layerNum] = name
+
 	C.Start = append(C.Start, start)
 	C.ReadOnly = append(C.ReadOnly, mode)
+	C.Disabled = append(C.Disabled, false)
 	C.Accessors = append(C.Accessors, C)
 
 	C.PagesUsed = append(C.PagesUsed, make([]bool, C.TotalPages))
@@ -66,12 +73,16 @@ func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool) {
 	}
 }
 
+func (C *CONFIG) Disable(layerName string) {
+	C.Disabled[C.LayersName[layerName]] = true
+}
+
+func (C *CONFIG) Enable(layerName string) {
+	C.Disabled[C.LayersName[layerName]] = false
+}
+
 func (C *CONFIG) Accessor(layerName string, access MEMAccess) {
-	for index, name := range C.LayersName {
-		if name == layerName {
-			C.Accessors[index] = access
-		}
-	}
+	C.Accessors[C.LayersName[layerName]] = access
 }
 
 func (C *CONFIG) MRead(mem []byte, translatedAddr uint16) byte {
@@ -98,7 +109,7 @@ func (C *CONFIG) Show() {
 				line[pos] = clog.CSprintf("black", "dark_gray", " ")
 			}
 		}
-		fmt.Printf("%10s:", C.LayersName[layerNum])
+		fmt.Printf("%10s:", C.NameLayers[layerNum])
 		for i := range line {
 			fmt.Printf("%s", line[i])
 		}

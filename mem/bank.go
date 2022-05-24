@@ -23,14 +23,28 @@ func InitBanks(nbMemLayout int, sel *byte) BANK {
 	return B
 }
 
+func (B *BANK) Disable(layerName string) {
+	for _, config := range B.Layouts {
+		config.Disable(layerName)
+	}
+}
+
+func (B *BANK) Enable(layerName string) {
+	for _, config := range B.Layouts {
+		config.Enable(layerName)
+	}}
+
 func (B *BANK) Read(addr uint16) byte {
 	layerNum := B.Layouts[*B.Selector].LayerByPages[int(addr>>PAGE_DIVIDER)]
+	if B.Layouts[*B.Selector].Disabled[layerNum] {
+		layerNum = 0
+	}
 	return B.Layouts[*B.Selector].Accessors[layerNum].MRead(B.Layouts[*B.Selector].Layers[layerNum], addr-B.Layouts[*B.Selector].Start[layerNum])
 }
 
 func (B *BANK) Write(addr uint16, value byte) {
 	layerNum := B.Layouts[*B.Selector].LayerByPages[int(addr>>PAGE_DIVIDER)]
-	if B.Layouts[*B.Selector].ReadOnly[layerNum] {
+	if B.Layouts[*B.Selector].ReadOnly[layerNum] || B.Layouts[*B.Selector].Disabled[layerNum] {
 		layerNum = 0
 	}
 	// if layerNum == 0 {
