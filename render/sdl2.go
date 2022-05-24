@@ -49,7 +49,7 @@ func (S *SDL2Driver) CloseAll() {
 	sdl.Quit()
 }
 
-func (S *SDL2Driver) Init(width, height int, title string, mode3D bool) {
+func (S *SDL2Driver) Init(width, height int, title string, mode3D bool, debug bool) {
 	S.emuHeight = height
 	S.emuWidth = width + Xadjust
 	S.winHeight = S.emuHeight * 2
@@ -60,6 +60,12 @@ func (S *SDL2Driver) Init(width, height int, title string, mode3D bool) {
 	S.Update = make(chan bool)
 	S.ShowFps = false
 	S.mode3D = mode3D
+
+	if debug {
+		Xadjust = 150
+	} else {
+		Xadjust = 0
+	}
 
 	log.Printf("Starting renderer using SDL2\n")
 

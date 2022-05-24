@@ -78,7 +78,8 @@ func (C *CPU) isc() {
 	// var oper byte
 	// var crossed bool
 
-	log.Fatal("Illegal: ISC")
+	log.Printf("Illegal: ISC - PC: %04X", C.PC)
+	log.Fatal("GAME OVER")
 
 	// switch C.Inst.addr {
 	// case immediate:

@@ -5,7 +5,6 @@ import (
 )
 
 const (
-	Xadjust     = 150
 	Yadjust     = 100
 	fontWidth   = 8
 	fontHeight  = 9
@@ -21,6 +20,7 @@ type KEYPressed struct {
 }
 
 var fps, frameCount, lastFrame, lastTime, timerFPS uint32
+var Xadjust int
 
 func getGlyph(char rune) *sdl.Rect {
 	pos := int32(char - 32)

@@ -162,7 +162,7 @@ func TestMain(m *testing.M) {
 	MEM.Layouts[0] = mem.InitConfig(ramSize)
 	MEM.Layouts[0].Attach("RAM", 0, RAM, mem.READWRITE)
 
-	proc.Init(1, &MEM)
+	proc.Init(1, &MEM, true)
 	os.Exit(m.Run())
 }
 

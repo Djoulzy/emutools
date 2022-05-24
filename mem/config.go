@@ -23,9 +23,9 @@ type CONFIG struct {
 	NameLayers   map[int]string // Nom de la couche
 	Start        []uint16       // Addresse de début de la couche
 	PagesUsed    [][]bool       // Pages utilisées par la couche
-	ReadOnly     []bool         // Mode d'accès à la couche
+	ReadOnlyMode []bool         // Mode d'accès à la couche
 	Disabled     []bool         // Momentanement invisible, on bascule en couche 0 (RAM)
-	LayerByPages []int          // Couche active pour la page
+	LayerByPages [][]int        // Couche active pour la page
 	Accessors    []MEMAccess    // Reader/Writer de la couche
 	TotalPages   int            // Nb total de pages
 }
@@ -38,12 +38,12 @@ func InitConfig(size int) CONFIG {
 	C.NameLayers = make(map[int]string)
 	C.Start = make([]uint16, 0, 20)
 	C.PagesUsed = make([][]bool, 0, 20)
-	C.ReadOnly = make([]bool, 0, 20)
+	C.ReadOnlyMode = make([]bool, 0, 20)
 	C.Disabled = make([]bool, 0, 20)
 	C.Accessors = make([]MEMAccess, 0, 20)
 
 	C.TotalPages = int(size >> PAGE_DIVIDER)
-	C.LayerByPages = make([]int, C.TotalPages)
+	C.LayerByPages = make([][]int, C.TotalPages)
 	return C
 }
 
@@ -58,7 +58,7 @@ func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool, di
 	C.NameLayers[layerNum] = name
 
 	C.Start = append(C.Start, start)
-	C.ReadOnly = append(C.ReadOnly, mode)
+	C.ReadOnlyMode = append(C.ReadOnlyMode, mode)
 	C.Disabled = append(C.Disabled, disabled)
 	C.Accessors = append(C.Accessors, C)
 
@@ -68,7 +68,7 @@ func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool, di
 	}
 
 	for i := 0; i < nbPages; i++ {
-		C.LayerByPages[startPage+i] = layerNum
+		C.LayerByPages[startPage+i] = append([]int{layerNum}, C.LayerByPages[startPage+i]...)
 		C.PagesUsed[layerNum][startPage+i] = true
 	}
 }
@@ -79,6 +79,14 @@ func (C *CONFIG) Disable(layerName string) {
 
 func (C *CONFIG) Enable(layerName string) {
 	C.Disabled[C.LayersName[layerName]] = false
+}
+
+func (C *CONFIG) ReadOnly(layerName string) {
+	C.ReadOnlyMode[C.LayersName[layerName]] = true
+}
+
+func (C *CONFIG) ReadWrite(layerName string) {
+	C.ReadOnlyMode[C.LayersName[layerName]] = false
 }
 
 func (C *CONFIG) Accessor(layerName string, access MEMAccess) {

@@ -1,7 +1,5 @@
 package mos6510
 
-import "log"
-
 //////////////////////////////////
 //////////// Zero Flag ///////////
 //////////////////////////////////
@@ -128,8 +126,6 @@ func (C *CPU) setV(val bool) {
 
 func (C *CPU) setD(val bool) {
 	if val {
-		log.Printf("DECIMAL FLAG: %04X - %s", C.InstStart, C.registers())
-		// log.Fatal("Decimal flag")
 		C.S |= ^D_mask
 	} else {
 		C.S &= D_mask

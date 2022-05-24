@@ -9,7 +9,8 @@ import (
 
 const StackStart = 0x0100
 
-var bank byte
+var layout *CONFIG
+var cpt, page, layerNum int
 
 type BANK struct {
 	Selector *byte
@@ -32,25 +33,37 @@ func (B *BANK) Disable(layerName string) {
 func (B *BANK) Enable(layerName string) {
 	for _, config := range B.Layouts {
 		config.Enable(layerName)
-	}}
+	}
+}
+
+func (B *BANK) ReadOnly(layerName string) {
+	for _, config := range B.Layouts {
+		config.ReadOnly(layerName)
+	}
+}
+
+func (B *BANK) ReadWrite(layerName string) {
+	for _, config := range B.Layouts {
+		config.ReadWrite(layerName)
+	}
+}
 
 func (B *BANK) Read(addr uint16) byte {
-	layerNum := B.Layouts[*B.Selector].LayerByPages[int(addr>>PAGE_DIVIDER)]
-	if B.Layouts[*B.Selector].Disabled[layerNum] {
-		layerNum = 0
-	}
-	return B.Layouts[*B.Selector].Accessors[layerNum].MRead(B.Layouts[*B.Selector].Layers[layerNum], addr-B.Layouts[*B.Selector].Start[layerNum])
+	layout = &B.Layouts[*B.Selector]
+	page = int(addr>>PAGE_DIVIDER)
+
+	for cpt = 0; layout.Disabled[layout.LayerByPages[page][cpt]]; cpt++ {}
+	layerNum = layout.LayerByPages[page][cpt]
+	return layout.Accessors[layerNum].MRead(layout.Layers[layerNum], addr-layout.Start[layerNum])
 }
 
 func (B *BANK) Write(addr uint16, value byte) {
-	layerNum := B.Layouts[*B.Selector].LayerByPages[int(addr>>PAGE_DIVIDER)]
-	if B.Layouts[*B.Selector].ReadOnly[layerNum] || B.Layouts[*B.Selector].Disabled[layerNum] {
-		layerNum = 0
-	}
-	// if layerNum == 0 {
-	// 	clog.Test("MEM", "Write", "Addr: %04X, Page: %d, Data: %02X", addr, int(addr>>PAGE_DIVIDER), value)
-	// }
-	B.Layouts[*B.Selector].Accessors[layerNum].MWrite(B.Layouts[*B.Selector].Layers[layerNum], addr-B.Layouts[*B.Selector].Start[layerNum], value)
+	layout = &B.Layouts[*B.Selector]
+	page = int(addr>>PAGE_DIVIDER)
+
+	for cpt = 0; layout.Disabled[layout.LayerByPages[page][cpt]] || layout.ReadOnlyMode[layout.LayerByPages[page][cpt]]; cpt++ {} 
+	layerNum = layout.LayerByPages[page][cpt]
+	layout.Accessors[layerNum].MWrite(layout.Layers[layerNum], addr-layout.Start[layerNum], value)
 }
 
 func (B *BANK) Dump(startAddr uint16) {

@@ -10,6 +10,7 @@ import (
 
 var perfStats map[byte][]time.Duration
 var start time.Time
+var is_debug bool
 
 // func (C *CPU) timeTrack(start time.Time, name string) {
 // 	elapsed := time.Now().Sub(start)
@@ -43,7 +44,7 @@ func (C *CPU) Reset() {
 	}
 }
 
-func (C *CPU) Init(Speed int, MEM *mem.BANK) {
+func (C *CPU) Init(Speed int, MEM *mem.BANK, debug bool) {
 	fmt.Printf("mos6510 - Init\n")
 	C.Clock = Speed
 	C.ram = MEM
@@ -53,6 +54,7 @@ func (C *CPU) Init(Speed int, MEM *mem.BANK) {
 	C.initLanguage()
 	C.Reset()
 	C.CycleCount = 0
+	is_debug = debug
 
 	start = time.Now()
 }
@@ -164,7 +166,9 @@ func (C *CPU) firstCycle() {
 	if C.Inst, ok = C.Mnemonic[C.instCode]; !ok {
 		log.Printf(fmt.Sprintf("Unknown instruction: %02X at %04X\n", C.instCode, C.PC))
 	}
-	C.composeDebug()
+	if is_debug {
+		C.composeDebug()
+	}
 	C.Inst.action()
 	if C.GlobalCycles >= 0x3E8 {
 		elapsed := time.Now().Sub(start)
