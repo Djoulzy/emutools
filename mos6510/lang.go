@@ -143,6 +143,13 @@ func (C *CPU) initLanguage() {
 		// 0xD2: {Name: "KIL", bytes: 1, Cycles: 1, action: func() { C.State = Idle }, addr: implied},
 		// 0xF2: {Name: "KIL", bytes: 1, Cycles: 1, action: func() { C.State = Idle }, addr: implied},
 
+		0xA7: {Name: "LAX", bytes: 2, Cycles: 3, action: C.LAX_zep, addr: zeropage},
+		0xB7: {Name: "LAX", bytes: 2, Cycles: 4, action: C.LAX_zpy, addr: zeropageY},
+		0xAF: {Name: "LAX", bytes: 3, Cycles: 4, action: C.LAX_abs, addr: absolute},
+		0xBF: {Name: "LAX", bytes: 3, Cycles: 4, action: C.LAX_aby, addr: absoluteY},
+		0xA3: {Name: "LAX", bytes: 2, Cycles: 6, action: C.LAX_inx, addr: indirectX},
+		0xB3: {Name: "LAX", bytes: 2, Cycles: 5, action: C.LAX_iny, addr: indirectY},
+
 		0xA9: {Name: "LDA", bytes: 2, Cycles: 2, action: C.LDA_imm, addr: immediate},
 		0xA5: {Name: "LDA", bytes: 2, Cycles: 3, action: C.LDA_zep, addr: zeropage},
 		0xB5: {Name: "LDA", bytes: 2, Cycles: 4, action: C.LDA_zpx, addr: zeropageX},
