@@ -50,6 +50,12 @@ func (S *SDL2Driver) CloseAll() {
 }
 
 func (S *SDL2Driver) Init(width, height int, title string, mode3D bool, debug bool) {
+	if debug {
+		Xadjust = 150
+	} else {
+		Xadjust = 0
+	}
+
 	S.emuHeight = height
 	S.emuWidth = width + Xadjust
 	S.winHeight = S.emuHeight * 2
@@ -60,12 +66,6 @@ func (S *SDL2Driver) Init(width, height int, title string, mode3D bool, debug bo
 	S.Update = make(chan bool)
 	S.ShowFps = false
 	S.mode3D = mode3D
-
-	if debug {
-		Xadjust = 150
-	} else {
-		Xadjust = 0
-	}
 
 	log.Printf("Starting renderer using SDL2\n")
 
