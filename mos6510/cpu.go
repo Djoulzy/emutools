@@ -170,7 +170,7 @@ func (C *CPU) firstCycle() {
 		C.composeDebug()
 	}
 	C.Inst.action()
-	if C.GlobalCycles >= 0x3E8 {
+	if C.GlobalCycles >= 17030 {
 		elapsed := time.Now().Sub(start)
 		start = time.Now()
 
