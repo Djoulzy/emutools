@@ -8,7 +8,7 @@ import (
 	"github.com/Djoulzy/emutools/mem"
 )
 
-var perfStats map[byte][]time.Duration
+// var perfStats map[byte][]time.Duration
 var start time.Time
 var is_debug bool
 
@@ -38,10 +38,10 @@ func (C *CPU) Reset() {
 	C.GlobalCycles = -1
 	fmt.Printf("mos6510 - PC: %04X\n", C.PC)
 
-	perfStats = make(map[byte][]time.Duration)
-	for index := range C.Mnemonic {
-		perfStats[index] = make([]time.Duration, 0)
-	}
+	// perfStats = make(map[byte][]time.Duration)
+	// for index := range C.Mnemonic {
+	// 	perfStats[index] = make([]time.Duration, 0)
+	// }
 }
 
 func (C *CPU) Init(Speed int, MEM *mem.BANK, debug bool) {
@@ -56,7 +56,7 @@ func (C *CPU) Init(Speed int, MEM *mem.BANK, debug bool) {
 	C.CycleCount = 0
 	is_debug = debug
 
-	start = time.Now()
+	// start = time.Now()
 }
 
 //////////////////////////////////
@@ -170,7 +170,8 @@ func (C *CPU) firstCycle() {
 		C.composeDebug()
 	}
 	C.Inst.action()
-	if C.GlobalCycles >= 17030 {
+	// if C.GlobalCycles >= 17030 {
+	if C.GlobalCycles >= 0x3E8 {
 		elapsed := time.Now().Sub(start)
 		start = time.Now()
 

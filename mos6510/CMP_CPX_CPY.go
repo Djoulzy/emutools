@@ -1,6 +1,8 @@
 package mos6510
 
 var tmp int
+var tmpByte byte
+var addr uint16
 
 ///////////////////////////////////////////////////////
 //                        CMP                        //
@@ -30,10 +32,11 @@ func (C *CPU) CMP_zep() {
 		C.OperLO = C.ram.Read(C.PC)
 		C.PC++
 	case 3:
-		tmp = int(C.A) - int(C.ram.Read(uint16(C.OperLO)))
-		C.setC(tmp >= 0)
-		C.updateN(byte(tmp))
-		C.updateZ(byte(tmp))
+		addr = uint16(C.OperLO)
+		tmpByte = C.A - C.ram.Read(addr)
+		C.setC(C.A >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
 		C.CycleCount = 0
 	}
 }
@@ -49,10 +52,11 @@ func (C *CPU) CMP_zpx() {
 		C.ram.Read(uint16(C.OperLO))
 		C.OperLO = C.OperLO + C.X
 	case 4:
-		tmp = int(C.A) - int(C.ram.Read(uint16(C.OperLO)))
-		C.setC(tmp >= 0)
-		C.updateN(byte(tmp))
-		C.updateZ(byte(tmp))
+		addr = uint16(C.OperLO)
+		tmpByte = C.A - C.ram.Read(addr)
+		C.setC(C.A >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
 		C.CycleCount = 0
 	}
 }
@@ -68,10 +72,11 @@ func (C *CPU) CMP_abs() {
 		C.OperHI = C.ram.Read(C.PC)
 		C.PC++
 	case 4:
-		tmp = int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
-		C.setC(tmp >= 0)
-		C.updateN(byte(tmp))
-		C.updateZ(byte(tmp))
+		addr = (uint16(C.OperHI) << 8) + uint16(C.OperLO)
+		tmpByte = C.A - C.ram.Read(addr)
+		C.setC(C.A >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
 		C.CycleCount = 0
 	}
 }
@@ -94,20 +99,22 @@ func (C *CPU) CMP_abx() {
 		C.OperLO += C.X
 		C.PC++
 	case 4:
-		tmp = int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
+		addr = (uint16(C.OperHI) << 8) + uint16(C.OperLO)
+		tmpByte = C.A - C.ram.Read(addr)
 		if C.pageCrossed {
 			C.OperHI++
 		} else {
-			C.setC(tmp >= 0)
-			C.updateN(byte(tmp))
-			C.updateZ(byte(tmp))
+			C.setC(C.A >= C.ram.Read(addr))
+			C.updateN(tmpByte)
+			C.updateZ(tmpByte)
 			C.CycleCount = 0
 		}
 	case 5:
-		tmp = int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
-		C.setC(tmp >= 0)
-		C.updateN(byte(tmp))
-		C.updateZ(byte(tmp))
+		addr = (uint16(C.OperHI) << 8) + uint16(C.OperLO)
+		tmpByte = C.A - C.ram.Read(addr)
+		C.setC(C.A >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
 		C.CycleCount = 0
 	}
 }
@@ -130,20 +137,22 @@ func (C *CPU) CMP_aby() {
 		C.OperLO += C.Y
 		C.PC++
 	case 4:
-		tmp = int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
+		addr = (uint16(C.OperHI) << 8) + uint16(C.OperLO)
+		tmpByte = C.A - C.ram.Read(addr)
 		if C.pageCrossed {
 			C.OperHI++
 		} else {
-			C.setC(tmp >= 0)
-			C.updateN(byte(tmp))
-			C.updateZ(byte(tmp))
+			C.setC(C.A >= C.ram.Read(addr))
+			C.updateN(tmpByte)
+			C.updateZ(tmpByte)
 			C.CycleCount = 0
 		}
 	case 5:
-		tmp = int(C.A) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
-		C.setC(tmp >= 0)
-		C.updateN(byte(tmp))
-		C.updateZ(byte(tmp))
+		addr = (uint16(C.OperHI) << 8) + uint16(C.OperLO)
+		tmpByte = C.A - C.ram.Read(addr)
+		C.setC(C.A >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
 		C.CycleCount = 0
 	}
 }
@@ -163,10 +172,12 @@ func (C *CPU) CMP_inx() {
 	case 5:
 		C.IndAddrHI = C.ram.Read(uint16(C.Pointer + 1))
 	case 6:
-		tmp = int(C.A) - int(C.ram.Read((uint16(C.IndAddrHI)<<8)+uint16(C.IndAddrLO)))
-		C.setC(tmp >= 0)
-		C.updateN(byte(tmp))
-		C.updateZ(byte(tmp))
+		addr = (uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO)
+		tmpByte = C.A - C.ram.Read(addr)
+
+		C.setC(C.A >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
 		C.CycleCount = 0
 	}
 }
@@ -190,20 +201,22 @@ func (C *CPU) CMP_iny() {
 		}
 		C.IndAddrLO += C.Y
 	case 5:
-		tmp = int(C.A) - int(C.ram.Read((uint16(C.IndAddrHI)<<8)+uint16(C.IndAddrLO)))
+		addr = (uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO)
+		tmpByte = C.A - C.ram.Read(addr)
 		if C.pageCrossed {
 			C.IndAddrHI++
 		} else {
-			C.setC(tmp >= 0)
-			C.updateN(byte(tmp))
-			C.updateZ(byte(tmp))
+			C.setC(C.A >= C.ram.Read(addr))
+			C.updateN(tmpByte)
+			C.updateZ(tmpByte)
 			C.CycleCount = 0
 		}
 	case 6:
-		tmp = int(C.A) - int(C.ram.Read((uint16(C.IndAddrHI)<<8)+uint16(C.IndAddrLO)))
-		C.setC(tmp >= 0)
-		C.updateN(byte(tmp))
-		C.updateZ(byte(tmp))
+		addr = (uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO)
+		tmpByte = C.A - C.ram.Read(addr)
+		C.setC(C.A >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
 		C.CycleCount = 0
 	}
 }
@@ -236,10 +249,11 @@ func (C *CPU) CPX_zep() {
 		C.OperLO = C.ram.Read(C.PC)
 		C.PC++
 	case 3:
-		tmp = int(C.X) - int(C.ram.Read(uint16(C.OperLO)))
-		C.setC(tmp >= 0)
-		C.updateN(byte(tmp))
-		C.updateZ(byte(tmp))
+		addr = uint16(C.OperLO)
+		tmpByte = C.X - C.ram.Read(addr)
+		C.setC(C.X >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
 		C.CycleCount = 0
 	}
 }
@@ -255,10 +269,11 @@ func (C *CPU) CPX_abs() {
 		C.OperHI = C.ram.Read(C.PC)
 		C.PC++
 	case 4:
-		tmp = int(C.X) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
-		C.setC(tmp >= 0)
-		C.updateN(byte(tmp))
-		C.updateZ(byte(tmp))
+		addr = (uint16(C.OperHI) << 8) + uint16(C.OperLO)
+		tmpByte = C.X - C.ram.Read(addr)
+		C.setC(C.X >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
 		C.CycleCount = 0
 	}
 }
@@ -291,10 +306,11 @@ func (C *CPU) CPY_zep() {
 		C.OperLO = C.ram.Read(C.PC)
 		C.PC++
 	case 3:
-		tmp = int(C.Y) - int(C.ram.Read(uint16(C.OperLO)))
-		C.setC(tmp >= 0)
-		C.updateN(byte(tmp))
-		C.updateZ(byte(tmp))
+		addr = uint16(C.OperLO)
+		tmpByte = C.Y - C.ram.Read(addr)
+		C.setC(C.Y >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
 		C.CycleCount = 0
 	}
 }
@@ -310,10 +326,11 @@ func (C *CPU) CPY_abs() {
 		C.OperHI = C.ram.Read(C.PC)
 		C.PC++
 	case 4:
-		tmp = int(C.Y) - int(C.ram.Read((uint16(C.OperHI)<<8)+uint16(C.OperLO)))
-		C.setC(tmp >= 0)
-		C.updateN(byte(tmp))
-		C.updateZ(byte(tmp))
+		addr = (uint16(C.OperHI) << 8) + uint16(C.OperLO)
+		tmpByte = C.Y - C.ram.Read(addr)
+		C.setC(C.Y >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
 		C.CycleCount = 0
 	}
 }

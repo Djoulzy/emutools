@@ -14,6 +14,7 @@ func (C *CPU) PHP_imp() {
 		C.stack[C.SP] = C.S | ^B_mask | ^U_mask
 		C.SP--
 		C.CycleCount = 0
+		// log.Printf(C.FullDebug)
 		// C.StackDebugPt++
 		// C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - %04X: PHP #$%02X\n", C.SP+1, C.stack[C.SP+1], C.InstStart, C.S)
 	}

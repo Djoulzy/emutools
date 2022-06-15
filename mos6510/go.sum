@@ -1,9 +1,9 @@
-github.com/Djoulzy/Tools/clog v0.0.0-20220429054701-4c221b41ecdf h1:jtIdZZFmU3ZsJtCA/adDa8lMSILUf8MUqJRuc6z6hns=
-github.com/Djoulzy/Tools/clog v0.0.0-20220429054701-4c221b41ecdf/go.mod h1:vpiS+fdl4f0KXBYgS8fT/bDBQc2L3XpFEroPKdL5WNA=
-github.com/Djoulzy/emutools/charset v0.0.0-20220506173254-13237329b89d h1:ejTttZ0ZHlYlgkYhaDGe3D5RwH9KxdA7UB5Fhc3uvog=
-github.com/Djoulzy/emutools/charset v0.0.0-20220506173254-13237329b89d/go.mod h1:nHh/Oz8MYyMM1G6/QcjV+m/5fmzwHNLDom7PrgBqsQo=
-github.com/Djoulzy/emutools/mem v0.0.0-20220506173254-13237329b89d h1:kQ7grd8ncOmkPlyASJcKJFMBoHmh6XVKINmLlH5qNu8=
-github.com/Djoulzy/emutools/mem v0.0.0-20220506173254-13237329b89d/go.mod h1:h17UF5zv6hIKKszeU5NVgyg20aKaWv2ctoupf8Ukhoc=
+github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc h1:csq0zYn1hpV+yFC93+MUFpp+zvNXFjU5ra3trOqc5iY=
+github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc/go.mod h1:vpiS+fdl4f0KXBYgS8fT/bDBQc2L3XpFEroPKdL5WNA=
+github.com/Djoulzy/emutools/charset v0.0.0-20220614171243-2cd571b9749d h1:CP1t1J/eCXdYcNa1IuDLHGOB9kCcoNaqgBHAhy2NnOQ=
+github.com/Djoulzy/emutools/charset v0.0.0-20220614171243-2cd571b9749d/go.mod h1:nHh/Oz8MYyMM1G6/QcjV+m/5fmzwHNLDom7PrgBqsQo=
+github.com/Djoulzy/emutools/mem v0.0.0-20220614171243-2cd571b9749d h1:hkmyoyFNuuZHiZ6ie6kiadfWMT6SVzP05Srho0cB8m8=
+github.com/Djoulzy/emutools/mem v0.0.0-20220614171243-2cd571b9749d/go.mod h1:h17UF5zv6hIKKszeU5NVgyg20aKaWv2ctoupf8Ukhoc=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 h1:m3Ayfs5OcAlIMEdLIQKubBsVLGee4YMUr14+d1256WE=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7/go.mod h1:QIAMbrwsnQZ2ES3G26RubSrDB5SPyzsp9Hts5NJdTrI=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
