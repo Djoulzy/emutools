@@ -21,14 +21,21 @@ func (C *CPU) doADC(inputVal byte) byte {
 
 func (C *CPU) doSBC(inputVal byte) byte {
 	if C.getD() == 1 {
-		val_bcd := uint16(bcd.ToUint8(C.A)) - uint16(bcd.ToUint8(byte(inputVal)))
+		carry := 0
 		if C.getC() == 0 {
-			val_bcd -= 1
+			carry = 1
 		}
-		vals := bcd.FromUint16(val_bcd)
-		C.setC(vals[1] > 0)
+
+		val_bcd := int(bcd.ToUint8(C.A)) - int(bcd.ToUint8(inputVal)) - carry
+		C.setC(val_bcd >= 0)
+		if val_bcd < 0 {
+			val_bcd += 100
+		}
+		vals := bcd.FromUint8(uint8(val_bcd))
 		C.setV(val_bcd > 100)
-		return vals[1]
+
+		// log.Printf("A: %02X (%d) - Val: %02X (%d) - %d = %d (%02X)\n", C.A, bcd.ToUint8(C.A), inputVal, bcd.ToUint8(inputVal), carry, val_bcd, vals)
+		return vals
 	} else {
 		val := int(C.A) - int(inputVal)
 		if C.getC() == 0 {

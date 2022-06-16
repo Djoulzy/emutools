@@ -12,3 +12,7 @@ require (
 	github.com/Djoulzy/emutools/charset v0.0.0-20220614171243-2cd571b9749d // indirect
 	github.com/stretchr/testify v1.7.1 // indirect
 )
+
+replace (
+	github.com/Djoulzy/emutools/mem v0.0.0-20220614171243-2cd571b9749d => ../mem
+)

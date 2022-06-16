@@ -24,6 +24,19 @@ func LoadROM(size int, file string) []byte {
 	return val
 }
 
+func LoadData(zone []byte, file string, memStart uint16) error {
+	content, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+
+	for i, val := range content {
+		// mem.Write(memStart+uint16(i), val)
+		zone[memStart+uint16(i)] = val
+	}
+	return nil
+}
+
 func Clear(zone []byte, interval int, startWith byte) {
 	// interval: 0x40 pour C64
 	//           0x1000 pour Apple

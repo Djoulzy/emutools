@@ -166,6 +166,28 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func Test6502(t *testing.T) {
+	mem.LoadData(RAM, "./6502_functional_test.bin", 0x00)
+	proc.PC = 0x400
+	var lastPC uint16 = 0
+	for {
+		proc.NextCycle()
+		if proc.CycleCount == 1 {
+			if lastPC == proc.InstStart {
+				if proc.InstStart == 0x3469 {
+					log.Printf("Global ASM 6502 test OK")
+				} else {
+					t.Errorf("Error trap: %04X\n", proc.InstStart)
+					log.Printf("%s\n", proc.FullDebug)
+				}
+				return
+			} else {
+				lastPC = proc.InstStart
+			}
+		}
+	}
+}
+
 // func TestStack(t *testing.T) {
 // 	var allGood bool = true
 // 	mem.Clear(RAM, 0x1000, 0xFF)

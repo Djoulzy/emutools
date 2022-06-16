@@ -7,7 +7,7 @@ import "fmt"
 ///////////////////////////////////////////////////////
 
 func (C *CPU) BRK_imp() {
-	fmt.Printf("BRK\n")
+	// fmt.Printf("BRK\n")
 	switch C.CycleCount {
 	case 1:
 		C.PC++
@@ -22,7 +22,7 @@ func (C *CPU) BRK_imp() {
 		C.SP--
 	case 5:
 		C.stack[C.SP] = C.S
-		C.stack[C.SP] = C.S | ^B_mask
+		C.stack[C.SP] = C.S | ^B_mask | ^U_mask
 		C.SP--
 		C.setI(true)
 	case 6:
