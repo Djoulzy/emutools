@@ -221,6 +221,27 @@ func (C *CPU) CMP_iny() {
 	}
 }
 
+func (C *CPU) CMP_izp() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.IndAddrLO = C.ram.Read(uint16(C.OperLO))
+	case 4:
+		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
+	case 5:
+		addr = (uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO)
+		tmpByte = C.A - C.ram.Read(addr)
+		C.setC(C.A >= C.ram.Read(addr))
+		C.updateN(tmpByte)
+		C.updateZ(tmpByte)
+		C.CycleCount = 0
+	}
+}
+
 ///////////////////////////////////////////////////////
 //                        CPX                        //
 ///////////////////////////////////////////////////////

@@ -11502,7 +11502,7 @@ fffe : 2427                     dw  irq_trap
                             endif
                         
 fffa =                          end start
-                        
+                
 No errors in pass 2.
 Wrote binary from address $0000 through $ffff.
 Total size 65536 bytes.

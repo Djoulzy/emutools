@@ -5,26 +5,6 @@ import (
 	"log"
 )
 
-func (C *CPU) nop() {
-	log.Fatal("Illegal: NOP")
-
-	// switch C.Inst.addr {
-	// case implied:
-	// 	fallthrough
-	// case immediate:
-	// 	fallthrough
-	// case zeropage:
-	// 	fallthrough
-	// case zeropageX:
-	// 	fallthrough
-	// case absolute:
-	// 	fallthrough
-	// case absoluteX:
-	// default:
-	// 	log.Fatal("Bad addressing mode")
-	// }
-}
-
 func (C *CPU) alr() {
 	// var val byte
 
@@ -60,7 +40,7 @@ func (C *CPU) sbx() {
 
 func (C *CPU) anc() {
 
-	log.Fatal("Illegal: ANC")
+	fmt.Printf("Not implemented: %02X\n", C.instCode)
 
 	// switch C.Inst.addr {
 	// case immediate:
@@ -238,17 +218,17 @@ func (C *CPU) dcp() {
 }
 
 func (C *CPU) rla() {
-	fmt.Printf("Not implemented: %v\n", C.Inst)
+	fmt.Printf("Not implemented: %02X\n", C.instCode)
 }
 
 func (C *CPU) sax() {
-	fmt.Printf("Not implemented: %v\n", C.Inst)
+	fmt.Printf("Not implemented: %02X\n", C.instCode)
 }
 
 func (C *CPU) slo() {
-	fmt.Printf("Not implemented: %v\n", C.Inst)
+	fmt.Printf("Not implemented: %02X\n", C.instCode)
 }
 
 func (C *CPU) sre() {
-	fmt.Printf("Not implemented: %v\n", C.Inst)
+	fmt.Printf("Not implemented: %02X\n", C.instCode)
 }

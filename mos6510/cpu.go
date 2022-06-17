@@ -36,7 +36,7 @@ func (C *CPU) Reset() {
 	// C.PC = 0xFA62
 	C.StackDebugPt = -1
 	C.GlobalCycles = -1
-	fmt.Printf("mos6510 - PC: %04X\n", C.PC)
+	fmt.Printf("%s - PC: %04X\n", C.model, C.PC)
 
 	// perfStats = make(map[byte][]time.Duration)
 	// for index := range C.Mnemonic {
@@ -44,8 +44,9 @@ func (C *CPU) Reset() {
 	// }
 }
 
-func (C *CPU) Init(Speed int, MEM *mem.BANK, debug bool) {
-	fmt.Printf("mos6510 - Init\n")
+func (C *CPU) Init(Model string, Speed int, MEM *mem.BANK, debug bool) {
+	C.model = Model
+	fmt.Printf("%s - Init\n", Model)
 	C.Clock = Speed
 	C.ram = MEM
 	C.stack = MEM.Layouts[0].Layers[0][StackStart : StackStart+256]

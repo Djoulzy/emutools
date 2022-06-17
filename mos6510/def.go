@@ -39,6 +39,7 @@ const (
 	indirect
 	indirectX
 	indirectY
+	indirectzp
 	Branching
 	CrossPage
 )
@@ -73,6 +74,7 @@ const (
 
 // CPU :
 type CPU struct {
+	model   string
 	PC      uint16
 	SP      byte
 	A       byte

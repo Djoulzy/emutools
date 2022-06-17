@@ -21,8 +21,10 @@ func (C *CPU) BRK_imp() {
 		C.stack[C.SP] = byte(C.PC)
 		C.SP--
 	case 5:
-		C.stack[C.SP] = C.S
 		C.stack[C.SP] = C.S | ^B_mask | ^U_mask
+		if C.model != "6502" {
+			C.setD(false)
+		}
 		C.SP--
 		C.setI(true)
 	case 6:
