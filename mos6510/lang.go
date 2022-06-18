@@ -202,6 +202,12 @@ func (C *CPU) initLanguage() {
 	}
 
 	opcode_65C02 := map[byte]Instruction{
+		
+		0x32: {Name: "AND", bytes: 2, Cycles: 5, action: C.AND_izp, addr: indirectzp},
+		0x12: {Name: "ORA", bytes: 2, Cycles: 5, action: C.ORA_izp, addr: indirectzp},
+		0x52: {Name: "EOR", bytes: 2, Cycles: 5, action: C.EOR_izp, addr: indirectzp},
+		0x72: {Name: "ADC", bytes: 2, Cycles: 5, action: C.ADC_izp, addr: indirectzp},
+		0xF2: {Name: "SBC", bytes: 2, Cycles: 5, action: C.SBC_izp, addr: indirectzp},
 
 		0x80: {Name: "BRA", bytes: 2, Cycles: 2, action: C.BRA_rel, addr: relative},
 		0x0F: {Name: "BBR0", bytes: 3, Cycles: 5, action: C.BBR0_rel, addr: relative},

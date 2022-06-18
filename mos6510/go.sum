@@ -1,9 +1,9 @@
 github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc h1:csq0zYn1hpV+yFC93+MUFpp+zvNXFjU5ra3trOqc5iY=
 github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc/go.mod h1:vpiS+fdl4f0KXBYgS8fT/bDBQc2L3XpFEroPKdL5WNA=
-github.com/Djoulzy/emutools/charset v0.0.0-20220616174737-0b8bae1ef37f h1:DK4k150jTpOozsdd/dyLKr7St3/ZPbgvM0oSPyuu55A=
-github.com/Djoulzy/emutools/charset v0.0.0-20220616174737-0b8bae1ef37f/go.mod h1:nHh/Oz8MYyMM1G6/QcjV+m/5fmzwHNLDom7PrgBqsQo=
-github.com/Djoulzy/emutools/mem v0.0.0-20220616174737-0b8bae1ef37f h1:aq/465i7abRwS7wmwBNg96uhZDykmDCHRpms1YBTG0Q=
-github.com/Djoulzy/emutools/mem v0.0.0-20220616174737-0b8bae1ef37f/go.mod h1:h17UF5zv6hIKKszeU5NVgyg20aKaWv2ctoupf8Ukhoc=
+github.com/Djoulzy/emutools/charset v0.0.0-20220617173401-8838d05e415f h1:GfuAuRzei+OHL2nE3HCmkmH7zL3cqzur/93QRbdPMXE=
+github.com/Djoulzy/emutools/charset v0.0.0-20220617173401-8838d05e415f/go.mod h1:nHh/Oz8MYyMM1G6/QcjV+m/5fmzwHNLDom7PrgBqsQo=
+github.com/Djoulzy/emutools/mem v0.0.0-20220617173401-8838d05e415f h1:BIK2+34zCcuTvT+dgXrqkVdMeXiWoPiYnplKQZO6zR8=
+github.com/Djoulzy/emutools/mem v0.0.0-20220617173401-8838d05e415f/go.mod h1:h17UF5zv6hIKKszeU5NVgyg20aKaWv2ctoupf8Ukhoc=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 h1:m3Ayfs5OcAlIMEdLIQKubBsVLGee4YMUr14+d1256WE=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7/go.mod h1:QIAMbrwsnQZ2ES3G26RubSrDB5SPyzsp9Hts5NJdTrI=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=

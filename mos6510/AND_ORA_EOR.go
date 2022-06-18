@@ -196,6 +196,25 @@ func (C *CPU) AND_iny() {
 	}
 }
 
+func (C *CPU) AND_izp() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.IndAddrLO = C.ram.Read(uint16(C.OperLO))
+	case 4:
+		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
+	case 5:
+		C.A &= C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
+		C.updateN(C.A)
+		C.updateZ(C.A)
+		C.CycleCount = 0
+	}
+}
+
 ///////////////////////////////////////////////////////
 //                        ORA                        //
 ///////////////////////////////////////////////////////
@@ -385,6 +404,25 @@ func (C *CPU) ORA_iny() {
 			C.CycleCount = 0
 		}
 	case 6:
+		C.A |= C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
+		C.updateN(C.A)
+		C.updateZ(C.A)
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) ORA_izp() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.IndAddrLO = C.ram.Read(uint16(C.OperLO))
+	case 4:
+		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
+	case 5:
 		C.A |= C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
 		C.updateN(C.A)
 		C.updateZ(C.A)
@@ -582,6 +620,25 @@ func (C *CPU) EOR_iny() {
 			C.CycleCount = 0
 		}
 	case 6:
+		C.A ^= C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
+		C.updateN(C.A)
+		C.updateZ(C.A)
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) EOR_izp() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.IndAddrLO = C.ram.Read(uint16(C.OperLO))
+	case 4:
+		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
+	case 5:
 		C.A ^= C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
 		C.updateN(C.A)
 		C.updateZ(C.A)

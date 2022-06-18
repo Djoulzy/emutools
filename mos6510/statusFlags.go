@@ -139,6 +139,10 @@ func (C *CPU) getD() byte {
 	return 0x00
 }
 
+func (C *CPU) issetD() bool {
+	return C.S & ^D_mask > 0
+}
+
 //////////////////////////////////
 //////// Interrupt Flag //////////
 //////////////////////////////////

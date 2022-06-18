@@ -256,6 +256,36 @@ func (C *CPU) ADC_iny() {
 	}
 }
 
+func (C *CPU) ADC_izp() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.IndAddrLO = C.ram.Read(uint16(C.OperLO))
+	case 4:
+		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
+	case 5:
+		if C.issetD() {
+			C.Inst.Cycles++
+		} else {
+			tmp := C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
+			C.A = C.doADC(tmp)
+			C.updateN(C.A)
+			C.updateZ(C.A)
+			C.CycleCount = 0
+		}
+	case 6:
+		tmp := C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
+		C.A = C.doADC(tmp)
+		C.updateN(C.A)
+		C.updateZ(C.A)
+		C.CycleCount = 0
+	}
+}
+
 ///////////////////////////////////////////////////////
 //                        SBC                        //
 ///////////////////////////////////////////////////////
@@ -451,6 +481,36 @@ func (C *CPU) SBC_iny() {
 		if C.pageCrossed {
 			C.IndAddrHI++
 		} else {
+			C.A = C.doSBC(tmp)
+			C.updateN(C.A)
+			C.updateZ(C.A)
+			C.CycleCount = 0
+		}
+	case 6:
+		tmp := C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
+		C.A = C.doSBC(tmp)
+		C.updateN(C.A)
+		C.updateZ(C.A)
+		C.CycleCount = 0
+	}
+}
+
+func (C *CPU) SBC_izp() {
+	switch C.CycleCount {
+	case 1:
+		C.PC++
+	case 2:
+		C.OperLO = C.ram.Read(C.PC)
+		C.PC++
+	case 3:
+		C.IndAddrLO = C.ram.Read(uint16(C.OperLO))
+	case 4:
+		C.IndAddrHI = C.ram.Read(uint16(C.OperLO + 1))
+	case 5:
+		if C.issetD() {
+			C.Inst.Cycles++
+		} else {
+			tmp := C.ram.Read((uint16(C.IndAddrHI) << 8) + uint16(C.IndAddrLO))
 			C.A = C.doSBC(tmp)
 			C.updateN(C.A)
 			C.updateZ(C.A)
