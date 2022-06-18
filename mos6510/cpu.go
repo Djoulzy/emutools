@@ -36,8 +36,6 @@ func (C *CPU) Reset() {
 	// C.PC = 0xFA62
 	C.StackDebugPt = -1
 	C.GlobalCycles = -1
-	fmt.Printf("%s - PC: %04X\n", C.model, C.PC)
-
 	// perfStats = make(map[byte][]time.Duration)
 	// for index := range C.Mnemonic {
 	// 	perfStats[index] = make([]time.Duration, 0)
