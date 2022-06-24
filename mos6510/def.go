@@ -116,6 +116,7 @@ type CPU struct {
 
 	CycleCount   int
 	GlobalCycles int
+	Cycles       uint64
 	ActualSpeed  float64
 	Clock        int
 

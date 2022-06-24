@@ -171,10 +171,10 @@ func (S *SDL2Driver) DisplayCode() {
 }
 
 func (S *SDL2Driver) UpdateFrame() {
-	// S.throttleFPS()
-	// if S.ShowCode {
-	// 	S.DisplayCode()
-	// }
+	S.throttleFPS()
+	if S.ShowCode {
+		S.DisplayCode()
+	}
 
 	if S.mode3D {
 		// SDL2 Texture + Render

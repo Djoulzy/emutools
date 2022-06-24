@@ -36,6 +36,7 @@ func (C *CPU) Reset() {
 	// C.PC = 0xFA62
 	C.StackDebugPt = -1
 	C.GlobalCycles = -1
+	C.Cycles = 0
 	// perfStats = make(map[byte][]time.Duration)
 	// for index := range C.Mnemonic {
 	// 	perfStats[index] = make([]time.Duration, 0)
@@ -190,6 +191,7 @@ func (C *CPU) firstCycle() {
 }
 
 func (C *CPU) NextCycle() float64 {
+	C.Cycles++
 	C.GlobalCycles++
 	C.CycleCount++
 	switch C.CycleCount {
