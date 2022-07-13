@@ -107,6 +107,18 @@ func (C *CPU) readWord(addr uint16) uint16 {
 }
 
 //////////////////////////////////
+////////// Stack Access //////////
+//////////////////////////////////
+
+func (C *CPU) readStack(ptr byte) byte {
+	return C.ram.Read(StackStart+uint16(ptr))
+}
+
+func (C *CPU) writeStack(ptr byte, value byte) {
+	C.ram.Write(StackStart+uint16(ptr), value)
+}
+
+//////////////////////////////////
 /////////// Interrupts ///////////
 //////////////////////////////////
 

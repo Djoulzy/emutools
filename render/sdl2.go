@@ -49,7 +49,7 @@ func (S *SDL2Driver) CloseAll() {
 	sdl.Quit()
 }
 
-func (S *SDL2Driver) Init(width, height int, title string, mode3D bool, debug bool) {
+func (S *SDL2Driver) Init(width, height int, zoomFactor int, title string, mode3D bool, debug bool) {
 	if debug {
 		Xadjust = 150
 	} else {
@@ -58,8 +58,8 @@ func (S *SDL2Driver) Init(width, height int, title string, mode3D bool, debug bo
 
 	S.emuHeight = height
 	S.emuWidth = width + Xadjust
-	S.winHeight = S.emuHeight * 2
-	S.winWidth = S.emuWidth * 2
+	S.winHeight = S.emuHeight * zoomFactor
+	S.winWidth = S.emuWidth * zoomFactor
 
 	S.codeList = make([]string, nbCodeLines)
 	S.nextCodeLine = 0
@@ -93,7 +93,7 @@ func (S *SDL2Driver) Init(width, height int, title string, mode3D bool, debug bo
 	S.emul = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
 	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
 	S.emul_s.SetRLE(true)
-	S.emuRect = sdl.Rect{0, 0, int32(S.emuWidth) * 2, int32(S.emuHeight) * 2}
+	S.emuRect = sdl.Rect{0, 0, int32(S.winWidth) , int32(S.winHeight) }
 
 	fontBytes, err := ioutil.ReadFile("assets/PetMe.ttf")
 	if err != nil {
@@ -136,10 +136,10 @@ func (S *SDL2Driver) throttleFPS() {
 			fps = frameCount
 			frameCount = 0
 		}
-		pt := freetype.Pt((S.emuWidth - fontWidth*7), fontHeight)
+		pt := freetype.Pt((S.winWidth - fontWidth*7), fontHeight)
 		S.font.DrawString(fmt.Sprintf("%1.1f Mhz", S.speed), pt)
-		pt = freetype.Pt((S.emuWidth - fontWidth*6), fontHeight*2)
-		S.font.DrawString(fmt.Sprintf("%d FPS", fps), pt)
+		pt = freetype.Pt((S.winWidth - fontWidth*7), fontHeight*2)
+		S.font.DrawString(fmt.Sprintf("%3d FPS", fps), pt)
 	}
 }
 
@@ -213,12 +213,14 @@ func (S *SDL2Driver) Run(autoupdate bool) {
 					// S.keybLine.KeyCode = uint(t.Keysym.Sym)
 					// S.keybLine.Mode = 0
 					switch t.Keysym.Mod {
-					case 0:
-						S.keybLine.KeyCode = uint(t.Keysym.Sym)
-						S.keybLine.Mode = 0
+					// case 0:
+					// 	S.keybLine.KeyCode = uint(t.Keysym.Sym)
+					// 	S.keybLine.Mode = 0
 					case 1:
 						S.keybLine.Mode = sdl.K_LSHIFT
-						S.keybLine.KeyCode = uint(t.Keysym.Sym)
+						if t.Keysym.Sym != sdl.K_LSHIFT {
+							S.keybLine.KeyCode = uint(t.Keysym.Sym)
+						}
 					case 2:
 						S.keybLine.Mode = sdl.K_RSHIFT
 						if t.Keysym.Sym != sdl.K_RSHIFT {
@@ -229,19 +231,48 @@ func (S *SDL2Driver) Run(autoupdate bool) {
 						if t.Keysym.Sym != sdl.K_LCTRL {
 							S.keybLine.KeyCode = uint(t.Keysym.Sym)
 						}
+					case 128:
+						S.keybLine.Mode = sdl.K_RCTRL
+						if t.Keysym.Sym != sdl.K_RCTRL {
+							S.keybLine.KeyCode = uint(t.Keysym.Sym)
+						}
+					case 256:
+						S.keybLine.Mode = sdl.K_LALT
+						if t.Keysym.Sym != sdl.K_LALT {
+							S.keybLine.KeyCode = uint(t.Keysym.Sym)
+						}
+					case 512:
+						S.keybLine.Mode = sdl.K_RALT
+						if t.Keysym.Sym != sdl.K_RALT {
+							S.keybLine.KeyCode = uint(t.Keysym.Sym)
+						}
 					case 1024:
+						S.keybLine.Mode = sdl.K_LGUI
 						if t.Keysym.Sym == sdl.K_v {
 							text, err := sdl.GetClipboardText()
 							if err == nil {
 								log.Printf("%s", text)
 								buffer = []byte(text)
 							}
+						} else if t.Keysym.Sym != sdl.K_LGUI {
+							S.keybLine.KeyCode = uint(t.Keysym.Sym)
+						}
+					case 2048:
+						S.keybLine.Mode = sdl.K_RGUI
+						if t.Keysym.Sym == sdl.K_v {
+							text, err := sdl.GetClipboardText()
+							if err == nil {
+								log.Printf("%s", text)
+								buffer = []byte(text)
+							}
+						} else if t.Keysym.Sym != sdl.K_RGUI {
+							S.keybLine.KeyCode = uint(t.Keysym.Sym)
 						}
 					default:
 						S.keybLine.KeyCode = uint(t.Keysym.Sym)
 						S.keybLine.Mode = 0
 					}
-					log.Printf("KEY DOWN : %d - %d %d", t.Keysym.Mod, S.keybLine.KeyCode, S.keybLine.Mode)
+					// log.Printf("SDL KEY INFOS - Modifier: %d  KeyCode: %d  Mode: %d", t.Keysym.Mod, S.keybLine.KeyCode, S.keybLine.Mode)
 				case sdl.KEYUP:
 					// *S.keybLine = 1073742049
 					// S.keybLine.KeyCode = 0

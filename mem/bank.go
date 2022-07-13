@@ -50,18 +50,20 @@ func (B *BANK) ReadWrite(layerName string) {
 
 func (B *BANK) Read(addr uint16) byte {
 	layout = &B.Layouts[*B.Selector]
-	page = int(addr>>PAGE_DIVIDER)
+	page = int(addr >> PAGE_DIVIDER)
 
-	for cpt = 0; layout.Disabled[layout.LayerByPages[page][cpt]]; cpt++ {}
+	for cpt = 0; layout.Disabled[layout.LayerByPages[page][cpt]]; cpt++ {
+	}
 	layerNum = layout.LayerByPages[page][cpt]
 	return layout.Accessors[layerNum].MRead(layout.Layers[layerNum], addr-layout.Start[layerNum])
 }
 
 func (B *BANK) Write(addr uint16, value byte) {
 	layout = &B.Layouts[*B.Selector]
-	page = int(addr>>PAGE_DIVIDER)
+	page = int(addr >> PAGE_DIVIDER)
 
-	for cpt = 0; layout.Disabled[layout.LayerByPages[page][cpt]] || layout.ReadOnlyMode[layout.LayerByPages[page][cpt]]; cpt++ {} 
+	for cpt = 0; layout.Disabled[layout.LayerByPages[page][cpt]] || layout.ReadOnlyMode[layout.LayerByPages[page][cpt]]; cpt++ {
+	}
 	layerNum = layout.LayerByPages[page][cpt]
 	layout.Accessors[layerNum].MWrite(layout.Layers[layerNum], addr-layout.Start[layerNum], value)
 }
@@ -117,5 +119,23 @@ func (B *BANK) DumpStack(sp byte) {
 			cpt++
 		}
 		fmt.Println()
+	}
+}
+
+func (B *BANK) CheckLayoutForAddr(addr uint16) {
+	layout = &B.Layouts[*B.Selector]
+	page = int(addr >> PAGE_DIVIDER)
+
+	for cpt = 0; layout.Disabled[layout.LayerByPages[page][cpt]]; cpt++ {
+	}
+	layerNum = layout.LayerByPages[page][cpt]
+
+	for index, layer := range layout.LayerByPages[page] {
+		if index == cpt {
+			fmt.Printf("[X] ")
+		} else {
+			fmt.Printf("[-] ")
+		}
+		fmt.Printf("Pos: %d - Name: %s - Disabled: %v\n", index, layout.NameLayers[layer], layout.Disabled[layer])
 	}
 }
