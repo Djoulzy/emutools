@@ -3,6 +3,6 @@ module github.com/Djoulzy/emutools/mem
 go 1.18
 
 require (
-	github.com/Djoulzy/Tools/clog v0.0.0-20220421125852-0504bf931481
-	github.com/Djoulzy/emutools/charset v0.0.0-20220428184315-bb709a210b83
+	github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc
+	github.com/Djoulzy/emutools/charset v0.0.0-20220714144806-9b290c4f4002
 )
