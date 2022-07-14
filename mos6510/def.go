@@ -15,14 +15,13 @@ const (
 	V_mask byte = 0b10111111
 	N_mask byte = 0b01111111
 
-	StackStart = 0x0100
-
 	NMI_Vector       = 0xFFFA
 	COLDSTART_Vector = 0xFFFC // Go to 0xFCE2
 	IRQBRK_Vector    = 0xFFFE
 )
 
 var regString [8]string = [8]string{"C", "Z", "I", "D", "B", "U", "V", "N"}
+var StackStart uint16 = 0x0100
 
 type addressing int
 

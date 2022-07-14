@@ -86,18 +86,12 @@ func (C *CPU) JSR_abs() {
 		C.PC++
 	case 3:
 	case 4:
-		C.stack[C.SP] = byte(C.PC >> 8)
-		C.SP--
+		C.writeStack(byte(C.PC >> 8))
 	case 5:
-		C.stack[C.SP] = byte(C.PC)
-		C.SP--
+		C.writeStack(byte(C.PC))
 	case 6:
 		C.OperHI = C.ram.Read(C.PC)
 		C.PC = (uint16(C.OperHI) << 8) + uint16(C.OperLO)
 		C.CycleCount = 0
-		// C.StackDebugPt++
-		// C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - %04X: JSR $%02X%02X\n", C.SP+2, C.stack[C.SP+2], C.InstStart, C.OperHI, C.OperLO)
-		// C.StackDebugPt++
-		// C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - \n", C.SP+1, C.stack[C.SP+1])
 	}
 }

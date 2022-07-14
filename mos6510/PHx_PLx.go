@@ -11,11 +11,8 @@ func (C *CPU) PHA_imp() {
 	case 2:
 		C.ram.Read(C.PC) // Read and forget
 	case 3:
-		C.stack[C.SP] = C.A
-		C.SP--
+		C.writeStack(C.A)
 		C.CycleCount = 0
-		// C.StackDebugPt++
-		// C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - %04X: PHA #$%02X\n", C.SP+1, C.stack[C.SP+1], C.InstStart, C.A)
 	}
 }
 
@@ -30,11 +27,8 @@ func (C *CPU) PHX_imp() {
 	case 2:
 		C.ram.Read(C.PC) // Read and forget
 	case 3:
-		C.stack[C.SP] = C.X
-		C.SP--
+		C.writeStack(C.X)
 		C.CycleCount = 0
-		// C.StackDebugPt++
-		// C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - %04X: PHA #$%02X\n", C.SP+1, C.stack[C.SP+1], C.InstStart, C.A)
 	}
 }
 
@@ -49,11 +43,8 @@ func (C *CPU) PHY_imp() {
 	case 2:
 		C.ram.Read(C.PC) // Read and forget
 	case 3:
-		C.stack[C.SP] = C.Y
-		C.SP--
+		C.writeStack(C.Y)
 		C.CycleCount = 0
-		// C.StackDebugPt++
-		// C.StackDebug[C.StackDebugPt] = fmt.Sprintf("%02X=%02X - %04X: PHA #$%02X\n", C.SP+1, C.stack[C.SP+1], C.InstStart, C.A)
 	}
 }
 
@@ -68,9 +59,9 @@ func (C *CPU) PLA_imp() {
 	case 2:
 		C.ram.Read(C.PC) // Read and forget
 	case 3:
-		C.SP++
+		C.tmpBuff = C.readStack()
 	case 4:
-		C.A = C.stack[C.SP]
+		C.A = C.tmpBuff
 		C.updateN(C.A)
 		C.updateZ(C.A)
 		C.CycleCount = 0
@@ -89,9 +80,9 @@ func (C *CPU) PLX_imp() {
 	case 2:
 		C.ram.Read(C.PC) // Read and forget
 	case 3:
-		C.SP++
+		C.tmpBuff = C.readStack()
 	case 4:
-		C.X = C.stack[C.SP]
+		C.X = C.tmpBuff
 		C.updateN(C.X)
 		C.updateZ(C.X)
 		C.CycleCount = 0
@@ -110,9 +101,9 @@ func (C *CPU) PLY_imp() {
 	case 2:
 		C.ram.Read(C.PC) // Read and forget
 	case 3:
-		C.SP++
+		C.tmpBuff = C.readStack()
 	case 4:
-		C.Y = C.stack[C.SP]
+		C.Y = C.tmpBuff
 		C.updateN(C.Y)
 		C.updateZ(C.Y)
 		C.CycleCount = 0

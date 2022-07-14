@@ -15,17 +15,14 @@ func (C *CPU) BRK_imp() {
 		C.ram.Read(C.PC) // Read and forget
 		C.PC++
 	case 3:
-		C.stack[C.SP] = byte(C.PC >> 8)
-		C.SP--
+		C.writeStack(byte(C.PC >> 8))
 	case 4:
-		C.stack[C.SP] = byte(C.PC)
-		C.SP--
+		C.writeStack(byte(C.PC))
 	case 5:
-		C.stack[C.SP] = C.S | ^B_mask | ^U_mask
+		C.writeStack(C.S | ^B_mask | ^U_mask)
 		if C.model != "6502" {
 			C.setD(false)
 		}
-		C.SP--
 		C.setI(true)
 	case 6:
 		C.IndAddrLO = C.ram.Read(IRQBRK_Vector)
@@ -48,14 +45,11 @@ func (C *CPU) IRQ_imp() {
 		C.INT_delay = false
 	case 2:
 	case 3:
-		C.stack[C.SP] = byte(C.PC >> 8)
-		C.SP--
+		C.writeStack(byte(C.PC >> 8))
 	case 4:
-		C.stack[C.SP] = byte(C.PC)
-		C.SP--
+		C.writeStack(byte(C.PC))
 	case 5:
-		C.stack[C.SP] = C.S
-		C.SP--
+		C.writeStack(C.S)
 		C.setI(true)
 	case 6:
 		C.IndAddrLO = C.ram.Read(IRQBRK_Vector)
@@ -79,14 +73,11 @@ func (C *CPU) NMI_imp() {
 		C.INT_delay = false
 	case 2:
 	case 3:
-		C.stack[C.SP] = byte(C.PC >> 8)
-		C.SP--
+		C.writeStack(byte(C.PC >> 8))
 	case 4:
-		C.stack[C.SP] = byte(C.PC)
-		C.SP--
+		C.writeStack(byte(C.PC))
 	case 5:
-		C.stack[C.SP] = C.S
-		C.SP--
+		C.writeStack(C.S)
 	case 6:
 		C.IndAddrLO = C.ram.Read(IRQBRK_Vector)
 		C.PC = uint16(C.IndAddrLO)
