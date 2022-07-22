@@ -67,9 +67,22 @@ func main() {
 	ZONE2[1] = 0xDD
 	ZONE3[1] = 0xEE
 
+	tmp := TEST[3]
+	*tmp = 0xBB
+
 	cpt := 0
 	for _, val := range TEST {
 		fmt.Printf("%02X ", *val)
+		cpt++
+		if cpt == 10 {
+			fmt.Printf("\n")
+			cpt = 0
+		}
+	}
+	fmt.Printf("\n")
+	cpt = 0
+	for _, val := range ZONE1 {
+		fmt.Printf("%02X ", val)
 		cpt++
 		if cpt == 10 {
 			fmt.Printf("\n")
