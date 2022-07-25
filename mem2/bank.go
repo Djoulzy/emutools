@@ -50,22 +50,17 @@ func (B *BANK) ReadWrite(layerName string) {
 
 func (B *BANK) Read(addr uint16) byte {
 	layout = &B.Layouts[*B.Selector]
-	page = int(addr >> PAGE_DIVIDER)
-
-	for cpt = 0; layout.Disabled[layout.LayerByPages[page][cpt]]; cpt++ {
-	}
-	layerNum = layout.LayerByPages[page][cpt]
-	return layout.Accessors[layerNum].MRead(layout.Layers[layerNum], addr-layout.Start[layerNum])
+	return layout.VisibleMem[addr].Accessor.MRead(layout.VisibleMem, addr)
 }
 
 func (B *BANK) Write(addr uint16, value byte) {
 	layout = &B.Layouts[*B.Selector]
-	page = int(addr >> PAGE_DIVIDER)
 
-	for cpt = 0; layout.Disabled[layout.LayerByPages[page][cpt]] || layout.ReadOnlyMode[layout.LayerByPages[page][cpt]]; cpt++ {
+	if layout.VisibleMem[addr].ReadOnly == false {
+		layout.VisibleMem[addr].Accessor.MWrite(layout.VisibleMem, addr, value)
+	} else {
+		layout.VisibleMem[addr].Accessor.MWriteUnder(layout.VisibleMem, addr, value)
 	}
-	layerNum = layout.LayerByPages[page][cpt]
-	layout.Accessors[layerNum].MWrite(layout.Layers[layerNum], addr-layout.Start[layerNum], value)
 }
 
 func (B *BANK) Dump(startAddr uint16) {
@@ -99,9 +94,9 @@ func (B *BANK) Dump(startAddr uint16) {
 	}
 }
 
-func (B *BANK) Show() {
-	B.Layouts[*B.Selector].Show()
-}
+// func (B *BANK) Show() {
+// 	B.Layouts[*B.Selector].Show()
+// }
 
 func (B *BANK) DumpStack(sp byte) {
 	cpt := uint16(0x0100)
@@ -122,20 +117,20 @@ func (B *BANK) DumpStack(sp byte) {
 	}
 }
 
-func (B *BANK) CheckLayoutForAddr(addr uint16) {
-	layout = &B.Layouts[*B.Selector]
-	page = int(addr >> PAGE_DIVIDER)
+// func (B *BANK) CheckLayoutForAddr(addr uint16) {
+// 	layout = &B.Layouts[*B.Selector]
+// 	page = int(addr >> PAGE_DIVIDER)
 
-	for cpt = 0; layout.Disabled[layout.LayerByPages[page][cpt]]; cpt++ {
-	}
-	layerNum = layout.LayerByPages[page][cpt]
+// 	for cpt = 0; layout.Disabled[layout.LayerByPages[page][cpt]]; cpt++ {
+// 	}
+// 	layerNum = layout.LayerByPages[page][cpt]
 
-	for index, layer := range layout.LayerByPages[page] {
-		if index == cpt {
-			fmt.Printf("[X] ")
-		} else {
-			fmt.Printf("[-] ")
-		}
-		fmt.Printf("Pos: %d - Name: %s - Disabled: %v\n", index, layout.NameLayers[layer], layout.Disabled[layer])
-	}
-}
+// 	for index, layer := range layout.LayerByPages[page] {
+// 		if index == cpt {
+// 			fmt.Printf("[X] ")
+// 		} else {
+// 			fmt.Printf("[-] ")
+// 		}
+// 		fmt.Printf("Pos: %d - Name: %s - Disabled: %v\n", index, layout.NameLayers[layer], layout.Disabled[layer])
+// 	}
+// }
