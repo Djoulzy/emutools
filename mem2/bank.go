@@ -56,7 +56,8 @@ func (B *BANK) Read(addr uint16) byte {
 func (B *BANK) Write(addr uint16, value byte) {
 	layout = &B.Layouts[*B.Selector]
 
-	if layout.VisibleMem[addr].ReadOnly == false {
+	layerNum := layout.VisibleMem[addr].LayerNum
+	if layout.ReadOnlyMode[layerNum] == false {
 		layout.VisibleMem[addr].Accessor.MWrite(layout.VisibleMem, addr, value)
 	} else {
 		layout.VisibleMem[addr].Accessor.MWriteUnder(layout.VisibleMem, addr, value)

@@ -1,8 +1,6 @@
 package mos6510
 
-import (
-	"github.com/Djoulzy/emutools/mem"
-)
+import "github.com/Djoulzy/emutools/mem2"
 
 //
 const (
@@ -85,7 +83,7 @@ type CPU struct {
 
 	Mnemonic map[byte]Instruction
 
-	ram          *mem.BANK
+	ram          *mem2.BANK
 	ramSize      int
 	stack        []byte
 	StackDebug   []string

@@ -13,12 +13,12 @@ type MEMAccess interface {
 }
 
 type MEMCell struct {
-	LayerNum    int
-	Val         *byte
-	Under       *byte
-	ReadOnly    bool
-	Accessor    MEMAccess
-	UnderAccess MEMAccess
+	LayerNum      int
+	UnderLayerNum int
+	Val           *byte
+	Under         *byte
+	Accessor      MEMAccess
+	UnderAccess   MEMAccess
 }
 
 type CONFIG struct {
@@ -67,25 +67,52 @@ func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool, di
 			accessor = &DefaultAccessor{}
 		}
 		for i := range C.StorageRef[layerNum] {
-			C.VisibleMem[int(start)+i].LayerNum = layerNum
-			C.VisibleMem[int(start)+i].Under = C.VisibleMem[int(start)+i].Val
-			C.VisibleMem[int(start)+i].UnderAccess = C.VisibleMem[int(start)+i].Accessor
+			startPage := int(start)+i
+			C.VisibleMem[startPage].LayerNum = layerNum
 
-			C.VisibleMem[int(start)+i].Val = &C.StorageRef[layerNum][i]
-			C.VisibleMem[int(start)+i].ReadOnly = mode
-			C.VisibleMem[int(start)+i].Accessor = accessor
+			C.VisibleMem[startPage].UnderLayerNum = C.VisibleMem[startPage].LayerNum
+			C.VisibleMem[startPage].Under = C.VisibleMem[startPage].Val
+			C.VisibleMem[startPage].UnderAccess = C.VisibleMem[startPage].Accessor
+			C.VisibleMem[startPage].Val = &C.StorageRef[layerNum][i]
+			C.VisibleMem[startPage].Accessor = accessor
 		}
 	}
 }
 
 func (C *CONFIG) Disable(layerName string) {
-	var underLayerNum, cpt int
 	actualLayerNum := C.LayersName[layerName]
-
+	if C.Disabled[actualLayerNum] == false {
+		// for i := C.Start[actualLayerNum]; i < uint16(C.Size[actualLayerNum]); i++ {
+		for i := range C.StorageRef[actualLayerNum] {
+			startPage := int(C.Start[actualLayerNum])+i
+			if C.VisibleMem[startPage].LayerNum != actualLayerNum {
+				continue
+			}
+			C.VisibleMem[startPage].LayerNum = C.VisibleMem[startPage].UnderLayerNum
+			C.VisibleMem[startPage].Val = C.VisibleMem[startPage].Under
+			C.VisibleMem[startPage].Accessor = C.VisibleMem[startPage].UnderAccess
+		}
+		C.Disabled[actualLayerNum] = true
+	}
 }
 
 func (C *CONFIG) Enable(layerName string) {
-	C.Disabled[C.LayersName[layerName]] = false
+	actualLayerNum := C.LayersName[layerName]
+	if C.Disabled[actualLayerNum] == true {
+		for i := range C.StorageRef[actualLayerNum] {
+			startPage := int(C.Start[actualLayerNum])+i
+			if C.VisibleMem[startPage].LayerNum > actualLayerNum {
+				continue
+			}
+			C.VisibleMem[startPage].LayerNum = actualLayerNum
+			C.VisibleMem[startPage].UnderLayerNum = C.VisibleMem[startPage].LayerNum
+			C.VisibleMem[startPage].Under = C.VisibleMem[startPage].Val
+			C.VisibleMem[startPage].UnderAccess = C.VisibleMem[startPage].Accessor
+			C.VisibleMem[startPage].Val = &C.StorageRef[actualLayerNum][i]
+			C.VisibleMem[startPage].Accessor = C.Accessors[actualLayerNum]
+		}
+		C.Disabled[actualLayerNum] = false
+	}
 }
 
 func (C *CONFIG) ReadOnly(layerName string) {

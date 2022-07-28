@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/Djoulzy/emutools/mem"
+	"github.com/Djoulzy/emutools/mem2"
 )
 
 const (
@@ -147,7 +148,7 @@ func finalize(name string, allGood bool) {
 
 var proc CPU
 var BankSel byte
-var MEM mem.BANK
+var MEM mem2.BANK
 var RAM []byte
 var SystemClock uint16
 
@@ -157,10 +158,10 @@ func TestMain(m *testing.M) {
 	RAM = make([]byte, ramSize)
 
 	BankSel = 0
-	MEM = mem.InitBanks(1, &BankSel)
+	MEM = mem2.InitBanks(1, &BankSel)
 
-	MEM.Layouts[0] = mem.InitConfig(ramSize)
-	MEM.Layouts[0].Attach("RAM", 0, RAM, mem.READWRITE, false)
+	MEM.Layouts[0] = mem2.InitConfig(ramSize)
+	MEM.Layouts[0].Attach("RAM", 0, RAM, mem.READWRITE, false, nil)
 
 	os.Exit(m.Run())
 }
