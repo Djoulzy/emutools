@@ -1,5 +1,7 @@
 package mem2
 
+import "fmt"
+
 const (
 	PAGE_DIVIDER = 8
 	READWRITE    = false
@@ -33,6 +35,15 @@ type CONFIG struct {
 	VisibleMem   []MEMCell      // Pointer compilé
 }
 
+func (M *MEMCell) dump() {
+	fmt.Printf("== Dumping MemCell ==\n")
+	fmt.Printf("LayerNum: %d\n", M.LayerNum)
+	fmt.Printf("Value: %02X (%d)\n", *M.Val, M.Val)
+	fmt.Printf("Accessor addr: %d\n", M.Accessor)
+	fmt.Printf("UnderNum: %d\n", M.UnderLayerNum)
+	fmt.Printf("UnderVlue: %02X (%d)\n", *M.Under, M.Under)
+}
+
 func InitConfig(size int) CONFIG {
 	C := CONFIG{}
 
@@ -60,14 +71,14 @@ func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool, di
 	C.Size = append(C.Size, len(content))
 	C.ReadOnlyMode = append(C.ReadOnlyMode, mode)
 	C.Disabled = append(C.Disabled, disabled)
+	if accessor == nil {
+		accessor = &DefaultAccessor{}
+	}
 	C.Accessors = append(C.Accessors, accessor)
 
 	if disabled == false {
-		if accessor == nil {
-			accessor = &DefaultAccessor{}
-		}
 		for i := range C.StorageRef[layerNum] {
-			startPage := int(start)+i
+			startPage := int(start) + i
 			C.VisibleMem[startPage].LayerNum = layerNum
 
 			C.VisibleMem[startPage].UnderLayerNum = C.VisibleMem[startPage].LayerNum
@@ -84,7 +95,7 @@ func (C *CONFIG) Disable(layerName string) {
 	if C.Disabled[actualLayerNum] == false {
 		// for i := C.Start[actualLayerNum]; i < uint16(C.Size[actualLayerNum]); i++ {
 		for i := range C.StorageRef[actualLayerNum] {
-			startPage := int(C.Start[actualLayerNum])+i
+			startPage := int(C.Start[actualLayerNum]) + i
 			if C.VisibleMem[startPage].LayerNum != actualLayerNum {
 				continue
 			}
@@ -100,7 +111,7 @@ func (C *CONFIG) Enable(layerName string) {
 	actualLayerNum := C.LayersName[layerName]
 	if C.Disabled[actualLayerNum] == true {
 		for i := range C.StorageRef[actualLayerNum] {
-			startPage := int(C.Start[actualLayerNum])+i
+			startPage := int(C.Start[actualLayerNum]) + i
 			if C.VisibleMem[startPage].LayerNum > actualLayerNum {
 				continue
 			}

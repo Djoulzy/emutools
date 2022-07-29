@@ -2,6 +2,8 @@ package mem2
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/emutools/charset"
@@ -49,6 +51,14 @@ func (B *BANK) ReadWrite(layerName string) {
 }
 
 func (B *BANK) Read(addr uint16) byte {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Printf("Panic - Read Memory: %04X\n", addr)
+			layout.VisibleMem[addr].dump()
+			os.Exit(1)
+		}
+	}()
+
 	layout = &B.Layouts[*B.Selector]
 	return layout.VisibleMem[addr].Accessor.MRead(layout.VisibleMem, addr)
 }

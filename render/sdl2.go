@@ -49,6 +49,12 @@ func (S *SDL2Driver) CloseAll() {
 	sdl.Quit()
 }
 
+func (S *SDL2Driver) newEmuScreen(width, height, zoomFactor int) {
+	S.emul = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
+	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
+	S.emul_s.SetRLE(true)
+}
+
 func (S *SDL2Driver) Init(width, height int, zoomFactor int, title string, mode3D bool, debug bool) {
 	if debug {
 		Xadjust = 150
