@@ -99,7 +99,7 @@ func (S *SDL2Driver) Init(width, height int, zoomFactor int, title string, mode3
 	S.emul = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
 	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
 	S.emul_s.SetRLE(true)
-	S.emuRect = sdl.Rect{0, 0, int32(S.winWidth) , int32(S.winHeight) }
+	S.emuRect = sdl.Rect{0, 0, int32(S.winWidth), int32(S.winHeight)}
 
 	fontBytes, err := ioutil.ReadFile("assets/PetMe.ttf")
 	if err != nil {
@@ -130,11 +130,11 @@ func (S *SDL2Driver) SetKeyboardLine(line *KEYPressed) {
 }
 
 func (S *SDL2Driver) throttleFPS() {
-	timerFPS = sdl.GetTicks() - lastFrame
+	timerFPS = sdl.GetTicks64() - lastFrame
 	if timerFPS < throttleFPS {
-		sdl.Delay(throttleFPS - timerFPS)
+		return
 	}
-	lastFrame = sdl.GetTicks()
+	lastFrame = sdl.GetTicks64()
 
 	if S.ShowFps {
 		if lastFrame >= (lastTime + 1000) {
