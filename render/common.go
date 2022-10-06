@@ -9,9 +9,6 @@ const (
 	fontWidth   = 8
 	fontHeight  = 9
 	nbCodeLines = 20
-
-	setFPS      = 60
-	throttleFPS = 1000 / setFPS
 )
 
 type KEYPressed struct {
@@ -19,8 +16,16 @@ type KEYPressed struct {
 	Mode    uint
 }
 
-var fps, frameCount, lastFrame, lastTime, timerFPS uint32
-var Xadjust int
+var (
+	setFPS      uint64 = 60
+	throttleFPS uint64 = 1000 / (setFPS + 5)
+	fps         uint64
+	frameCount  uint64
+	lastFrame   uint64
+	lastTime    uint64
+	timerFPS    uint64
+	Xadjust     int
+)
 
 func getGlyph(char rune) *sdl.Rect {
 	pos := int32(char - 32)

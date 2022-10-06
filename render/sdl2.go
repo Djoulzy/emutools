@@ -144,11 +144,11 @@ func (S *SDL2Driver) SetKeyboardLine(line *KEYPressed) {
 }
 
 func (S *SDL2Driver) throttleFPS() {
-	timerFPS = sdl.GetTicks() - lastFrame
+	timerFPS = sdl.GetTicks64() - lastFrame
 	if timerFPS < throttleFPS {
-		sdl.Delay(throttleFPS - timerFPS)
+		return
 	}
-	lastFrame = sdl.GetTicks()
+	lastFrame = sdl.GetTicks64()
 
 	if S.ShowFps {
 		if lastFrame >= (lastTime + 1000) {
