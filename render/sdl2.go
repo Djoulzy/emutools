@@ -143,26 +143,6 @@ func (S *SDL2Driver) SetKeyboardLine(line *KEYPressed) {
 	S.keybLine = line
 }
 
-func (S *SDL2Driver) throttleFPS() {
-	timerFPS = sdl.GetTicks64() - lastFrame
-	if timerFPS < throttleFPS {
-		return
-	}
-	lastFrame = sdl.GetTicks64()
-
-	if S.ShowFps {
-		if lastFrame >= (lastTime + 1000) {
-			lastTime = lastFrame
-			fps = frameCount
-			frameCount = 0
-		}
-		pt := freetype.Pt((S.emuWidth - fontWidth*7), fontHeight)
-		S.font.DrawString(fmt.Sprintf("%1.1f Mhz", S.speed), pt)
-		pt = freetype.Pt((S.emuWidth - fontWidth*7), fontHeight*2)
-		S.font.DrawString(fmt.Sprintf("%3d FPS", fps), pt)
-	}
-}
-
 func (S *SDL2Driver) DumpCode(inst string) {
 	S.codeList[S.nextCodeLine] = inst
 	S.nextCodeLine++
@@ -191,7 +171,24 @@ func (S *SDL2Driver) DisplayCode() {
 }
 
 func (S *SDL2Driver) UpdateFrame() {
-	S.throttleFPS()
+	timerFPS = sdl.GetTicks64() - lastFrame
+	if timerFPS < throttleFPS {
+		return
+	}
+	lastFrame = sdl.GetTicks64()
+
+	if S.ShowFps {
+		if lastFrame >= (lastTime + 1000) {
+			lastTime = lastFrame
+			fps = frameCount
+			frameCount = 0
+		}
+		pt := freetype.Pt((S.emuWidth - fontWidth*7), fontHeight)
+		S.font.DrawString(fmt.Sprintf("%1.1f Mhz", S.speed), pt)
+		pt = freetype.Pt((S.emuWidth - fontWidth*7), fontHeight*2)
+		S.font.DrawString(fmt.Sprintf("%3d FPS", fps), pt)
+	}
+
 	if S.ShowCode {
 		S.DisplayCode()
 	}
