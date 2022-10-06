@@ -44,6 +44,12 @@ func (S *SDL2Driver) DrawPixel(x, y int, c color.Color) {
 	S.emul.Set(x+Xadjust, y, c)
 }
 
+// func (S *SDL2Driver) DrawPixel2(x, y int, c color.Color) {
+// 	r, g, b, a := c.RGBA()
+// 	S.renderer.SetDrawColor(uint8(r), uint8(g), uint8(b), uint8(a))
+// 	S.renderer.DrawPoint(int32(x), int32(y))
+// }
+
 func (S *SDL2Driver) CloseAll() {
 	S.window.Destroy()
 	sdl.Quit()
@@ -53,6 +59,58 @@ func (S *SDL2Driver) newEmuScreen(width, height, zoomFactor int) {
 	S.emul = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
 	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
 	S.emul_s.SetRLE(true)
+}
+
+func (S *SDL2Driver) InitFonts() {
+	fontBytes, err := ioutil.ReadFile("assets/PetMe.ttf")
+	if err != nil {
+		log.Println(" --")
+		log.Println(" -- You must put PetMe.ttf font file in assets/ directory ...")
+		log.Println(" --")
+		return
+	}
+	f, err := freetype.ParseFont(fontBytes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fg := image.NewUniform(color.RGBA{0xff, 0xff, 0xff, 0xff})
+	S.font = freetype.NewContext()
+	S.font.SetDPI(72)
+	S.font.SetFont(f)
+	S.font.SetFontSize(fontWidth)
+	S.font.SetClip(S.emul.Bounds())
+	S.font.SetDst(S.emul)
+	S.font.SetSrc(fg)
+
+}
+
+func (S *SDL2Driver) InitSDL2(title string) {
+	err := sdl.Init(sdl.INIT_EVERYTHING)
+	if err != nil {
+		panic(err)
+	}
+	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "0")
+
+	// Creation de la fenêtre et de son renderer
+	S.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(S.winWidth), int32(S.winHeight), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
+	if S.mode3D {
+		log.Printf("SDL2 mode: 3D (texture)\n")
+		S.renderer, err = sdl.CreateRenderer(S.window, -1, sdl.RENDERER_ACCELERATED)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		log.Printf("SDL2 mode: 2D (surface)\n")
+	}
+
+	S.w_surf, err = S.window.GetSurface()
+	S.w_surf.SetRLE(true)
+
+	S.emul = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
+	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
+	S.emul_s.SetRLE(true)
+	S.emuRect = sdl.Rect{0, 0, int32(S.winWidth), int32(S.winHeight)}
 }
 
 func (S *SDL2Driver) Init(width, height int, zoomFactor int, title string, mode3D bool, debug bool) {
@@ -75,52 +133,8 @@ func (S *SDL2Driver) Init(width, height int, zoomFactor int, title string, mode3
 
 	log.Printf("Starting renderer using SDL2\n")
 
-	err := sdl.Init(sdl.INIT_EVERYTHING)
-	if err != nil {
-		panic(err)
-	}
-
-	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "0")
-
-	S.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(S.winWidth), int32(S.winHeight), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
-	if S.mode3D {
-		log.Printf("SDL2 mode: 3D (texture)\n")
-		S.renderer, err = sdl.CreateRenderer(S.window, -1, sdl.RENDERER_ACCELERATED)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		log.Printf("SDL2 mode: 2D (surface)\n")
-	}
-
-	S.w_surf, err = S.window.GetSurface()
-	S.w_surf.SetRLE(true)
-
-	S.emul = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
-	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
-	S.emul_s.SetRLE(true)
-	S.emuRect = sdl.Rect{0, 0, int32(S.winWidth) , int32(S.winHeight) }
-
-	fontBytes, err := ioutil.ReadFile("assets/PetMe.ttf")
-	if err != nil {
-		log.Println(" --")
-		log.Println(" -- You must put PetMe.ttf font file in assets/ directory ...")
-		log.Println(" --")
-		return
-	}
-	f, err := freetype.ParseFont(fontBytes)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	fg := image.NewUniform(color.RGBA{0xff, 0xff, 0xff, 0xff})
-	S.font = freetype.NewContext()
-	S.font.SetDPI(72)
-	S.font.SetFont(f)
-	S.font.SetFontSize(fontWidth)
-	S.font.SetClip(S.emul.Bounds())
-	S.font.SetDst(S.emul)
-	S.font.SetSrc(fg)
+	S.InitSDL2(title)
+	S.InitFonts()
 
 	S.debugBGColor = &color.RGBA{50, 50, 50, 255}
 }
@@ -142,9 +156,9 @@ func (S *SDL2Driver) throttleFPS() {
 			fps = frameCount
 			frameCount = 0
 		}
-		pt := freetype.Pt((S.winWidth - fontWidth*7), fontHeight)
+		pt := freetype.Pt((S.emuWidth - fontWidth*7), fontHeight)
 		S.font.DrawString(fmt.Sprintf("%1.1f Mhz", S.speed), pt)
-		pt = freetype.Pt((S.winWidth - fontWidth*7), fontHeight*2)
+		pt = freetype.Pt((S.emuWidth - fontWidth*7), fontHeight*2)
 		S.font.DrawString(fmt.Sprintf("%3d FPS", fps), pt)
 	}
 }
