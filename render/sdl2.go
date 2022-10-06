@@ -142,9 +142,9 @@ func (S *SDL2Driver) throttleFPS() {
 			fps = frameCount
 			frameCount = 0
 		}
-		pt := freetype.Pt((S.winWidth - fontWidth*7), fontHeight)
+		pt := freetype.Pt((S.emuWidth - fontWidth*7), fontHeight)
 		S.font.DrawString(fmt.Sprintf("%1.1f Mhz", S.speed), pt)
-		pt = freetype.Pt((S.winWidth - fontWidth*7), fontHeight*2)
+		pt = freetype.Pt((S.emuWidth - fontWidth*7), fontHeight*2)
 		S.font.DrawString(fmt.Sprintf("%3d FPS", fps), pt)
 	}
 }
