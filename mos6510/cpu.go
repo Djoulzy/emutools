@@ -180,28 +180,28 @@ func (C *CPU) firstCycle() {
 	if C.Inst, ok = C.Mnemonic[C.instCode]; !ok {
 		log.Printf(fmt.Sprintf("Unknown instruction: %02X at %04X\n", C.instCode, C.PC))
 	}
-	if is_debug {
-		C.composeDebug()
-	}
+	// if is_debug {
+	// 	C.composeDebug()
+	// }
 	C.Inst.action()
 	// if C.GlobalCycles >= 17030 {
-	if C.GlobalCycles >= 0x3E8 {
-		elapsed := time.Now().Sub(start)
-		start = time.Now()
+	// if C.GlobalCycles >= 0x3E8 {
+	// 	elapsed := time.Now().Sub(start)
+	// 	start = time.Now()
 
-		// log.Printf("%s\n", elapsed)
-		C.ActualSpeed = 0.001 / float64(elapsed.Seconds())
-		C.GlobalCycles = 0
-		timeBase := time.Microsecond * time.Duration(1000/float64(C.Clock))
-		diff := timeBase - elapsed
-		if diff > time.Microsecond*25 {
-			throttle += time.Microsecond * 5
-		} else if diff < 0 {
-			throttle -= time.Microsecond * 5
-		}
-		// log.Printf("Diff: %v  Throttle: %v   Speed: %f\n", diff, throttle, C.ActualSpeed)
-		time.Sleep(throttle)
-	}
+	// 	// log.Printf("%s\n", elapsed)
+	// 	C.ActualSpeed = 0.001 / float64(elapsed.Seconds())
+	// 	C.GlobalCycles = 0
+	// 	timeBase := time.Microsecond * time.Duration(1000/float64(C.Clock))
+	// 	diff := timeBase - elapsed
+	// 	if diff > time.Microsecond*25 {
+	// 		throttle += time.Microsecond * 5
+	// 	} else if diff < 0 {
+	// 		throttle -= time.Microsecond * 5
+	// 	}
+	// 	// log.Printf("Diff: %v  Throttle: %v   Speed: %f\n", diff, throttle, C.ActualSpeed)
+	// 	time.Sleep(throttle)
+	// }
 }
 
 func (C *CPU) NextCycle() float64 {
