@@ -52,7 +52,7 @@ var (
 	nbFrames int = 0
 
 	setFPS                                         uint64 = 50
-	throttleFPS                                    uint64 = 1000 / (setFPS+5)
+	throttleFPS                                    uint64 = 1000 / (setFPS + 5)
 	fps, frameCount, lastFrame, lastTime, timerFPS uint64
 )
 
@@ -105,6 +105,7 @@ func Init(width, height int, zoomFactor int, title string, mode bool) {
 func UpdateFrame() {
 	timerFPS = sdl.GetTicks64() - lastFrame
 	if timerFPS < throttleFPS {
+		log.Printf("timer: %d lastFrame: %d", timerFPS, lastFrame)
 		// sdl.Delay(uint32(throttleFPS - timerFPS))
 		return
 	}
@@ -139,7 +140,7 @@ func fillScreen() {
 
 func main() {
 	start := time.Now()
-	Init(1024, 768, 1, "Test", false)
+	Init(1024, 768, 1, "Test", true)
 	lastFrame = sdl.GetTicks64()
 	go fillScreen()
 	for {
