@@ -35,18 +35,15 @@ func (C *CPU) Reset() {
 	C.PC = C.readWord(COLDSTART_Vector)
 	// C.PC = 0xFA62
 	C.StackDebugPt = -1
-	C.GlobalCycles = -1
-	C.Cycles = 0
 	// perfStats = make(map[byte][]time.Duration)
 	// for index := range C.Mnemonic {
 	// 	perfStats[index] = make([]time.Duration, 0)
 	// }
 }
 
-func (C *CPU) Init(Model string, Speed int, MEM *mem2.BANK, debug bool) {
+func (C *CPU) Init(Model string, MEM *mem2.BANK, debug bool) {
 	C.model = Model
 	fmt.Printf("%s - Init\n", Model)
-	C.Clock = Speed
 	C.ram = MEM
 	C.stack = MEM.Layouts[0].StorageRef[0][StackStart : StackStart+256]
 	C.StackDebug = make([]string, 255)
@@ -204,9 +201,7 @@ func (C *CPU) firstCycle() {
 	// }
 }
 
-func (C *CPU) NextCycle() float64 {
-	C.Cycles++
-	C.GlobalCycles++
+func (C *CPU) NextCycle() {
 	C.CycleCount++
 	switch C.CycleCount {
 	case 1:
@@ -232,5 +227,4 @@ func (C *CPU) NextCycle() float64 {
 	// 		}
 	// 	}
 	// }
-	return C.ActualSpeed
 }

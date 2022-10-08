@@ -106,7 +106,6 @@ func (C *CPU) composeDebug() {
 // }
 
 func (C *CPU) DumpStackDebug() {
-	fmt.Printf("Cycles: %d\n", C.GlobalCycles)
 	for i := 0; i <= C.StackDebugPt; i++ {
 		fmt.Printf("%s", C.StackDebug[i])
 	}

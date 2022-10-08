@@ -2,7 +2,6 @@ package mos6510
 
 import "github.com/Djoulzy/emutools/mem2"
 
-//
 const (
 	C_mask byte = 0b11111110
 	Z_mask byte = 0b11111101
@@ -111,11 +110,7 @@ type CPU struct {
 	val_absXY    byte
 	comp_result  byte
 
-	CycleCount   int
-	GlobalCycles int
-	Cycles       uint64
-	ActualSpeed  float64
-	Clock        int
+	CycleCount  int
 
 	NMI_Raised bool
 	IRQ_Raised bool
