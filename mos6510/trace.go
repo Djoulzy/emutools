@@ -19,39 +19,42 @@ func (C *CPU) registers() string {
 }
 
 func (C *CPU) disassemble() string {
-	var token string
-
-	switch C.Inst.addr {
-	case implied:
-		token = fmt.Sprintf("")
-	case immediate:
-		token = fmt.Sprintf("#$%02X", C.ram.Read(C.PC+1))
-	case relative:
-		token = fmt.Sprintf("$%02X", C.ram.Read(C.PC+1))
-	case zeropage:
-		token = fmt.Sprintf("$%02X", C.ram.Read(C.PC+1))
-	case zeropageX:
-		token = fmt.Sprintf("$%02X,X", C.ram.Read(C.PC+1))
-	case zeropageY:
-		token = fmt.Sprintf("$%02X,Y", C.ram.Read(C.PC+1))
-	case Branching:
-		fallthrough
-	case CrossPage:
-		fallthrough
-	case absolute:
-		token = fmt.Sprintf("$%02X%02X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
-	case absoluteX:
-		token = fmt.Sprintf("$%02X%02X,X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
-	case absoluteY:
-		token = fmt.Sprintf("$%02X%02X,Y", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
-	case indirect:
-		token = fmt.Sprintf("($%02X%02X)", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
-	case indirectX:
-		token = fmt.Sprintf("($%02X,X)", C.ram.Read(C.PC+1))
-	case indirectY:
-		token = fmt.Sprintf("($%02X),Y", C.ram.Read(C.PC+1))
+	// switch C.Inst.addr {
+	// case implied:
+	// 	token = fmt.Sprintf("")
+	// case immediate:
+	// 	token = fmt.Sprintf("#$%02X", C.ram.Read(C.PC+1))
+	// case relative:
+	// 	token = fmt.Sprintf("$%02X", C.ram.Read(C.PC+1))
+	// case zeropage:
+	// 	token = fmt.Sprintf("$%02X", C.ram.Read(C.PC+1))
+	// case zeropageX:
+	// 	token = fmt.Sprintf("$%02X,X", C.ram.Read(C.PC+1))
+	// case zeropageY:
+	// 	token = fmt.Sprintf("$%02X,Y", C.ram.Read(C.PC+1))
+	// case Branching:
+	// 	fallthrough
+	// case CrossPage:
+	// 	fallthrough
+	// case absolute:
+	// 	token = fmt.Sprintf("$%02X%02X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
+	// case absoluteX:
+	// 	token = fmt.Sprintf("$%02X%02X,X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
+	// case absoluteY:
+	// 	token = fmt.Sprintf("$%02X%02X,Y", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
+	// case indirect:
+	// 	token = fmt.Sprintf("($%02X%02X)", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
+	// case indirectX:
+	// 	token = fmt.Sprintf("($%02X,X)", C.ram.Read(C.PC+1))
+	// case indirectY:
+	// 	token = fmt.Sprintf("($%02X),Y", C.ram.Read(C.PC+1))
+	// }
+	template := "%04X: " + C.Inst.Name + InstTemplate[C.Inst.addr]
+	if C.Inst.addr < indirect {
+		return fmt.Sprintf(template, C.InstStart, C.ram.Read(C.PC+1))
+	} else {
+		return fmt.Sprintf(template, C.InstStart, C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
 	}
-	return fmt.Sprintf("%04X: %s %s", C.InstStart, C.Inst.Name, token)
 }
 
 func (C *CPU) trace() string {

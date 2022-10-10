@@ -29,16 +29,34 @@ const (
 	zeropage
 	zeropageX
 	zeropageY
-	absolute
-	absoluteX
-	absoluteY
-	indirect
 	indirectX
 	indirectY
 	indirectzp
+	indirect
+	absolute
+	absoluteX
+	absoluteY
 	Branching
 	CrossPage
 )
+
+var InstTemplate [15]string = [15]string{
+	"",
+	"#$%02X",
+	"$%02X",
+	"$%02X",
+	"$%02X,X",
+	"$%02X,Y",
+	"($%02X,X)",
+	"($%02X),Y",
+	"($%02X)",
+	"($%02X%02X)",
+	"$%02X%02X",
+	"$%02X%02X,X",
+	"$%02X%02X,Y",
+	"$%02X%02X",
+	"$%02X%02X",
+}
 
 type Instruction struct {
 	Name   string
@@ -110,7 +128,7 @@ type CPU struct {
 	val_absXY    byte
 	comp_result  byte
 
-	CycleCount  int
+	CycleCount int
 
 	NMI_Raised bool
 	IRQ_Raised bool
