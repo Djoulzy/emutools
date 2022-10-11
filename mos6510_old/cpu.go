@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Djoulzy/emutools/mem2"
+	"github.com/Djoulzy/emutools/mem"
 )
 
 // var perfStats map[byte][]time.Duration
@@ -41,13 +41,13 @@ func (C *CPU) Reset() {
 	// }
 }
 
-func (C *CPU) Init(Model string, MEM *mem2.BANK, debug bool) {
+func (C *CPU) Init(Model string, MEM *mem.BANK, debug bool) {
 	C.model = Model
 	fmt.Printf("%s - Init\n", Model)
 	C.ram = MEM
-	C.stack = MEM.Layouts[0].StorageRef[0][StackStart : StackStart+256]
+	C.stack = MEM.Layouts[0].Layers[0][StackStart : StackStart+256]
 	C.StackDebug = make([]string, 255)
-	C.ramSize = len(MEM.Layouts[0].StorageRef[0])
+	C.ramSize = len(MEM.Layouts[0].Layers[0])
 	C.initLanguage()
 	C.Reset()
 	C.CycleCount = 0
@@ -101,20 +101,6 @@ func (C *CPU) getRelativeAddr(dist uint16) uint16 {
 
 func (C *CPU) readWord(addr uint16) uint16 {
 	return (uint16(C.ram.Read(addr+1)) << 8) + uint16(C.ram.Read(addr))
-}
-
-//////////////////////////////////
-////////// Stack Access //////////
-//////////////////////////////////
-
-func (C *CPU) readStack() byte {
-	C.SP++
-	return C.ram.Read(StackStart + uint16(C.SP))
-}
-
-func (C *CPU) writeStack(value byte) {
-	C.ram.Write(StackStart+uint16(C.SP), value)
-	C.SP--
 }
 
 //////////////////////////////////
