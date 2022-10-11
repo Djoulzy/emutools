@@ -57,16 +57,19 @@ func (C *CPU) disassemble() string {
 	}
 }
 
-func (C *CPU) trace() string {
+func (C *CPU) Trace() string {
 	// return fmt.Sprintf("%d  %s   A:%c[1;33m%02X%c[0m X:%c[1;33m%02X%c[0m Y:%c[1;33m%02X%c[0m SP:%c[1;33m%02X%c[0m  %c[1;30m(%d)%c[0m %c[1;37m%-10s%c[0m",
 	// 	C.GlobalCycles, C.registers(), 27, C.A, 27, 27, C.X, 27, 27, C.Y, 27, 27, C.SP, 27, 27, C.Inst.Cycles, 27, 27, C.FullInst, 27)
-	return fmt.Sprintf("%s   A:%02X X:%02X Y:%02X SP:%02X  (%d) %-10s",
-		C.registers(), C.A, C.X, C.Y, C.SP, C.Inst.Cycles, C.FullInst)
-}
 
-func (C *CPU) composeDebug() {
-	C.FullInst = C.disassemble()
-	C.FullDebug = C.trace()
+	template := "%s   A:%02X X:%02X Y:%02X SP:%02X  (%d) %04X: " + C.Inst.Name + " " + InstTemplate[C.Inst.addr]
+	if C.Inst.addr == 0 {
+		return fmt.Sprintf(template, C.registers(), C.A, C.X, C.Y, C.SP, C.Inst.Cycles, C.InstStart)
+	}
+	if C.Inst.addr < indirect {
+		return fmt.Sprintf(template, C.registers(), C.A, C.X, C.Y, C.SP, C.Inst.Cycles, C.InstStart, C.ram.Read(C.PC+1))
+	} else {
+		return fmt.Sprintf(template, C.registers(), C.A, C.X, C.Y, C.SP, C.Inst.Cycles, C.InstStart, C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
+	}
 }
 
 // func ColVal(val time.Duration) string {
