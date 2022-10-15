@@ -17,11 +17,26 @@ type BANK struct {
 	Layouts  []CONFIG
 }
 
-func InitBanks(nbMemLayout int, sel *byte) BANK {
+func Init(nbMemLayout int, layoutsSize uint, bankSelector *byte) *BANK {
 	B := BANK{}
 	B.Layouts = make([]CONFIG, nbMemLayout)
-	B.Selector = sel
-	return B
+	for i := 0; i < nbMemLayout; i++ {
+		B.Layouts[i].InitConfig(layoutsSize)
+	}
+	B.Selector = bankSelector
+	return &B
+}
+
+func (B *BANK) Attach(layoutNum int, name string, start uint16, content []byte, mode bool, disabled bool, accessor MEMAccess) {
+	B.Layouts[layoutNum].Attach(name, start, content, mode, disabled, accessor)
+}
+
+func (B *BANK) GetFullSize() int {
+	return len(B.Layouts[0].Layers[0])
+}
+
+func (B *BANK) GetStack(start uint16, length uint16) []byte {
+	return B.Layouts[0].Layers[0][start : start+length]
 }
 
 func (B *BANK) Disable(layerName string) {

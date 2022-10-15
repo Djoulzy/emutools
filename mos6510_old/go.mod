@@ -10,8 +10,8 @@ require (
 
 require (
 	github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc // indirect
-	github.com/Djoulzy/emutools/charset v0.0.0-20220618111135-6d466b4f81cf // indirect
+	github.com/Djoulzy/emutools/charset v0.0.0-20220714144806-9b290c4f4002 // indirect
 	github.com/stretchr/testify v1.7.2 // indirect
 )
 
-replace github.com/Djoulzy/emutools/mem v0.0.0-20220614171243-2cd571b9749d => ../mem
+replace github.com/Djoulzy/emutools/mem v0.0.0-20220618111135-6d466b4f81cf => ../mem

@@ -30,9 +30,7 @@ type CONFIG struct {
 	TotalPages   int            // Nb total de pages
 }
 
-func InitConfig(size int) CONFIG {
-	C := CONFIG{}
-
+func (C *CONFIG) InitConfig(size uint) {
 	C.Layers = make([][]byte, 0, 20)
 	C.LayersName = make(map[string]int)
 	C.NameLayers = make(map[int]string)
@@ -44,10 +42,9 @@ func InitConfig(size int) CONFIG {
 
 	C.TotalPages = int(size >> PAGE_DIVIDER)
 	C.LayerByPages = make([][]int, C.TotalPages)
-	return C
 }
 
-func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool, disabled bool) {
+func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool, disabled bool, accessor MEMAccess) {
 	nbPages := len(content) >> PAGE_DIVIDER
 	startPage := int(start >> PAGE_DIVIDER)
 
@@ -60,7 +57,10 @@ func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool, di
 	C.Start = append(C.Start, start)
 	C.ReadOnlyMode = append(C.ReadOnlyMode, mode)
 	C.Disabled = append(C.Disabled, disabled)
-	C.Accessors = append(C.Accessors, C)
+	if accessor == nil {
+		accessor = &DefaultAccessor{}
+	}
+	C.Accessors = append(C.Accessors, accessor)
 
 	C.PagesUsed = append(C.PagesUsed, make([]bool, C.TotalPages))
 	for i := 0; i < C.TotalPages; i++ {
@@ -91,16 +91,6 @@ func (C *CONFIG) ReadWrite(layerName string) {
 
 func (C *CONFIG) Accessor(layerName string, access MEMAccess) {
 	C.Accessors[C.LayersName[layerName]] = access
-}
-
-func (C *CONFIG) MRead(mem []byte, translatedAddr uint16) byte {
-	// clog.Test("MEM", "MRead", "Addr: %04X -> %02X", translatedAddr, mem[translatedAddr])
-	return mem[translatedAddr]
-}
-
-func (C *CONFIG) MWrite(mem []byte, translatedAddr uint16, val byte) {
-	// clog.Test("MEM", "MWrite", "Addr: %04X -> %02X", addr, val)
-	mem[translatedAddr] = val
 }
 
 func (C *CONFIG) Show() {

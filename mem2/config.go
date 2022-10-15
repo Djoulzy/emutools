@@ -44,9 +44,7 @@ func (M *MEMCell) dump() {
 	fmt.Printf("UnderVlue: %02X (%d)\n", *M.Under, M.Under)
 }
 
-func InitConfig(size int) CONFIG {
-	C := CONFIG{}
-
+func (C *CONFIG) InitConfig(size uint) {
 	C.StorageRef = make([][]byte, 0, 20)
 	C.LayersName = make(map[string]int)
 	C.NameLayers = make(map[int]string)
@@ -57,7 +55,6 @@ func InitConfig(size int) CONFIG {
 	C.Accessors = make([]MEMAccess, 0, 20)
 
 	C.VisibleMem = make([]MEMCell, size)
-	return C
 }
 
 func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool, disabled bool, accessor MEMAccess) {

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Djoulzy/emutools/mem2"
+	mem "github.com/Djoulzy/emutools/mem2"
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 )
 
 var (
-	MEM     mem2.BANK
+	MEM     *mem.BANK
 	BankSel byte
 	RAM     []byte
 )
@@ -23,15 +23,15 @@ var (
 type TestAccessor struct {
 }
 
-func (DA *TestAccessor) MRead(mem []mem2.MEMCell, addr uint16) byte {
+func (DA *TestAccessor) MRead(mem []mem.MEMCell, addr uint16) byte {
 	return *mem[addr].Val
 }
 
-func (DA *TestAccessor) MWrite(mem []mem2.MEMCell, addr uint16, value byte) {
+func (DA *TestAccessor) MWrite(mem []mem.MEMCell, addr uint16, value byte) {
 	*mem[addr].Val = value
 }
 
-func (DA *TestAccessor) MWriteUnder(mem []mem2.MEMCell, addr uint16, value byte) {
+func (DA *TestAccessor) MWriteUnder(mem []mem.MEMCell, addr uint16, value byte) {
 	fmt.Printf("Write Under\n")
 	*mem[addr].Under = value
 }
@@ -50,19 +50,18 @@ func showLayout() {
 
 func main() {
 	BankSel = 0
-	MEM = mem2.InitBanks(1, &BankSel)
+	MEM = mem.Init(1, ramSize, &BankSel)
 
 	ZONE1 := make([]byte, ramSize)
-	mem2.Clear(ZONE1, ramSize, 0xAA)
+	mem.Clear(ZONE1, ramSize, 0xAA)
 	ZONE2 := make([]byte, romSize)
-	mem2.Clear(ZONE2, romSize, 0xBB)
+	mem.Clear(ZONE2, romSize, 0xBB)
 	ZONE3 := make([]byte, romSize)
-	mem2.Clear(ZONE3, romSize, 0xCC)
+	mem.Clear(ZONE3, romSize, 0xCC)
 
-	MEM.Layouts[0] = mem2.InitConfig(ramSize)
-	MEM.Layouts[0].Attach("ZONE1", 0x0000, ZONE1, mem2.READWRITE, ENABLED, nil)
-	MEM.Layouts[0].Attach("ZONE2", 20, ZONE2, mem2.READONLY, ENABLED, &TestAccessor{})
-	MEM.Layouts[0].Attach("ZONE3", 40, ZONE3, mem2.READWRITE, ENABLED, nil)
+	MEM.Attach(0, "ZONE1", 0x0000, ZONE1, mem.READWRITE, ENABLED, nil)
+	MEM.Attach(0, "ZONE2", 20, ZONE2, mem.READONLY, ENABLED, &TestAccessor{})
+	MEM.Attach(0, "ZONE3", 40, ZONE3, mem.READWRITE, ENABLED, nil)
 	showLayout()
 
 	MEM.Write(2, 0xFF)

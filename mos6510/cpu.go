@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"time"
-
-	"github.com/Djoulzy/emutools/mem2"
 )
 
 // var perfStats map[byte][]time.Duration
@@ -41,13 +39,13 @@ func (C *CPU) Reset() {
 	// }
 }
 
-func (C *CPU) Init(Model string, MEM *mem2.BANK, debug bool) {
+func (C *CPU) Init(Model string, MEM MemoryManager, debug bool) {
 	C.model = Model
 	fmt.Printf("%s - Init\n", Model)
 	C.ram = MEM
-	C.stack = MEM.Layouts[0].StorageRef[0][StackStart : StackStart+256]
+	C.stack = MEM.GetStack(StackStart, 256)
 	C.StackDebug = make([]string, 255)
-	C.ramSize = len(MEM.Layouts[0].StorageRef[0])
+	C.ramSize = MEM.GetFullSize()
 	C.initLanguage()
 	C.Reset()
 	C.CycleCount = 0

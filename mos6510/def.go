@@ -1,6 +1,6 @@
 package mos6510
 
-import "github.com/Djoulzy/emutools/mem2"
+import mem "github.com/Djoulzy/emutools/mem2"
 
 const (
 	C_mask byte = 0b11111110
@@ -86,6 +86,22 @@ const (
 	NMI7
 )
 
+type MemoryManager interface {
+	// Init(int, uint, *byte)
+	Attach(int, string, uint16, []byte, bool, bool, mem.MEMAccess)
+
+	Read(uint16) byte
+	Write(uint16, byte)
+	GetFullSize() int
+	GetStack(uint16, uint16) []byte
+	Enable(string)
+	Disable(string)
+	ReadOnly(string)
+	ReadWrite(string)
+
+	Dump(uint16)
+}
+
 // CPU :
 type CPU struct {
 	model   string
@@ -100,7 +116,7 @@ type CPU struct {
 
 	Mnemonic map[byte]Instruction
 
-	ram          *mem2.BANK
+	ram          MemoryManager
 	ramSize      int
 	stack        []byte
 	StackDebug   []string
