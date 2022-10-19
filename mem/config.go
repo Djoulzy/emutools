@@ -13,7 +13,7 @@ const (
 )
 
 type CONFIG struct {
-	Layers       [][]byte       // Liste des couches de memoire
+	Layers       [][]MEMCell       // Liste des couches de memoire
 	LayersName   map[string]int // Nom de la couche
 	NameLayers   map[int]string // Nom de la couche
 	Start        []uint16       // Addresse de début de la couche
@@ -26,7 +26,7 @@ type CONFIG struct {
 }
 
 func (C *CONFIG) InitConfig(size uint) {
-	C.Layers = make([][]byte, 0, 20)
+	C.Layers = make([][]MEMCell, 0, 20)
 	C.LayersName = make(map[string]int)
 	C.NameLayers = make(map[int]string)
 	C.Start = make([]uint16, 0, 20)
@@ -43,7 +43,12 @@ func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool, di
 	nbPages := len(content) >> PAGE_DIVIDER
 	startPage := int(start >> PAGE_DIVIDER)
 
-	C.Layers = append(C.Layers, content)
+	tmp := make([]MEMCell, len(content))
+	for i := range content {
+		*tmp[i].Val = content[i]
+	}
+	C.Layers = append(C.Layers, tmp)
+
 	layerNum := len(C.Layers) - 1
 
 	C.LayersName[name] = layerNum

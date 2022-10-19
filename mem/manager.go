@@ -1,17 +1,12 @@
 package mem
 
 type MEMAccess interface {
-	MRead([]byte, uint16) byte
-	MWrite([]byte, uint16, byte)
+	MRead([]MEMCell, uint16) byte
+	MWrite([]MEMCell, uint16, byte)
 }
 
 type MEMCell struct {
-	LayerNum      int
-	UnderLayerNum int
-	Val           *byte
-	Under         *byte
-	Accessor      MEMAccess
-	UnderAccess   MEMAccess
+	Val *byte
 }
 
 func GetMemoryManager(nbMemLayout int, layoutsSize uint, bankSelector *byte) *BANK {

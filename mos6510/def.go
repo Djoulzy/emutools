@@ -1,5 +1,7 @@
 package mos6510
 
+import "github.com/Djoulzy/emutools/mem"
+
 const (
 	C_mask byte = 0b11111110
 	Z_mask byte = 0b11111101
@@ -89,7 +91,7 @@ type Manager interface {
 	Read(uint16) byte
 	Write(uint16, byte)
 	GetFullSize() int
-	GetStack(uint16, uint16) []byte
+	GetStack(uint16, uint16) []mem.MEMCell
 	Enable(string)
 	Disable(string)
 	ReadOnly(string)
@@ -115,7 +117,7 @@ type CPU struct {
 
 	ram          Manager
 	ramSize      int
-	stack        []byte
+	stack        []mem.MEMCell
 	StackDebug   []string
 	StackDebugPt int
 	InstStart    uint16

@@ -40,7 +40,7 @@ func (B *BANK) GetFullSize() int {
 	return len(B.Layouts[0].Layers[0])
 }
 
-func (B *BANK) GetStack(start uint16, length uint16) []byte {
+func (B *BANK) GetStack(start uint16, length uint16) []MEMCell {
 	return B.Layouts[0].Layers[0][start : start+length]
 }
 

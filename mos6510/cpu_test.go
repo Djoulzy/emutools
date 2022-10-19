@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	mem "github.com/Djoulzy/emutools/mem/v1"
+	mem "github.com/Djoulzy/emutools/mem"
 )
 
 const (
