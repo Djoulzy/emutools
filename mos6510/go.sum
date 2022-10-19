@@ -2,6 +2,8 @@ github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc h1:csq0zYn1hpV+
 github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc/go.mod h1:vpiS+fdl4f0KXBYgS8fT/bDBQc2L3XpFEroPKdL5WNA=
 github.com/Djoulzy/emutools/charset v0.0.0-20221019132048-ccd043a2363c h1:Etg0JUMn1UZJqtUM7zrbvelgbvVRKu/XsCw9uUusatY=
 github.com/Djoulzy/emutools/charset v0.0.0-20221019132048-ccd043a2363c/go.mod h1:nHh/Oz8MYyMM1G6/QcjV+m/5fmzwHNLDom7PrgBqsQo=
+github.com/Djoulzy/emutools/mem/v2 v2.0.0-20221019155951-08ad875a524a h1:8IOSpQJy/tEoa7saZE8LgTzCa7vGKlTrY9gFXckbscg=
+github.com/Djoulzy/emutools/mem/v2 v2.0.0-20221019155951-08ad875a524a/go.mod h1:VO2f3OdVyUIYzwlnYPBI0RXKgB4EvcnnhQMfdiR4wYU=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7 h1:m3Ayfs5OcAlIMEdLIQKubBsVLGee4YMUr14+d1256WE=
 github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7/go.mod h1:QIAMbrwsnQZ2ES3G26RubSrDB5SPyzsp9Hts5NJdTrI=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=

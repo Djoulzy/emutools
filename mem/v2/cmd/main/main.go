@@ -23,20 +23,17 @@ var (
 type TestAccessor struct {
 }
 
-func (DA *TestAccessor) MRead(mem_access interface{}, addr uint16) byte {
-	cells := mem_access.([]mem.MEMCell)
-	return *cells[addr].Val
+func (DA *TestAccessor) MRead(mem_access []mem.MEMCell, addr uint16) byte {
+	return *mem_access[addr].Val
 }
 
-func (DA *TestAccessor) MWrite(mem_access interface{}, addr uint16, value byte) {
-	cells := mem_access.([]mem.MEMCell)
-	*cells[addr].Val = value
+func (DA *TestAccessor) MWrite(mem_access []mem.MEMCell, addr uint16, value byte) {
+	*mem_access[addr].Val = value
 }
 
-func (DA *TestAccessor) MWriteUnder(mem_access interface{}, addr uint16, value byte) {
-	cells := mem_access.([]mem.MEMCell)
+func (DA *TestAccessor) MWriteUnder(mem_access []mem.MEMCell, addr uint16, value byte) {
 	fmt.Printf("Write Under\n")
-	*cells[addr].Under = value
+	*mem_access[addr].Under = value
 }
 
 func showLayout() {

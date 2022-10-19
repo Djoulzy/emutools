@@ -1,4 +1,4 @@
-package mem_v1
+package mem
 
 type MEMAccess interface {
 	MRead([]byte, uint16) byte

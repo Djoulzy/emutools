@@ -3,7 +3,7 @@ module github.com/Djoulzy/emutools/mos6510
 go 1.18
 
 require (
-	github.com/Djoulzy/emutools/mem/v1 v0.0.0-20221019154839-c8e57b56aa7d
+	github.com/Djoulzy/emutools/mem/v2 v2.0.0-20221019155951-08ad875a524a
 	github.com/albenik/bcd v0.0.0-20170831201648-635201416bc7
 	golang.org/x/exp v0.0.0-20221018221608-02f3b879a704
 )
@@ -14,4 +14,4 @@ require (
 	github.com/stretchr/testify v1.7.2 // indirect
 )
 
-replace github.com/Djoulzy/emutools/mem/v1 v0.0.0-20221019154839-c8e57b56aa7d => ../mem/v1
+// replace github.com/Djoulzy/emutools/mem/v1 v0.0.0-20221019154839-c8e57b56aa7d => ../mem/v1
