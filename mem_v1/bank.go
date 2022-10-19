@@ -27,8 +27,12 @@ func Init(nbMemLayout int, layoutsSize uint, bankSelector *byte) *BANK {
 	return &B
 }
 
-func (B *BANK) Attach(layoutNum int, name string, start uint16, content []byte, mode bool, disabled bool, accessor MEMAccess) {
-	B.Layouts[layoutNum].Attach(name, start, content, mode, disabled, accessor)
+func (B *BANK) Attach(layoutNum int, name string, start uint16, content []byte, mode bool, disabled bool, accessor interface{}) {
+	if accessor == nil {
+		B.Layouts[layoutNum].Attach(name, start, content, mode, disabled, nil)
+	} else {
+		B.Layouts[layoutNum].Attach(name, start, content, mode, disabled, accessor.(MEMAccess))
+	}
 }
 
 func (B *BANK) GetFullSize() int {
