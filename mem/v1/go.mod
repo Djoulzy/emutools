@@ -1,4 +1,4 @@
-module github.com/Djoulzy/emutools/mem_v1
+module github.com/Djoulzy/emutools/mem/v1
 
 go 1.18
 

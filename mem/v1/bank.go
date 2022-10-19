@@ -2,6 +2,7 @@ package mem_v1
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	"github.com/Djoulzy/Tools/clog"
 	"github.com/Djoulzy/emutools/charset"
@@ -85,6 +86,40 @@ func (B *BANK) Write(addr uint16, value byte) {
 	}
 	layerNum = layout.LayerByPages[page][cpt]
 	layout.Accessors[layerNum].MWrite(layout.Layers[layerNum], addr-layout.Start[layerNum], value)
+}
+
+func (B *BANK) Clear(zone []byte, interval int, startWith byte) {
+	// interval: 0x40 pour C64
+	//           0x1000 pour Apple
+	// startWith: 0x00 pour C64
+	//            0xFF pour Apple
+	cpt := 0
+	fill := byte(startWith)
+	for i := range zone {
+		zone[i] = fill
+		cpt++
+		if cpt == interval {
+			fill = ^fill
+			cpt = 0
+		}
+	}
+}
+
+func (B *BANK) LoadROM(size int, file string) []byte {
+	val := make([]byte, size)
+	if len(file) > 0 {
+		data, err := ioutil.ReadFile(file)
+		if err != nil {
+			panic(err)
+		}
+		if len(data) != size {
+			panic("Bad ROM Size")
+		}
+		for i := 0; i < size; i++ {
+			val[i] = byte(data[i])
+		}
+	}
+	return val
 }
 
 func (B *BANK) Dump(startAddr uint16) {
