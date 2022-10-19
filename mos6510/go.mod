@@ -10,7 +10,8 @@ require (
 
 require (
 	github.com/Djoulzy/Tools/clog v0.0.0-20220609190146-71af779f6ddc // indirect
-	github.com/Djoulzy/emutools/charset v0.0.0-20221019132048-ccd043a2363c // indirect
+	github.com/Djoulzy/emutools/charset v0.0.0-20221019155951-08ad875a524a // indirect
+	github.com/Djoulzy/emutools/mem v0.0.0-20221015154434-3927fedd1199 // indirect
 	github.com/stretchr/testify v1.7.2 // indirect
 )
 
