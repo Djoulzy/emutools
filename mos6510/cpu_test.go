@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	mem "github.com/Djoulzy/emutools/mem2"
+	mem "github.com/Djoulzy/emutools/mem"
 )
 
 const (
@@ -147,7 +147,7 @@ func finalize(name string, allGood bool) {
 
 var proc CPU
 var BankSel byte
-var MEM MemoryManager
+var MEM mem.Manager
 var RAM []byte
 var SystemClock uint16
 
@@ -157,7 +157,7 @@ func TestMain(m *testing.M) {
 	RAM = make([]byte, ramSize)
 
 	BankSel = 0
-	MEM = mem.Init(1, ramSize, &BankSel)
+	MEM = mem.GetMemoryManager_v2(1, ramSize, &BankSel)
 
 	MEM.Attach(0, "RAM", 0, RAM, mem.READWRITE, false, nil)
 
@@ -212,7 +212,7 @@ func Test65C02(t *testing.T) {
 
 // func TestStack(t *testing.T) {
 // 	var allGood bool = true
-// 	mem.Clear(RAM, 0x1000, 0xFF)
+// 	MEM.Clear(RAM, 0x1000, 0xFF)
 // 	for i := 0; i <= 0xFF; i++ {
 // 		proc.pushByteStack(byte(i))
 // 	}
@@ -237,7 +237,7 @@ func Test65C02(t *testing.T) {
 
 func TestLDA(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 
 	ts := TestSuite{}
 	ts.Add(TestData{code: "0200 A9 6E", res: 0x6E, flag: 0b00100000, resFlag: 0b00100000, cycles: 2})
@@ -279,7 +279,7 @@ func TestLDA(t *testing.T) {
 
 func TestSTA(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 
 	ts := TestSuite{}
 	ts.Add(TestData{code: "0200 8D 00 04", acc: 0x01, destMem: 0x0400, flag: 0b00110000, resFlag: 0b00110000, cycles: 4})
@@ -300,7 +300,7 @@ func TestSTA(t *testing.T) {
 
 func TestEOR(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 	ts := TestSuite{}
 	RAM[0x08] = 0x80
 	ts.Add(TestData{code: "0200 55 04", acc: 0x11, x: 0x04, flag: 0b00110000, res: 0x91, resFlag: 0b10110000, cycles: 4})
@@ -325,7 +325,7 @@ func TestEOR(t *testing.T) {
 
 func TestASL(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 	ts := TestSuite{}
 	RAM[0x19] = 0xF1
 	ts.Add(TestData{code: "0200 0E 19 00", destMem: 0x19, flag: 0b00110000, res: 0xE2, resFlag: 0b10110001, cycles: 6})
@@ -352,7 +352,7 @@ func TestASL(t *testing.T) {
 
 func TestLSR(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 	ts := TestSuite{}
 	RAM[0x14] = 0x80
 	RAM[0x15] = 0x0F
@@ -376,7 +376,7 @@ func TestLSR(t *testing.T) {
 
 func TestADC(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 
 	ts := TestSuite{}
 	RAM[0x14] = 0x06
@@ -415,7 +415,7 @@ func TestADC(t *testing.T) {
 
 func TestSBC(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 
 	ts := TestSuite{}
 	ts.Add(TestData{code: "0200 E9 08", acc: 0x03, flag: 0b00110000, res: 0xFA, resFlag: 0b10110000, cycles: 2})
@@ -454,7 +454,7 @@ func TestSBC(t *testing.T) {
 
 func TestCMP(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 
 	ts := TestSuite{}
 	ts.Add(TestData{code: "0200 C9 20", acc: 0x50, flag: 0b00110000, resFlag: 0b00110001, cycles: 2})
@@ -485,7 +485,7 @@ func TestCMP(t *testing.T) {
 
 func TestBCC(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 	ts := TestSuite{}
 	ts.Add(TestData{code: "0600 90 03 EA EA EA EA", flag: 0b00110000, res: 0x0606, resFlag: 0b00110000, cycles: 5})
 	RAM[0x0700] = 0xEA
@@ -503,7 +503,7 @@ func TestBCC(t *testing.T) {
 
 func TestBNE(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 	ts := TestSuite{}
 
 	RAM[0xBC11] = 0xEA
@@ -520,7 +520,7 @@ func TestBNE(t *testing.T) {
 
 func TestROR(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 	ts := TestSuite{}
 
 	RAM[0x14] = 0x06
@@ -539,7 +539,7 @@ func TestROR(t *testing.T) {
 
 func TestROL(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 	ts := TestSuite{}
 	RAM[0x14] = 0x06
 	RAM[0x15] = 0x06
@@ -563,7 +563,7 @@ func TestROL(t *testing.T) {
 
 func TestBIT(t *testing.T) {
 	var allGood bool = true
-	mem.Clear(RAM, 0x1000, 0xFF)
+	MEM.Clear(RAM, 0x1000, 0xFF)
 	ts := TestSuite{}
 	RAM[0x14] = 0x80
 	ts.Add(TestData{code: "0700 24 14", acc: 0x11, flag: 0b00110000, resFlag: 0b10110010, cycles: 3})

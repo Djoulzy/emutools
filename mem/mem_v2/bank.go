@@ -1,7 +1,8 @@
-package mem2
+package mem_v2
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -19,18 +20,18 @@ type BANK struct {
 	Layouts  []CONFIG
 }
 
-func Init(nbMemLayout int, layoutsSize uint, bankSelector *byte) *BANK {
-	B := BANK{}
-	B.Layouts = make([]CONFIG, nbMemLayout)
+func Init(nbMemLayout int, layoutsSize uint, bankSelector *byte) *BANK  {
+	tmp := BANK{}
+	tmp.Layouts = make([]CONFIG, nbMemLayout)
 	for i := 0; i < nbMemLayout; i++ {
-		B.Layouts[i].InitConfig(layoutsSize)
+		tmp.Layouts[i].InitConfig(layoutsSize)
 	}
-	B.Selector = bankSelector
-	return &B
+	tmp.Selector = bankSelector
+	return &tmp
 }
 
-func (B *BANK) Attach(layoutNum int, name string, start uint16, content []byte, mode bool, disabled bool, accessor MEMAccess) {
-	B.Layouts[layoutNum].Attach(name, start, content, mode, disabled, accessor)
+func (B *BANK) Attach(layoutNum int, name string, start uint16, content []byte, mode bool, disabled bool, accessor interface{}) {
+	B.Layouts[layoutNum].Attach(name, start, content, mode, disabled, accessor.(MEMAccess))
 }
 
 func (B *BANK) Accessor(layoutNum int, layerName string, access MEMAccess) {
@@ -91,6 +92,40 @@ func (B *BANK) Write(addr uint16, value byte) {
 	} else {
 		layout.VisibleMem[addr].Accessor.MWriteUnder(layout.VisibleMem, addr, value)
 	}
+}
+
+func (B *BANK) Clear(zone []byte, interval int, startWith byte) {
+	// interval: 0x40 pour C64
+	//           0x1000 pour Apple
+	// startWith: 0x00 pour C64
+	//            0xFF pour Apple
+	cpt := 0
+	fill := byte(startWith)
+	for i := range zone {
+		zone[i] = fill
+		cpt++
+		if cpt == interval {
+			fill = ^fill
+			cpt = 0
+		}
+	}
+}
+
+func (B *BANK) LoadROM(size int, file string) []byte {
+	val := make([]byte, size)
+	if len(file) > 0 {
+		data, err := ioutil.ReadFile(file)
+		if err != nil {
+			panic(err)
+		}
+		if len(data) != size {
+			panic("Bad ROM Size")
+		}
+		for i := 0; i < size; i++ {
+			val[i] = byte(data[i])
+		}
+	}
+	return val
 }
 
 func (B *BANK) Dump(startAddr uint16) {

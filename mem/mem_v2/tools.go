@@ -1,4 +1,4 @@
-package mem
+package mem_v2
 
 import (
 	"fmt"
@@ -6,23 +6,6 @@ import (
 
 	"github.com/Djoulzy/Tools/clog"
 )
-
-func LoadROM(size int, file string) []byte {
-	val := make([]byte, size)
-	if len(file) > 0 {
-		data, err := ioutil.ReadFile(file)
-		if err != nil {
-			panic(err)
-		}
-		if len(data) != size {
-			panic("Bad ROM Size")
-		}
-		for i := 0; i < size; i++ {
-			val[i] = byte(data[i])
-		}
-	}
-	return val
-}
 
 func LoadData(zone []byte, file string, memStart uint16) error {
 	content, err := ioutil.ReadFile(file)
@@ -35,23 +18,6 @@ func LoadData(zone []byte, file string, memStart uint16) error {
 		zone[memStart+uint16(i)] = val
 	}
 	return nil
-}
-
-func Clear(zone []byte, interval int, startWith byte) {
-	// interval: 0x40 pour C64
-	//           0x1000 pour Apple
-	// startWith: 0x00 pour C64
-	//            0xFF pour Apple
-	cpt := 0
-	fill := byte(startWith)
-	for i := range zone {
-		zone[i] = fill
-		cpt++
-		if cpt == interval {
-			fill = ^fill
-			cpt = 0
-		}
-	}
 }
 
 func Fill(zone []byte, val byte) {

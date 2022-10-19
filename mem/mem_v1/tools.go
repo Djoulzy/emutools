@@ -1,4 +1,4 @@
-package mem2
+package mem_v1
 
 import (
 	"fmt"

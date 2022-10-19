@@ -1,6 +1,8 @@
-package mem2
+package mem_v2
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	PAGE_DIVIDER = 8
@@ -8,10 +10,12 @@ const (
 	READONLY     = true
 )
 
+type MEMCells interface{}
+
 type MEMAccess interface {
-	MRead([]MEMCell, uint16) byte
-	MWrite([]MEMCell, uint16, byte)
-	MWriteUnder([]MEMCell, uint16, byte)
+	MRead(interface{}, uint16) byte
+	MWrite(interface{}, uint16, byte)
+	MWriteUnder(interface{}, uint16, byte)
 }
 
 type MEMCell struct {
@@ -130,35 +134,3 @@ func (C *CONFIG) ReadOnly(layerName string) {
 func (C *CONFIG) ReadWrite(layerName string) {
 	C.ReadOnlyMode[C.LayersName[layerName]] = false
 }
-
-// func (C *CONFIG) Show() {
-// 	var line [128]string
-// 	var pos int
-// 	var indice float32 = 128 / float32(C.TotalPages)
-
-// 	for layerNum := range C.Layers {
-// 		for page := 0; page < C.TotalPages; page++ {
-// 			pos = int(indice * float32(page))
-// 			if C.PagesUsed[layerNum][page] {
-// 				line[pos] = clog.CSprintf("black", "green", " ")
-// 			} else {
-// 				line[pos] = clog.CSprintf("black", "dark_gray", " ")
-// 			}
-// 		}
-// 		fmt.Printf("%10s:", C.NameLayers[layerNum])
-// 		for i := range line {
-// 			fmt.Printf("%s", line[i])
-// 		}
-// 		fmt.Println()
-// 	}
-// 	clog.CPrintf("dark_gray", "black", "\n%12s", " ")
-// 	clog.CPrintf("black", "green", "%s", " Read/Write ")
-// 	clog.CPrintf("black", "black", "%s", "  ")
-// 	clog.CPrintf("black", "yellow", "%s", " Read Only ")
-// 	clog.CPrintf("black", "black", "%s", "  ")
-// 	clog.CPrintf("black", "red", "%s", " Write Only ")
-// 	clog.CPrintf("black", "black", "%s", "  ")
-// 	clog.CPrintf("black", "light_gray", "%s", " Masked ")
-// 	clog.CPrintf("black", "black", "%s", " ")
-// 	fmt.Printf("\n\n")
-// }

@@ -1,4 +1,4 @@
-package mem
+package mem_v1
 
 import (
 	"fmt"
@@ -12,9 +12,11 @@ const (
 	READONLY     = true
 )
 
+type MEMCells interface{}
+
 type MEMAccess interface {
-	MRead([]byte, uint16) byte
-	MWrite([]byte, uint16, byte)
+	MRead(MEMCells, uint16) byte
+	MWrite(MEMCells, uint16, byte)
 }
 
 type CONFIG struct {
