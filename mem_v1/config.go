@@ -12,13 +12,6 @@ const (
 	READONLY     = true
 )
 
-type MEMCells interface{}
-
-type MEMAccess interface {
-	MRead(MEMCells, uint16) byte
-	MWrite(MEMCells, uint16, byte)
-}
-
 type CONFIG struct {
 	Layers       [][]byte       // Liste des couches de memoire
 	LayersName   map[string]int // Nom de la couche

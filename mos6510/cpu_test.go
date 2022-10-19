@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	mem "github.com/Djoulzy/emutools/mem"
+	mem "github.com/Djoulzy/emutools/mem_v2"
 )
 
 const (
@@ -147,7 +147,7 @@ func finalize(name string, allGood bool) {
 
 var proc CPU
 var BankSel byte
-var MEM mem.Manager
+var MEM Manager
 var RAM []byte
 var SystemClock uint16
 
@@ -157,7 +157,7 @@ func TestMain(m *testing.M) {
 	RAM = make([]byte, ramSize)
 
 	BankSel = 0
-	MEM = mem.GetMemoryManager_v2(1, ramSize, &BankSel)
+	MEM = mem.GetMemoryManager(1, ramSize, &BankSel)
 
 	MEM.Attach(0, "RAM", 0, RAM, mem.READWRITE, false, nil)
 

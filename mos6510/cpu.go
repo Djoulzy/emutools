@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"time"
-
-	mem "github.com/Djoulzy/emutools/mem"
 )
 
 // var perfStats map[byte][]time.Duration
@@ -41,7 +39,7 @@ func (C *CPU) Reset() {
 	// }
 }
 
-func (C *CPU) Init(Model string, MEM mem.Manager, debug bool) {
+func (C *CPU) Init(Model string, MEM Manager, debug bool) {
 	C.model = Model
 	fmt.Printf("%s - Init\n", Model)
 	C.ram = MEM

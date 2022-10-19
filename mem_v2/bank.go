@@ -31,7 +31,11 @@ func Init(nbMemLayout int, layoutsSize uint, bankSelector *byte) *BANK  {
 }
 
 func (B *BANK) Attach(layoutNum int, name string, start uint16, content []byte, mode bool, disabled bool, accessor interface{}) {
-	B.Layouts[layoutNum].Attach(name, start, content, mode, disabled, accessor.(MEMAccess))
+	if accessor == nil {
+		B.Layouts[layoutNum].Attach(name, start, content, mode, disabled, nil)
+	} else {
+		B.Layouts[layoutNum].Attach(name, start, content, mode, disabled, accessor.(MEMAccess))
+	}
 }
 
 func (B *BANK) Accessor(layoutNum int, layerName string, access MEMAccess) {

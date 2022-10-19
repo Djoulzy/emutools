@@ -10,23 +10,6 @@ const (
 	READONLY     = true
 )
 
-type MEMCells interface{}
-
-type MEMAccess interface {
-	MRead(interface{}, uint16) byte
-	MWrite(interface{}, uint16, byte)
-	MWriteUnder(interface{}, uint16, byte)
-}
-
-type MEMCell struct {
-	LayerNum      int
-	UnderLayerNum int
-	Val           *byte
-	Under         *byte
-	Accessor      MEMAccess
-	UnderAccess   MEMAccess
-}
-
 type CONFIG struct {
 	StorageRef   [][]byte       // Liste des zones buffer attachées
 	LayersName   map[string]int // Nom de la couche
