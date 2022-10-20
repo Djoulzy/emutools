@@ -1,6 +1,6 @@
 package mos6510
 
-import mem "github.com/Djoulzy/emutools/mem/v2"
+import mem "github.com/Djoulzy/emutools/mem"
 
 const (
 	C_mask byte = 0b11111110
