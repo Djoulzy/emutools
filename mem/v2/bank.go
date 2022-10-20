@@ -46,8 +46,8 @@ func (B *BANK) GetFullSize() int {
 	return len(B.Layouts[0].StorageRef[0])
 }
 
-func (B *BANK) GetStack(start uint16, length uint16) []byte {
-	return B.Layouts[0].StorageRef[0][start : start+length]
+func (B *BANK) GetStack(start uint16, length uint16) []MEMCell {
+	return B.Layouts[0].VisibleMem[start : start+length]
 }
 
 func (B *BANK) Disable(layerName string) {

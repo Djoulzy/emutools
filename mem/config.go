@@ -45,7 +45,7 @@ func (C *CONFIG) Attach(name string, start uint16, content []byte, mode bool, di
 
 	tmp := make([]MEMCell, len(content))
 	for i := range content {
-		*tmp[i].Val = content[i]
+		tmp[i].Val = &content[i]
 	}
 	C.Layers = append(C.Layers, tmp)
 
