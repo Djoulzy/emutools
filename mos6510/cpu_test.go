@@ -7,7 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	mem "github.com/Djoulzy/emutools/mem"
+	"github.com/Djoulzy/chip"
+	"github.com/Djoulzy/mmu"
 )
 
 const (
@@ -80,7 +81,7 @@ func loadMem(data string) {
 	for i := 0; i < len(tmp)-1; i++ {
 		addr, _ = strconv.ParseInt(tmp[i+1], 16, 16)
 		// log.Printf("Str: %s = Hex: %02X\n", tmp[i+1], addr)
-		RAM[proc.PC+uint16(i)] = byte(addr)
+		RAM.Buff[proc.PC+uint16(i)] = byte(addr)
 	}
 }
 
@@ -98,7 +99,7 @@ func (TD *TestData) run() {
 	for {
 		proc.NextCycle()
 		TD.cyclesDone++
-		// log.Printf("PC: %04X - val: %02X - cycle %d\n", proc.PC, RAM[proc.PC], proc.CycleCount)
+		// log.Printf("PC: %04X - val: %02X - cycle %d\n", proc.PC, RAM.Buff[proc.PC], proc.CycleCount)
 		if proc.CycleCount == 0 {
 			break
 		}
@@ -147,26 +148,24 @@ func finalize(name string, allGood bool) {
 
 var proc CPU
 var BankSel byte
-var MEM Manager
-var RAM []byte
+var MEM *mmu.MMU
+var RAM *chip.RAM = chip.NewRAM("RAM", ramSize, false)
 var SystemClock uint16
 
 func TestMain(m *testing.M) {
 	SystemClock = 0
 
-	RAM = make([]byte, ramSize)
-
 	BankSel = 0
-	MEM = mem.GetMemoryManager(1, ramSize, &BankSel)
+	MEM = mmu.Init(256, 256)
 
-	MEM.Attach(0, "RAM", 0, RAM, mem.READWRITE, false, nil)
+	MEM.Attach(RAM, 0, 256)
 
 	os.Exit(m.Run())
 }
 
 func Test6502(t *testing.T) {
 	proc.Init("6502", MEM, true)
-	mem.LoadData(RAM, "./6502_functional_test.bin", 0x00)
+	RAM.LoadData("./6502_functional_test.bin", 0x00)
 	proc.PC = 0x400
 	var lastPC uint16 = 0
 	for {
@@ -189,7 +188,7 @@ func Test6502(t *testing.T) {
 
 func Test65C02(t *testing.T) {
 	proc.Init("65C02", MEM, true)
-	mem.LoadData(RAM, "./65C02_extended_opcodes_test.bin", 0x00)
+	RAM.LoadData("./65C02_extended_opcodes_test.bin", 0x00)
 	proc.PC = 0x400
 	var lastPC uint16 = 0
 	for {
@@ -212,7 +211,7 @@ func Test65C02(t *testing.T) {
 
 // func TestStack(t *testing.T) {
 // 	var allGood bool = true
-// 	MEM.Clear(RAM, 0x1000, 0xFF)
+// 	RAM.Clear(0x1000, 0xFF)
 // 	for i := 0; i <= 0xFF; i++ {
 // 		proc.pushByteStack(byte(i))
 // 	}
@@ -237,7 +236,7 @@ func Test65C02(t *testing.T) {
 
 func TestLDA(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 
 	ts := TestSuite{}
 	ts.Add(TestData{code: "0200 A9 6E", res: 0x6E, flag: 0b00100000, resFlag: 0b00100000, cycles: 2})
@@ -245,27 +244,27 @@ func TestLDA(t *testing.T) {
 	ts.Add(TestData{code: "0200 A9 00", res: 0x00, flag: 0b00100000, resFlag: 0b00100010, cycles: 2})
 	ts.Add(TestData{code: "0200 A9 81", res: 0x81, flag: 0b00100000, resFlag: 0b10100000, cycles: 2})
 
-	RAM[0x05] = 0xAA
+	RAM.Buff[0x05] = 0xAA
 	ts.Add(TestData{code: "0200 B5 04", x: 0x01, res: 0xAA, flag: 0b00110000, resFlag: 0b10110000, cycles: 4})
 
-	RAM[0x0FFF] = 0x01
-	RAM[0x100F] = 0xEE
+	RAM.Buff[0x0FFF] = 0x01
+	RAM.Buff[0x100F] = 0xEE
 	ts.Add(TestData{code: "0200 BD FF 0F", x: 0x10, res: 0xEE, flag: 0b00110000, resFlag: 0b10110000, cycles: 5})
 	ts.Add(TestData{code: "0200 BD FF 0F", x: 0x00, res: 0x01, flag: 0b00110000, resFlag: 0b00110000, cycles: 4})
 
-	RAM[0x2211] = 0xE1
-	RAM[0x0C] = 0x11
-	RAM[0x0D] = 0x22
+	RAM.Buff[0x2211] = 0xE1
+	RAM.Buff[0x0C] = 0x11
+	RAM.Buff[0x0D] = 0x22
 	ts.Add(TestData{code: "0200 A1 0A", x: 0x02, res: 0xE1, flag: 0b00110000, resFlag: 0b10110000, cycles: 6})
 
-	RAM[0x2213] = 0xE2
-	RAM[0x0A] = 0x11
-	RAM[0x0B] = 0x22
+	RAM.Buff[0x2213] = 0xE2
+	RAM.Buff[0x0A] = 0x11
+	RAM.Buff[0x0B] = 0x22
 	ts.Add(TestData{code: "0200 B1 0A", y: 0x02, res: 0xE2, flag: 0b00110000, resFlag: 0b10110000, cycles: 5})
 
-	RAM[0x200F] = 0xE3
-	RAM[0x0E] = 0xFF
-	RAM[0x0F] = 0x1F
+	RAM.Buff[0x200F] = 0xE3
+	RAM.Buff[0x0E] = 0xFF
+	RAM.Buff[0x0F] = 0x1F
 	ts.Add(TestData{code: "0200 B1 0E", y: 0x10, res: 0xE3, flag: 0b00110000, resFlag: 0b10110000, cycles: 6})
 
 	for _, table := range ts.data {
@@ -279,19 +278,19 @@ func TestLDA(t *testing.T) {
 
 func TestSTA(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 
 	ts := TestSuite{}
 	ts.Add(TestData{code: "0200 8D 00 04", acc: 0x01, destMem: 0x0400, flag: 0b00110000, resFlag: 0b00110000, cycles: 4})
 	ts.Add(TestData{code: "0200 99 FF 0F", acc: 0x02, y: 0x04, destMem: 0x1003, flag: 0b00110000, resFlag: 0b00110000, cycles: 5})
 
-	RAM[0x0A] = 0xFF
-	RAM[0x0B] = 0x1F
+	RAM.Buff[0x0A] = 0xFF
+	RAM.Buff[0x0B] = 0x1F
 	ts.Add(TestData{code: "0200 91 0A", acc: 0x02, y: 0x04, destMem: 0x2003, flag: 0b00110000, resFlag: 0b00110000, cycles: 6})
 
 	for _, table := range ts.data {
 		table.run()
-		allGood = allGood && table.checkByte(t, RAM[table.destMem], proc.A, "Assignement")
+		allGood = allGood && table.checkByte(t, RAM.Buff[table.destMem], proc.A, "Assignement")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Status Flag")
 		allGood = allGood && table.checkCycles(t, "Cycles")
 	}
@@ -300,18 +299,18 @@ func TestSTA(t *testing.T) {
 
 func TestEOR(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 	ts := TestSuite{}
-	RAM[0x08] = 0x80
+	RAM.Buff[0x08] = 0x80
 	ts.Add(TestData{code: "0200 55 04", acc: 0x11, x: 0x04, flag: 0b00110000, res: 0x91, resFlag: 0b10110000, cycles: 4})
 	ts.Add(TestData{code: "0200 55 04", acc: 0x80, x: 0x04, flag: 0b00110000, res: 0x00, resFlag: 0b00110010, cycles: 4})
 	ts.Add(TestData{code: "0200 55 04", acc: 0x0F, x: 0x04, flag: 0b00110001, res: 0x8F, resFlag: 0b10110001, cycles: 4})
 	ts.Add(TestData{code: "0200 55 04", acc: 0xFF, x: 0x04, flag: 0b00110001, res: 0x7F, resFlag: 0b00110001, cycles: 4})
 	ts.Add(TestData{code: "0200 55 04", acc: 0x00, x: 0x04, flag: 0b00110001, res: 0x80, resFlag: 0b10110001, cycles: 4})
 
-	RAM[0x0A] = 0xFF
-	RAM[0x0B] = 0x1F
-	RAM[0x2003] = 0x80
+	RAM.Buff[0x0A] = 0xFF
+	RAM.Buff[0x0B] = 0x1F
+	RAM.Buff[0x2003] = 0x80
 	ts.Add(TestData{code: "0200 51 0A", acc: 0x11, y: 0x04, flag: 0b00110000, res: 0x91, resFlag: 0b10110000, cycles: 6})
 
 	for _, table := range ts.data {
@@ -325,16 +324,16 @@ func TestEOR(t *testing.T) {
 
 func TestASL(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 	ts := TestSuite{}
-	RAM[0x19] = 0xF1
+	RAM.Buff[0x19] = 0xF1
 	ts.Add(TestData{code: "0200 0E 19 00", destMem: 0x19, flag: 0b00110000, res: 0xE2, resFlag: 0b10110001, cycles: 6})
 
-	RAM[0x14] = 0x80
-	RAM[0x15] = 0x7F
-	RAM[0x16] = 0x7F
-	RAM[0x17] = 0x80
-	RAM[0x18] = 0xFF
+	RAM.Buff[0x14] = 0x80
+	RAM.Buff[0x15] = 0x7F
+	RAM.Buff[0x16] = 0x7F
+	RAM.Buff[0x17] = 0x80
+	RAM.Buff[0x18] = 0xFF
 	ts.Add(TestData{code: "0200 16 10", x: 0x04, destMem: 0x14, flag: 0b00110000, res: 0x00, resFlag: 0b00110011, cycles: 6})
 	ts.Add(TestData{code: "0200 16 11", x: 0x04, destMem: 0x15, flag: 0b00110000, res: 0xFE, resFlag: 0b10110000, cycles: 6})
 	ts.Add(TestData{code: "0200 16 12", x: 0x04, destMem: 0x16, flag: 0b00110001, res: 0xFE, resFlag: 0b10110000, cycles: 6})
@@ -343,7 +342,7 @@ func TestASL(t *testing.T) {
 
 	for _, table := range ts.data {
 		table.run()
-		allGood = allGood && table.checkByte(t, RAM[table.destMem], byte(table.res), "Result")
+		allGood = allGood && table.checkByte(t, RAM.Buff[table.destMem], byte(table.res), "Result")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 		allGood = allGood && table.checkCycles(t, "Cycles")
 	}
@@ -352,13 +351,13 @@ func TestASL(t *testing.T) {
 
 func TestLSR(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 	ts := TestSuite{}
-	RAM[0x14] = 0x80
-	RAM[0x15] = 0x0F
-	RAM[0x16] = 0x0F
-	RAM[0x17] = 0x80
-	RAM[0x18] = 0xFF
+	RAM.Buff[0x14] = 0x80
+	RAM.Buff[0x15] = 0x0F
+	RAM.Buff[0x16] = 0x0F
+	RAM.Buff[0x17] = 0x80
+	RAM.Buff[0x18] = 0xFF
 	ts.Add(TestData{code: "0200 56 10", x: 0x04, destMem: 0x14, flag: 0b00110000, res: 0x40, resFlag: 0b00110000, cycles: 6})
 	ts.Add(TestData{code: "0200 56 11", x: 0x04, destMem: 0x15, flag: 0b00110000, res: 0x07, resFlag: 0b00110001, cycles: 6})
 	ts.Add(TestData{code: "0200 56 12", x: 0x04, destMem: 0x16, flag: 0b00110001, res: 0x07, resFlag: 0b00110001, cycles: 6})
@@ -367,7 +366,7 @@ func TestLSR(t *testing.T) {
 
 	for _, table := range ts.data {
 		table.run()
-		allGood = allGood && table.checkByte(t, RAM[table.destMem], byte(table.res), "Result")
+		allGood = allGood && table.checkByte(t, RAM.Buff[table.destMem], byte(table.res), "Result")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 		allGood = allGood && table.checkCycles(t, "Cycles")
 	}
@@ -376,10 +375,10 @@ func TestLSR(t *testing.T) {
 
 func TestADC(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 
 	ts := TestSuite{}
-	RAM[0x14] = 0x06
+	RAM.Buff[0x14] = 0x06
 	ts.Add(TestData{code: "0200 75 10", acc: 0x01, x: 0x04, flag: 0b00110000, res: 0x07, resFlag: 0b00110000, cycles: 4})
 	ts.Add(TestData{code: "0200 75 10", acc: 0x01, x: 0x04, flag: 0b00110001, res: 0x08, resFlag: 0b00110000, cycles: 4})
 	ts.Add(TestData{code: "0200 75 10", acc: 0xFE, x: 0x04, flag: 0b00110000, res: 0x04, resFlag: 0b00110001, cycles: 4})
@@ -390,15 +389,15 @@ func TestADC(t *testing.T) {
 	ts.Add(TestData{code: "0200 69 46", acc: 0x58, flag: 0b00111001, res: 0x05, resFlag: 0b01111001, cycles: 2})
 	ts.Add(TestData{code: "0200 69 01", acc: 0x99, flag: 0b00111000, res: 0x00, resFlag: 0b00111011, cycles: 2})
 
-	RAM[0x14] = 0x06
-	RAM[0x15] = 0x02
-	RAM[0x0206] = 0x0E
+	RAM.Buff[0x14] = 0x06
+	RAM.Buff[0x15] = 0x02
+	RAM.Buff[0x0206] = 0x0E
 	ts.Add(TestData{code: "0200 61 10", acc: 0x20, x: 0x04, flag: 0b00110000, res: 0x2E, resFlag: 0b00110000, cycles: 6})
 	ts.Add(TestData{code: "0200 61 10", acc: 0x01, x: 0x04, flag: 0b00110001, res: 0x10, resFlag: 0b00110000, cycles: 6})
 	ts.Add(TestData{code: "0200 61 10", acc: 0xA0, x: 0x04, flag: 0b00110000, res: 0xAE, resFlag: 0b10110000, cycles: 6})
 	ts.Add(TestData{code: "0200 61 10", acc: 0xFE, x: 0x04, flag: 0b00110001, res: 0x0D, resFlag: 0b00110001, cycles: 6})
 
-	RAM[0x020A] = 0x0D
+	RAM.Buff[0x020A] = 0x0D
 	ts.Add(TestData{code: "0200 71 14", acc: 0x20, y: 0x04, flag: 0b00110000, res: 0x2D, resFlag: 0b00110000, cycles: 5})
 	ts.Add(TestData{code: "0200 71 14", acc: 0x01, y: 0x04, flag: 0b00110001, res: 0x0F, resFlag: 0b00110000, cycles: 5})
 	ts.Add(TestData{code: "0200 71 14", acc: 0xA0, y: 0x04, flag: 0b00110000, res: 0xAD, resFlag: 0b10110000, cycles: 5})
@@ -415,31 +414,31 @@ func TestADC(t *testing.T) {
 
 func TestSBC(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 
 	ts := TestSuite{}
 	ts.Add(TestData{code: "0200 E9 08", acc: 0x03, flag: 0b00110000, res: 0xFA, resFlag: 0b10110000, cycles: 2})
 	ts.Add(TestData{code: "0200 E9 08", acc: 0x03, flag: 0b00110001, res: 0xFB, resFlag: 0b10110000, cycles: 2})
 	ts.Add(TestData{code: "0200 E9 46", acc: 0x58, flag: 0b00111000, res: 0x11, resFlag: 0b00111001, cycles: 2})
 
-	RAM[0x14] = 0x06
+	RAM.Buff[0x14] = 0x06
 	ts.Add(TestData{code: "0200 F5 10", acc: 0x01, x: 0x04, flag: 0b00110000, res: 0xFA, resFlag: 0b10110000, cycles: 4})
 	ts.Add(TestData{code: "0200 F5 10", acc: 0x20, x: 0x04, flag: 0b00110000, res: 0x19, resFlag: 0b00110001, cycles: 4})
 
-	RAM[0x15] = 0x02
-	RAM[0x0206] = 0x0E
+	RAM.Buff[0x15] = 0x02
+	RAM.Buff[0x0206] = 0x0E
 	ts.Add(TestData{code: "0200 E1 10", acc: 0x20, x: 0x04, flag: 0b00110000, res: 0x11, resFlag: 0b00110001, cycles: 6})
 	ts.Add(TestData{code: "0200 E1 10", acc: 0x01, x: 0x04, flag: 0b00110001, res: 0xF3, resFlag: 0b10110000, cycles: 6})
 	ts.Add(TestData{code: "0200 E1 10", acc: 0xA0, x: 0x04, flag: 0b00110000, res: 0x91, resFlag: 0b10110001, cycles: 6})
 	ts.Add(TestData{code: "0200 E1 10", acc: 0xFE, x: 0x04, flag: 0b00110001, res: 0xF0, resFlag: 0b10110001, cycles: 6})
 
-	RAM[0x020A] = 0x0E
+	RAM.Buff[0x020A] = 0x0E
 	ts.Add(TestData{code: "0200 F1 14", acc: 0x20, y: 0x04, flag: 0b00110000, res: 0x11, resFlag: 0b00110001, cycles: 5})
 	ts.Add(TestData{code: "0200 F1 14", acc: 0x01, y: 0x04, flag: 0b00110001, res: 0xF3, resFlag: 0b10110000, cycles: 5})
 	ts.Add(TestData{code: "0200 F1 14", acc: 0xA0, y: 0x04, flag: 0b00110000, res: 0x91, resFlag: 0b10110001, cycles: 5})
 	ts.Add(TestData{code: "0200 F1 14", acc: 0xFE, y: 0x04, flag: 0b00110001, res: 0xF0, resFlag: 0b10110001, cycles: 5})
 	ts.Add(TestData{code: "0200 F1 14", acc: 0xFE, y: 0x04, flag: 0b00110011, res: 0xF0, resFlag: 0b10110001, cycles: 5})
-	RAM[0x020C] = 0x08
+	RAM.Buff[0x020C] = 0x08
 	ts.Add(TestData{code: "0200 F1 14", acc: 0x03, y: 0x06, flag: 0b00110001, res: 0xFB, resFlag: 0b10110000, cycles: 5})
 	ts.Add(TestData{code: "0200 F1 14", acc: 0x03, y: 0x06, flag: 0b00110000, res: 0xFA, resFlag: 0b10110000, cycles: 5})
 
@@ -454,7 +453,7 @@ func TestSBC(t *testing.T) {
 
 func TestCMP(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 
 	ts := TestSuite{}
 	ts.Add(TestData{code: "0200 C9 20", acc: 0x50, flag: 0b00110000, resFlag: 0b00110001, cycles: 2})
@@ -465,9 +464,9 @@ func TestCMP(t *testing.T) {
 	ts.Add(TestData{code: "0200 C9 00", acc: 0x00, flag: 0b00110000, resFlag: 0b00110011, cycles: 2})
 	ts.Add(TestData{code: "0200 C9 FF", acc: 0xFF, flag: 0b00110000, resFlag: 0b00110011, cycles: 2})
 
-	RAM[0x0408] = 0xEE
-	RAM[0xC1] = 0x00
-	RAM[0xC2] = 0x04
+	RAM.Buff[0x0408] = 0xEE
+	RAM.Buff[0xC1] = 0x00
+	RAM.Buff[0xC2] = 0x04
 	ts.Add(TestData{code: "0200 D1 C1", acc: 0x50, y: 0x08, flag: 0b00110000, resFlag: 0b00110000, cycles: 5})
 	ts.Add(TestData{code: "0200 D1 C1", acc: 0xF0, y: 0x08, flag: 0b00110000, resFlag: 0b00110001, cycles: 5})
 	ts.Add(TestData{code: "0200 D1 C1", acc: 0x00, y: 0x08, flag: 0b00110000, resFlag: 0b00110000, cycles: 5})
@@ -485,12 +484,12 @@ func TestCMP(t *testing.T) {
 
 func TestBCC(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 	ts := TestSuite{}
 	ts.Add(TestData{code: "0600 90 03 EA EA EA EA", flag: 0b00110000, res: 0x0606, resFlag: 0b00110000, cycles: 5})
-	RAM[0x0700] = 0xEA
+	RAM.Buff[0x0700] = 0xEA
 	ts.Add(TestData{code: "0701 90 fd", flag: 0b00110000, res: 0x0701, resFlag: 0b00110000, cycles: 5})
-	RAM[0x06FE] = 0xEA
+	RAM.Buff[0x06FE] = 0xEA
 	ts.Add(TestData{code: "0700 90 fc", flag: 0b00110000, res: 0x06FF, resFlag: 0b00110000, cycles: 6})
 	for _, table := range ts.data {
 		table.run()
@@ -503,11 +502,11 @@ func TestBCC(t *testing.T) {
 
 func TestBNE(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 	ts := TestSuite{}
 
-	RAM[0xBC11] = 0xEA
-	RAM[0xBC18] = 0xEA
+	RAM.Buff[0xBC11] = 0xEA
+	RAM.Buff[0xBC18] = 0xEA
 	ts.Add(TestData{code: "BC16 D0 f9 EA", flag: 0b00000000, res: 0xBC12})
 	ts.Add(TestData{code: "BC16 D0 f9 EA", flag: 0b00000010, res: 0xBC19})
 
@@ -520,17 +519,17 @@ func TestBNE(t *testing.T) {
 
 func TestROR(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 	ts := TestSuite{}
 
-	RAM[0x14] = 0x06
-	RAM[0x15] = 0x06
+	RAM.Buff[0x14] = 0x06
+	RAM.Buff[0x15] = 0x06
 	ts.Add(TestData{code: "0700 76 10", x: 0x04, destMem: 0x14, flag: 0b00110000, res: 0x03, resFlag: 0b00110000, cycles: 6})
 	ts.Add(TestData{code: "0700 76 11", x: 0x04, destMem: 0x15, flag: 0b00110001, res: 0x83, resFlag: 0b10110000, cycles: 6})
 
 	for _, table := range ts.data {
 		table.run()
-		allGood = allGood && table.checkByte(t, RAM[table.destMem], byte(table.res), "Result")
+		allGood = allGood && table.checkByte(t, RAM.Buff[table.destMem], byte(table.res), "Result")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 		allGood = allGood && table.checkCycles(t, "Cycles")
 	}
@@ -539,13 +538,13 @@ func TestROR(t *testing.T) {
 
 func TestROL(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 	ts := TestSuite{}
-	RAM[0x14] = 0x06
-	RAM[0x15] = 0x06
-	RAM[0x16] = 0x80
-	RAM[0x17] = 0xf0
-	RAM[0x18] = 0xf0
+	RAM.Buff[0x14] = 0x06
+	RAM.Buff[0x15] = 0x06
+	RAM.Buff[0x16] = 0x80
+	RAM.Buff[0x17] = 0xf0
+	RAM.Buff[0x18] = 0xf0
 	ts.Add(TestData{code: "0700 36 10", x: 0x04, destMem: 0x14, flag: 0b00110000, res: 0x0C, resFlag: 0b00110000, cycles: 6})
 	ts.Add(TestData{code: "0700 36 11", x: 0x04, destMem: 0x15, flag: 0b00110001, res: 0x0D, resFlag: 0b00110000, cycles: 6})
 	ts.Add(TestData{code: "0700 36 12", x: 0x04, destMem: 0x16, flag: 0b00110001, res: 0x01, resFlag: 0b00110001, cycles: 6})
@@ -554,7 +553,7 @@ func TestROL(t *testing.T) {
 
 	for _, table := range ts.data {
 		table.run()
-		allGood = allGood && table.checkByte(t, RAM[table.destMem], byte(table.res), "Result")
+		allGood = allGood && table.checkByte(t, RAM.Buff[table.destMem], byte(table.res), "Result")
 		allGood = allGood && table.checkBit(t, proc.S, table.resFlag, "Flags")
 		allGood = allGood && table.checkCycles(t, "Cycles")
 	}
@@ -563,9 +562,9 @@ func TestROL(t *testing.T) {
 
 func TestBIT(t *testing.T) {
 	var allGood bool = true
-	MEM.Clear(RAM, 0x1000, 0xFF)
+	RAM.Clear(0x1000, 0xFF)
 	ts := TestSuite{}
-	RAM[0x14] = 0x80
+	RAM.Buff[0x14] = 0x80
 	ts.Add(TestData{code: "0700 24 14", acc: 0x11, flag: 0b00110000, resFlag: 0b10110010, cycles: 3})
 	ts.Add(TestData{code: "0700 24 14", acc: 0x80, flag: 0b00110000, resFlag: 0b10110000, cycles: 3})
 	ts.Add(TestData{code: "0700 24 14", acc: 0x0F, flag: 0b00110001, resFlag: 0b10110011, cycles: 3})

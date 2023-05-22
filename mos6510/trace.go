@@ -111,8 +111,8 @@ func (C *CPU) Trace() string {
 // 	}
 // }
 
-func (C *CPU) DumpStackDebug() {
-	for i := 0; i <= C.StackDebugPt; i++ {
-		fmt.Printf("%s", C.StackDebug[i])
-	}
-}
+// func (C *CPU) DumpStackDebug() {
+// 	for i := 0; i <= C.StackDebugPt; i++ {
+// 		fmt.Printf("%s", C.StackDebug[i])
+// 	}
+// }

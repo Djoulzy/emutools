@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/Djoulzy/mmu"
 )
 
 // var perfStats map[byte][]time.Duration
@@ -32,20 +34,17 @@ func (C *CPU) Reset() {
 	C.setI(true)
 	C.PC = C.readWord(COLDSTART_Vector)
 	// C.PC = 0xFA62
-	C.StackDebugPt = -1
+
 	// perfStats = make(map[byte][]time.Duration)
 	// for index := range C.Mnemonic {
 	// 	perfStats[index] = make([]time.Duration, 0)
 	// }
 }
 
-func (C *CPU) Init(Model string, MEM Manager, debug bool) {
+func (C *CPU) Init(Model string, MEM *mmu.MMU, debug bool) {
 	C.model = Model
 	fmt.Printf("%s - Init\n", Model)
 	C.ram = MEM
-	C.stack = MEM.GetStack(StackStart, 256)
-	C.StackDebug = make([]string, 255)
-	C.ramSize = MEM.GetFullSize()
 	C.initLanguage()
 	C.Reset()
 	C.CycleCount = 0

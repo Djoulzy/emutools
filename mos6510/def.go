@@ -1,6 +1,6 @@
 package mos6510
 
-import mem "github.com/Djoulzy/emutools/mem"
+import "github.com/Djoulzy/mmu"
 
 const (
 	C_mask byte = 0b11111110
@@ -86,20 +86,20 @@ const (
 	NMI7
 )
 
-type Manager interface {
-	Attach(int, string, uint16, []byte, bool, bool, interface{})
-	Read(uint16) byte
-	Write(uint16, byte)
-	GetFullSize() int
-	GetStack(uint16, uint16) []mem.MEMCell
-	Enable(string)
-	Disable(string)
-	ReadOnly(string)
-	ReadWrite(string)
-	Clear([]byte, int, byte)
-	LoadROM(int, string) []byte
-	Dump(uint16)
-}
+// type Manager interface {
+// 	Attach(int, string, uint16, []byte, bool, bool, interface{})
+// 	Read(uint16) byte
+// 	Write(uint16, byte)
+// 	GetFullSize() int
+// 	GetStack(uint16, uint16) []mem.MEMCell
+// 	Enable(string)
+// 	Disable(string)
+// 	ReadOnly(string)
+// 	ReadWrite(string)
+// 	Clear([]byte, int, byte)
+// 	LoadROM(int, string) []byte
+// 	Dump(uint16)
+// }
 
 // CPU :
 type CPU struct {
@@ -115,17 +115,13 @@ type CPU struct {
 
 	Mnemonic map[byte]Instruction
 
-	ram          Manager
-	ramSize      int
-	stack        []mem.MEMCell
-	StackDebug   []string
-	StackDebugPt int
-	InstStart    uint16
-	instDump     string
-	instCode     byte
-	FullInst     string
-	FullDebug    string
-	Inst         Instruction
+	ram       *mmu.MMU
+	InstStart uint16
+	instDump  string
+	instCode  byte
+	FullInst  string
+	FullDebug string
+	Inst      Instruction
 
 	OperHI      byte
 	OperLO      byte
