@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Djoulzy/chip"
 	"github.com/Djoulzy/mmu"
 )
 
@@ -149,7 +148,7 @@ func finalize(name string, allGood bool) {
 var proc CPU
 var BankSel byte
 var MEM *mmu.MMU
-var RAM *chip.RAM = chip.NewRAM("RAM", ramSize, false)
+var RAM *mmu.RAM = mmu.NewRAM("RAM", ramSize, false)
 var SystemClock uint16
 
 func TestMain(m *testing.M) {
