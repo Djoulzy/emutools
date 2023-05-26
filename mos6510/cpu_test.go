@@ -30,7 +30,6 @@ type TestData struct {
 }
 
 type TestSuite struct {
-	inst byte
 	data []TestData
 }
 
