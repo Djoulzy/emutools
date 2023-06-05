@@ -18,42 +18,42 @@ func (C *CPU) registers() string {
 	return res
 }
 
-func (C *CPU) disassemble() string {
-	// switch C.Inst.addr {
-	// case implied:
-	// 	token = fmt.Sprintf("")
-	// case immediate:
-	// 	token = fmt.Sprintf("#$%02X", C.ram.Read(C.PC+1))
-	// case relative:
-	// 	token = fmt.Sprintf("$%02X", C.ram.Read(C.PC+1))
-	// case zeropage:
-	// 	token = fmt.Sprintf("$%02X", C.ram.Read(C.PC+1))
-	// case zeropageX:
-	// 	token = fmt.Sprintf("$%02X,X", C.ram.Read(C.PC+1))
-	// case zeropageY:
-	// 	token = fmt.Sprintf("$%02X,Y", C.ram.Read(C.PC+1))
-	// case Branching:
-	// 	fallthrough
-	// case CrossPage:
-	// 	fallthrough
-	// case absolute:
-	// 	token = fmt.Sprintf("$%02X%02X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
-	// case absoluteX:
-	// 	token = fmt.Sprintf("$%02X%02X,X", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
-	// case absoluteY:
-	// 	token = fmt.Sprintf("$%02X%02X,Y", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
-	// case indirect:
-	// 	token = fmt.Sprintf("($%02X%02X)", C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
-	// case indirectX:
-	// 	token = fmt.Sprintf("($%02X,X)", C.ram.Read(C.PC+1))
-	// case indirectY:
-	// 	token = fmt.Sprintf("($%02X),Y", C.ram.Read(C.PC+1))
-	// }
-	template := "%04X: " + C.Inst.Name + InstTemplate[C.Inst.addr]
-	if C.Inst.addr < indirect {
-		return fmt.Sprintf(template, C.InstStart, C.ram.Read(C.PC+1))
-	} else {
-		return fmt.Sprintf(template, C.InstStart, C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
+func (C *CPU) codeHexa(inst Instruction, addr uint16) string {
+	var i uint16
+	res := fmt.Sprintf("%02X", C.ram.DirectRead(addr-1))
+	for i = 0; i < uint16(inst.bytes-1); i++ {
+		res = fmt.Sprintf("%s %02X", res, C.ram.DirectRead(addr+i))
+	}
+	return res
+}
+
+func (C *CPU) codeLine(inst Instruction, addr uint16) string {
+	switch {
+	case inst.addr == 0:
+		return inst.Name
+	case (inst.addr > indirect):
+		return fmt.Sprintf("%s "+InstTemplate[inst.addr], inst.Name, C.ram.DirectRead(addr+1), C.ram.DirectRead(addr))
+	default:
+		return fmt.Sprintf("%s "+InstTemplate[inst.addr], inst.Name, C.ram.DirectRead(addr))
+	}
+}
+
+func (C *CPU) Disassemble(addr uint16, nblines int) {
+	var count int = 0
+	var inst Instruction
+	var ok bool
+	var code byte
+
+	for count < nblines {
+		count++
+		code = C.ram.DirectRead(addr)
+		if inst, ok = C.Mnemonic[code]; !ok {
+			fmt.Printf("%04X: ???\n", addr)
+			addr++
+		} else {
+			fmt.Printf("%04X: %-10s %s\n", addr, C.codeHexa(inst, addr+1), C.codeLine(inst, addr+1))
+			addr += uint16(inst.bytes)
+		}
 	}
 }
 
@@ -61,15 +61,8 @@ func (C *CPU) Trace() string {
 	// return fmt.Sprintf("%d  %s   A:%c[1;33m%02X%c[0m X:%c[1;33m%02X%c[0m Y:%c[1;33m%02X%c[0m SP:%c[1;33m%02X%c[0m  %c[1;30m(%d)%c[0m %c[1;37m%-10s%c[0m",
 	// 	C.GlobalCycles, C.registers(), 27, C.A, 27, 27, C.X, 27, 27, C.Y, 27, 27, C.SP, 27, 27, C.Inst.Cycles, 27, 27, C.FullInst, 27)
 
-	template := "%s   A:%02X X:%02X Y:%02X SP:%02X  (%d) %04X: " + C.Inst.Name + " " + InstTemplate[C.Inst.addr]
-	if C.Inst.addr == 0 {
-		return fmt.Sprintf(template, C.registers(), C.A, C.X, C.Y, C.SP, C.Inst.Cycles, C.InstStart)
-	}
-	if C.Inst.addr < indirect {
-		return fmt.Sprintf(template, C.registers(), C.A, C.X, C.Y, C.SP, C.Inst.Cycles, C.InstStart, C.ram.Read(C.PC+1))
-	} else {
-		return fmt.Sprintf(template, C.registers(), C.A, C.X, C.Y, C.SP, C.Inst.Cycles, C.InstStart, C.ram.Read(C.PC+2), C.ram.Read(C.PC+1))
-	}
+	template := "%s   A:%02X X:%02X Y:%02X SP:%02X  (%d) %04X: %-10s %s"
+	return fmt.Sprintf(template, C.registers(), C.A, C.X, C.Y, C.SP, C.Inst.Cycles, C.InstStart, C.codeHexa(C.Inst, C.PC), C.codeLine(C.Inst, C.PC))
 }
 
 // func ColVal(val time.Duration) string {

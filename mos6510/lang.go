@@ -42,7 +42,7 @@ func (C *CPU) initLanguage() {
 
 		0x10: {Name: "BPL", bytes: 2, Cycles: 2, action: C.BPL_rel, addr: relative},
 
-		0x00: {Name: "BRK", bytes: 1, Cycles: 7, action: C.BRK_imp, addr: implied},
+		0x00: {Name: "BRK", bytes: 2, Cycles: 7, action: C.BRK_imp, addr: implied},
 
 		0x50: {Name: "BVC", bytes: 2, Cycles: 2, action: C.BVC_rel, addr: relative},
 
@@ -202,7 +202,7 @@ func (C *CPU) initLanguage() {
 	}
 
 	opcode_65C02 := map[byte]Instruction{
-		
+
 		0x32: {Name: "AND", bytes: 2, Cycles: 5, action: C.AND_izp, addr: indirectzp},
 		0x12: {Name: "ORA", bytes: 2, Cycles: 5, action: C.ORA_izp, addr: indirectzp},
 		0x52: {Name: "EOR", bytes: 2, Cycles: 5, action: C.EOR_izp, addr: indirectzp},
@@ -313,7 +313,7 @@ func (C *CPU) initLanguage() {
 		0x7A: {Name: "PLY", bytes: 1, Cycles: 4, action: C.PLY_imp, addr: implied},
 
 		0x92: {Name: "STA", bytes: 2, Cycles: 5, action: C.STA_izp, addr: indirectzp},
-		
+
 		0xD2: {Name: "CMP", bytes: 2, Cycles: 5, action: C.CMP_izp, addr: indirectzp},
 
 		0x64: {Name: "STZ", bytes: 2, Cycles: 3, action: C.STZ_zep, addr: zeropage},
