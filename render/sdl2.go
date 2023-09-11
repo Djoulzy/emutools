@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"io/ioutil"
 	"log"
 	"os"
 	"unsafe"
@@ -55,14 +54,14 @@ func (S *SDL2Driver) CloseAll() {
 	sdl.Quit()
 }
 
-func (S *SDL2Driver) newEmuScreen(width, height, zoomFactor int) {
-	S.emul = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
-	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
-	S.emul_s.SetRLE(true)
-}
+// func (S *SDL2Driver) newEmuScreen(width, height, zoomFactor int) {
+// 	S.emul = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
+// 	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
+// 	S.emul_s.SetRLE(true)
+// }
 
 func (S *SDL2Driver) InitFonts() {
-	fontBytes, err := ioutil.ReadFile("assets/PetMe.ttf")
+	fontBytes, err := os.ReadFile("assets/PetMe.ttf")
 	if err != nil {
 		log.Println(" --")
 		log.Println(" -- You must put PetMe.ttf font file in assets/ directory ...")
@@ -93,7 +92,7 @@ func (S *SDL2Driver) InitSDL2(title string) {
 	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "0")
 
 	// Creation de la fenêtre et de son renderer
-	S.window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(S.winWidth), int32(S.winHeight), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
+	S.window, _ = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(S.winWidth), int32(S.winHeight), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
 	if S.mode3D {
 		log.Printf("SDL2 mode: 3D (texture)\n")
 		S.renderer, err = sdl.CreateRenderer(S.window, -1, sdl.RENDERER_ACCELERATED)
@@ -104,13 +103,13 @@ func (S *SDL2Driver) InitSDL2(title string) {
 		log.Printf("SDL2 mode: 2D (surface)\n")
 	}
 
-	S.w_surf, err = S.window.GetSurface()
+	S.w_surf, _ = S.window.GetSurface()
 	S.w_surf.SetRLE(true)
 
 	S.emul = image.NewRGBA(image.Rect(0, 0, S.emuWidth, S.emuHeight))
 	S.emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&S.emul.Pix[0]), int32(S.emuWidth), int32(S.emuHeight), 32, 4*S.emuWidth, 0, 0, 0, 0)
 	S.emul_s.SetRLE(true)
-	S.emuRect = sdl.Rect{0, 0, int32(S.winWidth), int32(S.winHeight)}
+	S.emuRect = sdl.Rect{X: 0, Y: 0, W: int32(S.winWidth), H: int32(S.winHeight)}
 }
 
 func (S *SDL2Driver) Init(width, height int, zoomFactor int, title string, mode3D bool, debug bool) {
