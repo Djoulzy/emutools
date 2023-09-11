@@ -5,9 +5,8 @@ import (
 )
 
 const (
-	Yadjust     = 100
-	fontWidth   = 8
-	fontHeight  = 9
+	fontWidth   = 10
+	fontHeight  = 10
 	nbCodeLines = 20
 )
 
@@ -25,6 +24,7 @@ var (
 	lastTime    uint64
 	timerFPS    uint64
 	Xadjust     int
+	Yadjust     int
 )
 
 func getGlyph(char rune) *sdl.Rect {

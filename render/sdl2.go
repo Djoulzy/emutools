@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"io/ioutil"
 	"log"
 	"os"
 	"unsafe"
@@ -15,20 +14,23 @@ import (
 )
 
 type SDL2Driver struct {
-	winHeight    int
-	winWidth     int
-	emuHeight    int
-	emuWidth     int
-	window       *sdl.Window
-	w_surf       *sdl.Surface
-	emul         *image.RGBA
-	emul_s       *sdl.Surface
-	emuRect      sdl.Rect
-	renderer     *sdl.Renderer
-	texture      *sdl.Texture
-	keybLine     *KEYPressed
-	codeList     []string
-	nextCodeLine int
+	winHeight     int
+	winWidth      int
+	emuHeight     int
+	emuWidth      int
+	window        *sdl.Window
+	w_surf        *sdl.Surface
+	emul          *image.RGBA
+	emul_s        *sdl.Surface
+	emuRect       sdl.Rect
+	statusRect    sdl.Rect
+	renderer      *sdl.Renderer
+	texture       *sdl.Texture
+	keybLine      *KEYPressed
+	codeList      []string
+	nextCodeLine  int
+	driveStats    []string
+	newDriveStats bool
 
 	font         *freetype.Context
 	Update       chan bool
@@ -62,7 +64,8 @@ func (S *SDL2Driver) newEmuScreen(width, height, zoomFactor int) {
 }
 
 func (S *SDL2Driver) InitFonts() {
-	fontBytes, err := ioutil.ReadFile("assets/PetMe.ttf")
+	// fontBytes, err := os.ReadFile("assets/PetMe.ttf")
+	fontBytes, err := os.ReadFile("assets/nov.ttf")
 	if err != nil {
 		log.Println(" --")
 		log.Println(" -- You must put PetMe.ttf font file in assets/ directory ...")
@@ -82,7 +85,6 @@ func (S *SDL2Driver) InitFonts() {
 	S.font.SetClip(S.emul.Bounds())
 	S.font.SetDst(S.emul)
 	S.font.SetSrc(fg)
-
 }
 
 func (S *SDL2Driver) InitSDL2(title string) {
@@ -119,13 +121,15 @@ func (S *SDL2Driver) Init(width, height int, zoomFactor int, title string, mode3
 	} else {
 		Xadjust = 0
 	}
+	Yadjust = 40
 
-	S.emuHeight = height
+	S.emuHeight = height + Yadjust
 	S.emuWidth = width + Xadjust
 	S.winHeight = S.emuHeight * zoomFactor
 	S.winWidth = S.emuWidth * zoomFactor
 
 	S.codeList = make([]string, nbCodeLines)
+	S.driveStats = make([]string, 3)
 	S.nextCodeLine = 0
 	S.Update = make(chan bool)
 	S.ShowFps = false
@@ -135,6 +139,7 @@ func (S *SDL2Driver) Init(width, height int, zoomFactor int, title string, mode3
 
 	S.InitSDL2(title)
 	S.InitFonts()
+	S.statusRect = sdl.Rect{0, int32(height), int32(S.winWidth), int32(Yadjust * zoomFactor)}
 
 	S.debugBGColor = &color.RGBA{50, 50, 50, 255}
 }
@@ -151,13 +156,18 @@ func (S *SDL2Driver) DumpCode(inst string) {
 	}
 }
 
+func (S *SDL2Driver) SetDriveStat(lines []string) {
+	S.newDriveStats = true
+	S.driveStats = lines
+}
+
 func (S *SDL2Driver) SetSpeed(speed float64) {
 	S.speed = speed
 }
 
 func (S *SDL2Driver) DisplayCode() {
 	b := image.Rect(0, 0, Xadjust, S.emuHeight)
-	draw.Draw(S.emul, b, &image.Uniform{S.debugBGColor}, image.ZP, draw.Src)
+	draw.Draw(S.emul, b, &image.Uniform{S.debugBGColor}, image.Point{}, draw.Src)
 	base := (S.emuHeight - fontHeight)
 	cpt := S.nextCodeLine - 1
 	for i := 0; i < nbCodeLines; i++ {
@@ -165,9 +175,26 @@ func (S *SDL2Driver) DisplayCode() {
 			cpt = nbCodeLines - 1
 		}
 		pt := freetype.Pt(0, base-fontHeight*i)
-		S.font.DrawString(fmt.Sprintf("%s\n", S.codeList[cpt]), pt)
+		S.font.DrawString(fmt.Sprintf("%s", S.codeList[cpt]), pt)
 		cpt--
 	}
+}
+
+func (S *SDL2Driver) DisplayDriveStatus() {
+	base := S.emuHeight - 5
+	// b := image.Rect(0, S.emuHeight, S.emuWidth, S.emuHeight+Yadjust)
+	// rect := image.Uniform{color.RGBA{0, 0, 0, 255}}
+	// draw.Draw(S.emul, b, &rect, image.Point{}, draw.Src)
+	// S.renderer.SetDrawColor(255, 255, 0, 255)
+	// S.renderer.FillRect(&S.statusRect)
+	S.emul_s.FillRect(&S.statusRect, 150)
+	pt := freetype.Pt(0, base)
+	S.font.DrawString(fmt.Sprintf("%s", S.driveStats[2]), pt)
+	pt = freetype.Pt(0, base-fontHeight)
+	S.font.DrawString(fmt.Sprintf("%s", S.driveStats[1]), pt)
+	pt = freetype.Pt(0, base-fontHeight*2)
+	S.font.DrawString(fmt.Sprintf("%s", S.driveStats[0]), pt)
+	S.newDriveStats = false
 }
 
 func (S *SDL2Driver) UpdateFrame() {
@@ -191,6 +218,9 @@ func (S *SDL2Driver) UpdateFrame() {
 
 	if S.ShowCode {
 		S.DisplayCode()
+	}
+	if S.newDriveStats {
+		S.DisplayDriveStatus()
 	}
 
 	if S.mode3D {
