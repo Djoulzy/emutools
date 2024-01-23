@@ -85,7 +85,7 @@ func InitSDL2(title string, mode3D bool) {
 	emul = image.NewRGBA(image.Rect(0, 0, emuWidth, emuHeight))
 	emul_s, _ = sdl.CreateRGBSurfaceFrom(unsafe.Pointer(&emul.Pix[0]), int32(emuWidth), int32(emuHeight), 32, 4*emuWidth, 0, 0, 0, 0)
 	emul_s.SetRLE(true)
-	emuRect = sdl.Rect{0, 0, int32(winWidth), int32(winHeight)}
+	emuRect = sdl.Rect{X: 0, Y: 0, W: int32(winWidth), H: int32(winHeight)}
 }
 
 func Init(width, height int, zoomFactor int, title string, mode bool) {

@@ -1,6 +1,6 @@
 module github.com/Djoulzy/emutools/mos6510
 
-go 1.20
+go 1.21
 
 replace github.com/Djoulzy/mmu => ../../mmu
 
