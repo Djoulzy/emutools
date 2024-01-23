@@ -8,7 +8,6 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/golang/freetype"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -45,15 +44,14 @@ var (
 	texture   *sdl.Texture
 	mode3D    bool
 
-	font *freetype.Context
-
 	ShowFps  bool
 	ShowCode bool
 	nbFrames int = 0
 
-	setFPS                                         uint64 = 50
-	throttleFPS                                    uint64 = 1000 / (setFPS + 5)
-	fps, frameCount, lastFrame, lastTime, timerFPS uint64
+	setFPS      uint64 = 50
+	throttleFPS uint64 = 1000 / (setFPS + 5)
+	lastFrame   uint64
+	timerFPS    uint64
 )
 
 func DrawPixel(x, y int, c color.Color) {
@@ -68,7 +66,7 @@ func InitSDL2(title string, mode3D bool) {
 	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "0")
 
 	// Creation de la fenêtre et de son renderer
-	window, err = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(winWidth), int32(winHeight), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
+	window, _ = sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(winWidth), int32(winHeight), sdl.WINDOW_SHOWN|sdl.WINDOW_RESIZABLE)
 	if mode3D {
 		log.Printf("SDL2 mode: 3D (texture)\n")
 		renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
@@ -79,7 +77,7 @@ func InitSDL2(title string, mode3D bool) {
 		log.Printf("SDL2 mode: 2D (surface)\n")
 	}
 
-	w_surf, err = window.GetSurface()
+	w_surf, _ = window.GetSurface()
 	w_surf.SetRLE(true)
 
 	emul = image.NewRGBA(image.Rect(0, 0, emuWidth, emuHeight))
