@@ -147,7 +147,7 @@ func finalize(name string, allGood bool) {
 var proc CPU
 var BankSel byte
 var MEM *mmu.MMU
-var RAM *mmu.RAM = mmu.NewRAM("RAM", ramSize)
+var RAM *mmu.RAM
 var SystemClock uint16
 
 func TestMain(m *testing.M) {
@@ -155,8 +155,8 @@ func TestMain(m *testing.M) {
 
 	BankSel = 0
 	MEM = mmu.Init(256, 256)
-
-	MEM.Attach(RAM, 0, 256)
+	RAM = mmu.NewRAM("RAM", ramSize)
+	MEM.Attach(RAM, 0, mmu.READWRITE)
 
 	os.Exit(m.Run())
 }
