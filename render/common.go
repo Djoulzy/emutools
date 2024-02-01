@@ -16,7 +16,7 @@ type KEYPressed struct {
 }
 
 var (
-	setFPS      uint64 = 60
+	setFPS      uint64 = 30
 	throttleFPS uint64 = 1000 / (setFPS + 5)
 	fps         uint64
 	frameCount  uint64
