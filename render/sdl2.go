@@ -43,7 +43,19 @@ type SDL2Driver struct {
 }
 
 func (S *SDL2Driver) DrawPixel(x, y int, c color.Color) {
-	S.emul.Set(x+Xadjust, y, c)
+	S.emul.Set(x, y, c)
+}
+
+func (S *SDL2Driver) DrawSquarePixel(x, y int, c color.Color) {
+	S.emul.Set(x<<1, y<<1, c)
+	S.emul.Set(x<<1+1, y<<1, c)
+	S.emul.Set(x<<1, y<<1+1, c)
+	S.emul.Set(x<<1+1, y<<1+1, c)
+}
+
+func (S *SDL2Driver) DrawDoubleHeightPixel(x, y int, c color.Color) {
+	S.emul.Set(x, y<<1, c)
+	S.emul.Set(x, y<<1+1, c)
 }
 
 // func (S *SDL2Driver) DrawPixel2(x, y int, c color.Color) {
@@ -116,15 +128,10 @@ func (S *SDL2Driver) InitSDL2(title string) {
 }
 
 func (S *SDL2Driver) Init(width, height int, zoomFactor int, title string, mode3D bool, debug bool) {
-	if debug {
-		Xadjust = 150
-	} else {
-		Xadjust = 0
-	}
 	Yadjust = 40
 
 	S.emuHeight = height + Yadjust
-	S.emuWidth = width + Xadjust
+	S.emuWidth = width
 	S.winHeight = S.emuHeight * zoomFactor
 	S.winWidth = S.emuWidth * zoomFactor
 
@@ -166,7 +173,7 @@ func (S *SDL2Driver) SetSpeed(speed float64) {
 }
 
 func (S *SDL2Driver) DisplayCode() {
-	b := image.Rect(0, 0, Xadjust, S.emuHeight)
+	b := image.Rect(0, 0, 0, S.emuHeight)
 	draw.Draw(S.emul, b, &image.Uniform{S.debugBGColor}, image.Point{}, draw.Src)
 	base := (S.emuHeight - fontHeight)
 	cpt := S.nextCodeLine - 1

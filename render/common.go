@@ -16,14 +16,13 @@ type KEYPressed struct {
 }
 
 var (
-	setFPS      uint64 = 30
+	setFPS      uint64 = 24
 	throttleFPS uint64 = 1000 / (setFPS + 5)
 	fps         uint64
 	frameCount  uint64
 	lastFrame   uint64
 	lastTime    uint64
 	timerFPS    uint64
-	Xadjust     int
 	Yadjust     int
 )
 
