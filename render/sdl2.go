@@ -36,6 +36,7 @@ type SDL2Driver struct {
 	Update       chan bool
 	debugBGColor *color.RGBA
 
+	vbl      *byte
 	ShowFps  bool
 	ShowCode bool
 	speed    float64
@@ -127,7 +128,7 @@ func (S *SDL2Driver) InitSDL2(title string) {
 	S.emuRect = sdl.Rect{X: 0, Y: 0, W: int32(S.winWidth), H: int32(S.winHeight)}
 }
 
-func (S *SDL2Driver) Init(width, height int, zoomFactor int, title string, mode3D bool, debug bool) {
+func (S *SDL2Driver) Init(width, height int, vbl *byte, zoomFactor int, title string, mode3D bool, debug bool) {
 	Yadjust = 40
 
 	S.emuHeight = height + Yadjust
@@ -141,6 +142,7 @@ func (S *SDL2Driver) Init(width, height int, zoomFactor int, title string, mode3
 	S.Update = make(chan bool)
 	S.ShowFps = false
 	S.mode3D = mode3D
+	S.vbl = vbl
 
 	log.Printf("Starting renderer using SDL2\n")
 
@@ -206,7 +208,7 @@ func (S *SDL2Driver) DisplayDriveStatus() {
 
 func (S *SDL2Driver) UpdateFrame() {
 	timerFPS = sdl.GetTicks64() - lastFrame
-	if timerFPS < throttleFPS {
+	if timerFPS < throttleFPS || *S.vbl == 0x80 {
 		return
 	}
 	lastFrame = sdl.GetTicks64()
@@ -242,6 +244,7 @@ func (S *SDL2Driver) UpdateFrame() {
 	}
 
 	frameCount++
+	*S.vbl = 0x80
 }
 
 func (S *SDL2Driver) GetClipboardText() string {
